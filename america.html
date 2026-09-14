@@ -3,31 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>準備中</title>
+    <title>準備中 | 地図で学ぶ世界史探究</title>
+    <!-- Google Fonts: モダンかつ歴史の品位を感じるフォント -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body {
+        :root {
+            --bg-dark: #0b132b;
+            --accent-gold: #e0a96d;
+            --accent-cyan: #48cae4;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-main: #f0f3f8;
+            --text-sub: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f9;
-            font-family: sans-serif;
-            color: #333;
         }
+
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- 背景の流動的・動的グラデーションオーブ --- */
+        .background-globe {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 18s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+
+        .globe-1 {
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(135deg, #1c2541, #3a506b);
+            top: -10%;
+            left: -10%;
+        }
+
+        .globe-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--accent-gold), #8c5383);
+            bottom: -10%;
+            right: -5%;
+            animation-delay: -5s;
+        }
+
+        .globe-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #0077b6, var(--accent-cyan));
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(30px, -50px) scale(1.1) rotate(180deg); }
+            100% { transform: translate(-30px, 30px) scale(0.9) rotate(360deg); }
+        }
+
+        /* --- 地図の緯度経度・グリッド線を模した線画 --- */
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 50% 50%, transparent 60%, rgba(11, 19, 43, 0.8) 100%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 80px 80px, 80px 80px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* --- ガラスモーフィズム カード --- */
         .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 560px;
+            padding: 3rem 2.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
             text-align: center;
         }
-        h1 {
-            font-size: 2.5rem;
-            margin: 0;
+
+        /* --- アイコンモチーフ（流動的な羅針盤） --- */
+        .compass-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .compass-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px dashed var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 20s linear infinite;
+            opacity: 0.7;
+        }
+
+        .compass-core {
+            position: absolute;
+            inset: 15px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(4px);
+            animation: pulse 3s ease-in-out infinite alternate;
+        }
+
+        .compass-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* --- タイトル・テキスト --- */
+        .app-title {
+            font-family: 'Cinzel', 'Noto Serif JP', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .main-heading {
+            font-size: 1.75rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-sub);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        /* --- プログレスインジケーター --- */
+        .status-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+        }
+
+        .dot-wave {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: wave 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            letter-spacing: 0.05em;
+        }
+
+        /* --- レスポンシブ対応 --- */
+        @media (max-width: 480px) {
+            .container {
+                padding: 2.5rem 1.5rem;
+            }
+            .main-heading {
+                font-size: 1.4rem;
+            }
+            .description {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>作り中...</h1>
-    </div>
+
+    <!-- 流動的グラデーション背景 -->
+    <div class="background-globe globe-1"></div>
+    <div class="background-globe globe-2"></div>
+    <div class="background-globe globe-3"></div>
+
+    <!-- 地図を模したグリッド背景 -->
+    <div class="map-grid"></div>
+
+    <!-- メインコンテンツ（ガラスモーフィズム） -->
+    <main class="container">
+        <!-- 羅針盤・地図モチーフ -->
+        <div class="compass-wrapper">
+            <div class="compass-ring"></div>
+            <div class="compass-core"></div>
+            <div class="compass-icon">✦</div>
+        </div>
+
+        <p class="app-title">World History Map</p>
+        <h1 class="main-heading">新時代の地図を編纂中</h1>
+        
+        <p class="description">
+            ただいま、歴史の航路を広げる新しいページを準備しています。<br>
+            時代を超えた探究の旅が始まるまで、もうしばらくお待ちください。
+        </p>
+
+        <!-- ステータス表示 -->
+        <div class="status-container">
+            <div class="dot-wave">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <span class="status-text">PAGE UNDER CONSTRUCTION</span>
+        </div>
+    </main>
+
 </body>
 </html>
