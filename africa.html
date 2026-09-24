@@ -1,280 +1,1366 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>準備中 | 地図で学ぶ世界史探究</title>
-    <!-- Google Fonts: モダンかつ歴史の品位を感じるフォント -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-dark: #0b132b;
-            --accent-gold: #e0a96d;
-            --accent-cyan: #48cae4;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --text-main: #f0f3f8;
-            --text-sub: #a0aec0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アフリカ史地図 — 世界史探究</title>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'Noto Serif JP', serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 
-        /* --- 背景の流動的・動的グラデーションオーブ --- */
-        .background-globe {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: float 18s ease-in-out infinite alternate;
-            z-index: 1;
-        }
+<style>
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
 
-        .globe-1 {
-            width: 450px;
-            height: 450px;
-            background: linear-gradient(135deg, #1c2541, #3a506b);
-            top: -10%;
-            left: -10%;
-        }
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
 
-        .globe-2 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, var(--accent-gold), #8c5383);
-            bottom: -10%;
-            right: -5%;
-            animation-delay: -5s;
-        }
+    --header-h:68px;
+    --footer-h:104px;
+  }
 
-        .globe-3 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #0077b6, var(--accent-cyan));
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -10s;
-        }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            50% { transform: translate(30px, -50px) scale(1.1) rotate(180deg); }
-            100% { transform: translate(-30px, 30px) scale(0.9) rotate(360deg); }
-        }
+  a{color:var(--gold-strong);}
 
-        /* --- 地図の緯度経度・グリッド線を模した線画 --- */
-        .map-grid {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 50% 50%, transparent 60%, rgba(11, 19, 43, 0.8) 100%),
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 80px 80px, 80px 80px;
-            z-index: 2;
-            pointer-events: none;
-        }
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
 
-        /* --- ガラスモーフィズム カード --- */
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 560px;
-            padding: 3rem 2.5rem;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            text-align: center;
-        }
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
 
-        /* --- アイコンモチーフ（流動的な羅針盤） --- */
-        .compass-wrapper {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-        }
+  /* ---------- Header ---------- */
+  #app-header{
+    height:var(--header-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
 
-        .compass-ring {
-            position: absolute;
-            inset: 0;
-            border: 2px dashed var(--accent-gold);
-            border-radius: 50%;
-            animation: spin 20s linear infinite;
-            opacity: 0.7;
-        }
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
 
-        .compass-core {
-            position: absolute;
-            inset: 15px;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
-            border-radius: 50%;
-            opacity: 0.8;
-            filter: blur(4px);
-            animation: pulse 3s ease-in-out infinite alternate;
-        }
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
 
-        .compass-icon {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #fff;
-        }
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
 
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
 
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 0.9; }
-        }
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
 
-        /* --- タイトル・テキスト --- */
-        .app-title {
-            font-family: 'Cinzel', 'Noto Serif JP', serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: var(--accent-gold);
-            margin-bottom: 0.5rem;
-        }
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    font-weight:500;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .entry-label::before{ display:none; }
 
-        .main-heading {
-            font-size: 1.75rem;
-            font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
 
-        .description {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: var(--text-sub);
-            margin-bottom: 2rem;
-            font-weight: 400;
-        }
+  /* Detail panel */
+  #detailPanel{
+    width:420px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-420px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .essay-section{
+    margin-bottom:18px;
+  }
+  .essay-section:last-of-type{
+    margin-bottom:0;
+  }
+  .essay-section h4{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--gold);
+    text-transform:none;
+    margin:0 0 6px;
+    font-family:'Inter',sans-serif;
+  }
+  .essay-section h4::before{
+    content:'';
+    display:inline-block;
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--gold);
+    flex:0 0 auto;
+  }
+  .essay-section p{
+    font-size:13.5px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .essay-section.debate{
+    background:var(--parchment-alt);
+    border:1px solid var(--line-parchment);
+    border-radius:6px;
+    padding:12px 13px;
+  }
+  .essay-section.debate h4{ color:#8a3a3a; }
+  .essay-section.debate h4::before{ background:#8a3a3a; }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
 
-        /* --- プログレスインジケーター --- */
-        .status-container {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 30px;
-        }
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
 
-        .dot-wave {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: wave 1.4s infinite ease-in-out;
-        }
+  /* Footer timeline */
+  #timeline{
+    height:var(--footer-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
 
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
 
-        @keyframes wave {
-            0%, 100% { transform: translateY(0); opacity: 0.3; }
-            50% { transform: translateY(-4px); opacity: 1; }
-        }
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
 
-        .status-text {
-            font-size: 0.85rem;
-            color: var(--text-main);
-            letter-spacing: 0.05em;
-        }
-
-        /* --- レスポンシブ対応 --- */
-        @media (max-width: 480px) {
-            .container {
-                padding: 2.5rem 1.5rem;
-            }
-            .main-heading {
-                font-size: 1.4rem;
-            }
-            .description {
-                font-size: 0.85rem;
-            }
-        }
-    </style>
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- 流動的グラデーション背景 -->
-    <div class="background-globe globe-1"></div>
-    <div class="background-globe globe-2"></div>
-    <div class="background-globe globe-3"></div>
+<div id="app">
 
-    <!-- 地図を模したグリッド背景 -->
-    <div class="map-grid"></div>
+  <header id="app-header">
+    <div>
+      <h1>アフリカ史 地図で学ぶ世界史</h1>
+      <p class="subtitle">紀元前3000年 〜 西暦2020年 ・ 高校世界史探究 学習用</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">紀元前500年</span>
+    </div>
+  </header>
 
-    <!-- メインコンテンツ（ガラスモーフィズム） -->
-    <main class="container">
-        <!-- 羅針盤・地図モチーフ -->
-        <div class="compass-wrapper">
-            <div class="compass-ring"></div>
-            <div class="compass-core"></div>
-            <div class="compass-icon">✦</div>
-        </div>
+  <div id="main">
 
-        <p class="app-title">World History Map</p>
-        <h1 class="main-heading">新時代の地図を編纂中</h1>
-        
-        <p class="description">
-            ただいま、歴史の航路を広げる新しいページを準備しています。<br>
-            時代を超えた探究の旅が始まるまで、もうしばらくお待ちください。
-        </p>
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
 
-        <!-- ステータス表示 -->
-        <div class="status-container">
-            <div class="dot-wave">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <span class="status-text">PAGE UNDER CONSTRUCTION</span>
-        </div>
-    </main>
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
 
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: マンサ・ムーサ、ガーナ独立">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-3000" max="2020" step="1" value="-500">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   アフリカ史 地図アプリ — 軽量化データ本体
+   ========================================================================= */
+
+const historicalData = [
+  // 古代アフリカ
+  { id:'egypt_old', name:'古代エジプト(ファラオの時代)', category:'nation', lat:30.04, lng:31.24, start:-3000, end:-30, region:'北東アフリカ(ナイル川流域)',
+    desc:'ナイル川の定期的な氾濫を基盤に成立した古代文明。ファラオを神の化身とする中央集権国家が長期にわたり存続し、ピラミッドなどの巨大建造物や高度な文明を築いた。',
+    bg:'ナイル川の定期的氾濫が肥沃な土壌と安定した農業生産をもたらし、周囲を砂漠に囲まれた閉鎖的地形が外敵の侵入を防いだことで、早期に統一国家が形成される条件が整った。',
+    process:'上下エジプトの統一(前3000年頃)以降、古王国のピラミッド建設、中王国の中央集権再建、新王国の対外拡張(ヒクソス撃退後の帝国化)を経て、末期王朝でアッシリア・ペルシアの侵入を受け、プトレマイオス朝を最後にローマに併合された。',
+    significance:'神権的王権(ファラオ)、太陽暦、象形文字(ヒエログリフ)などの制度・文化は地中海世界や後のイスラム世界にも影響を与え、19世紀のロゼッタストーン解読以降、近代エジプト学の対象として西洋の歴史認識にも大きな位置を占めてきた。',
+    debate:'統一国家形成の要因については、水利事業(灌漑)の必要性が官僚制と王権を生んだとする治水社会論と、交易・軍事的動機を重視する説が対立し、エジプトをアフリカ文明かオリエント文明かに位置づける帰属論争(アフロセントリズムとの関連)も存在する。' },
+  { id:'kush', name:'クシュ王国(ヌビア)', category:'nation', lat:16.94, lng:33.75, start:-800, end:350, region:'ヌビア(現スーダン)',
+    desc:'ナイル川上流に栄えた王国で、一時はエジプトを支配した(第25王朝)。首都メロエでは独自の文字と製鉄技術が発達した。',
+    bg:'エジプトの南方における鉄鉱石と金の産地であったヌビア地方は、エジプト新王国による支配と文化的影響を長く受けており、エジプトの弱体化に伴い独自の政治勢力が台頭する土壌があった。',
+    process:'前8世紀にエジプトを一時征服し第25王朝を樹立したが、アッシリアの侵攻で撤退し、その後は都をメロエに移して製鉄業を基盤とする独自の文明を発展させた。',
+    significance:'エジプト式の王権観と現地の伝統を融合させた独自文字(メロエ文字、未解読部分あり)を生み出し、サハラ以南アフリカにおける製鉄技術の伝播拠点としても重要視されている。',
+    debate:'第25王朝の位置づけをめぐっては、エジプト史の一部(衰退期の一王朝)として扱うか、独立したヌビア文明の達成として再評価するかで、近年のアフリカ中心史学と伝統的エジプト学との間に見解の相違がある。' },
+  { id:'carthage', name:'カルタゴ', category:'nation', lat:36.85, lng:10.32, start:-814, end:-146, region:'北アフリカ(現チュニジア)',
+    desc:'フェニキア人が建設した地中海交易都市国家。強大な海軍力を誇り、ローマとポエニ戦争を繰り広げたが最終的に滅ぼされた。',
+    bg:'フェニキア人がティルスからの植民として建設した都市で、地中海西部の交易路の要衝に位置したことから海上交易国家として発展する地理的条件を備えていた。',
+    process:'シチリア島の覇権をめぐるギリシャ植民市との抗争を経て、前3世紀以降ローマと3次にわたるポエニ戦争を戦い、ハンニバルによるアルプス越え遠征などの奇策にもかかわらず、最終的に前146年の第三次ポエニ戦争で徹底的に破壊された。',
+    significance:'地中海西部の覇権はローマに移り、以後の地中海世界がローマ中心に再編される画期となったほか、カルタゴの滅亡は歴史における全面戦争・殲滅戦の代表例として後世繰り返し参照されてきた。',
+    debate:'カルタゴの敗因については、ローマの陸軍力・同盟網の優位を重視する説と、寡頭制的政治体制が機動的な戦争指導を妨げたとする内政要因説が対立し、ローマ側史料に基づく残虐な文明という像がどこまで史実かという史料批判上の論点もある。' },
+  { id:'aksum', name:'アクスム王国', category:'nation', lat:14.12, lng:38.72, start:100, end:940, region:'東アフリカ(現エチオピア・エリトリア)',
+    desc:'紅海交易で栄えた王国で、独自の文字ゲエズ文字を用いた。4世紀にキリスト教を国教化し、アフリカ最古のキリスト教国の一つとなった。',
+    bg:'紅海とインド洋交易路の結節点に位置し、ローマ帝国・アラビア半島・インドを結ぶ中継貿易(乳香・象牙・奴隷など)によって富を蓄積できる地理的条件があった。',
+    process:'3〜4世紀に最盛期を迎えて独自貨幣を鋳造し、4世紀にエザナ王がキリスト教を国教化、7世紀のイスラム勢力拡大により紅海交易の主導権を失うと内陸への後退を余儀なくされ、次第に衰退した。',
+    significance:'サハラ以南アフリカで最初期に国家がキリスト教を受容した事例であり、その伝統は後のエチオピア帝国(ソロモン朝)に継承されて、20世紀までアフリカで数少ない独立を保ったキリスト教国の礎となった。',
+    debate:'衰退の主因についてはイスラム勢力による交易路遮断を重視する説と、内陸部の環境変化(土壌劣化・気候変動)による農業基盤の弱体化を重視する説が併存し、考古学的データの蓄積により後者の比重が近年見直されつつある。' },
+
+  // 中世〜近世の諸王国
+  { id:'ghana_empire', name:'ガーナ王国', category:'nation', lat:15.75, lng:-8.00, start:300, end:1200, region:'西アフリカ(現マリ・モーリタニア)',
+    desc:'サハラ縦断交易における金と塩の交易を独占し繁栄した王国。「黄金の国」として北アフリカのイスラム商人に知られた。',
+    bg:'サハラ砂漠の南縁(サヘル地帯)に位置し、北アフリカのイスラム商人がもたらす塩と、南方の森林地帯で産出する金を仲介する交易拠点として、地の利を生かした富の集積が可能であった。',
+    process:'金と塩の交易を王権が管理・課税することで富を独占し、ラクダを用いたサハラ縦断交易網の確立とともに勢力を拡大したが、11世紀のムラービト朝の圧力や交易路の東方への移動により衰退した。',
+    significance:'西アフリカにおける交易国家の原型を示し、金の交易を通じて地中海世界・イスラム世界にまで黄金の国としての名声を広めたことで、後のマリ・ソンガイ帝国に続く西アフリカ帝国の系譜の出発点となった。',
+    debate:'ムラービト朝による征服がガーナ王国衰退の直接原因かどうかについては、近年の研究で軍事的征服そのものよりも交易路の東方シフトや内部の政治的分裂を重視する見解が強まっており、旧来のイスラム側史料に依拠した征服説が再検討されている。' },
+  { id:'mali_empire', name:'マリ帝国', category:'nation', lat:16.77, lng:-3.01, start:1235, end:1600, region:'西アフリカ(ニジェール川流域)',
+    desc:'ガーナ王国の後を継いで台頭した西アフリカ最大級の帝国。金の交易で莫大な富を築き、トンブクトゥは学問と交易の中心地として繁栄した。',
+    bg:'ガーナ王国の衰退後、ニジェール川流域の農業生産力と金鉱資源(ブレとバンブクの金山)を背景に、スンジャタ・ケイタが周辺勢力を統合する好機が生まれた。',
+    process:'スンジャタによるカリナの戦い(1235年頃)での勝利を機に建国され、14世紀のマンサ・ムーサの治世に最盛期を迎えてトンブクトゥ・ジェンネが学問・交易都市として繁栄したが、後継者争いや周辺勢力の台頭により16世紀末に解体した。',
+    significance:'西アフリカ最大級の版図と富を誇り、イスラム学問(トンブクトゥのサンコーレ学院)の中心地としてアラブ世界にも知られ、後のソンガイ帝国に統治モデルと交易網を継承させた。',
+    debate:'帝国の統治形態については、強力な中央集権国家とみる説と、実際には地方首長の緩やかな連合体に近かったとする説が対立しており、マンサ・ムーサの富の規模についても史料間で誇張の程度をめぐる議論がある。' },
+  { id:'mansa_musa', name:'マンサ・ムーサ', category:'person', parentId:'mali_empire', lat:16.77, lng:-3.01, start:1280, end:1337, region:'マリ帝国',
+    desc:'マリ帝国最盛期の王。メッカ巡礼の際に大量の金を持参し道中でばらまいたことで、その富がヨーロッパやイスラム世界にまで知られ渡った。',
+    bg:'マリ帝国が金鉱交易により最盛期の富を築いていた時代に即位し、敬虔なムスリムとしてイスラム世界との結びつきを一層強めようとする王権の性格を体現していた。',
+    process:'1324〜25年のメッカ巡礼で大量の金を携行し、道中のカイロなどで金を大量に放出したことで一時的に現地の金相場を暴落させたと伝えられ、帰路にはアンダルシアから建築家を招いてトンブクトゥにモスクなどを建設した。',
+    significance:'この巡礼を通じてマリ帝国の存在と富が地中海・イスラム世界に広く知られ、1375年のカタルーニャ地図に西アフリカの黄金の王として描かれるなど、西アフリカが世界地図・世界史の視野に組み込まれる契機となった。',
+    debate:'携行した金の量については史料により大きく異なり近代以降誇張されて史上最大の富豪とされる場合もあるため、伝承と史実をどう切り分けるかが史料批判上の論点となっている。' },
+  { id:'songhai', name:'ソンガイ帝国', category:'nation', lat:16.27, lng:-0.04, start:1464, end:1591, region:'西アフリカ(ニジェール川流域)',
+    desc:'マリ帝国に代わって西アフリカを支配した帝国。トンブクトゥなどの都市でイスラム学問が高度に発達したが、モロッコ軍の侵攻で崩壊した。',
+    bg:'マリ帝国の弱体化に伴い、ニジェール川中流域のガオを拠点としていたソンガイ人勢力が交易路の掌握を目指して台頭する好機を得た。',
+    process:'スンニ・アリ、次いでアスキア・ムハンマドの治世に軍事的拡大と行政制度の整備が進み最盛期を迎えたが、1591年にモロッコのサアド朝軍が火器を用いてトンディビの戦いで圧勝し、帝国は急速に瓦解した。',
+    significance:'西アフリカにおける最後の広域帝国であり、トンブクトゥは法学・神学の一大学術拠点として繁栄したが、その崩壊以降西アフリカは長期にわたり広域統一国家を欠く分裂状態に入った。',
+    debate:'帝国崩壊の要因については、モロッコ軍の火器という軍事技術格差を決定的とする説と、内部の後継者争いや過度な中央集権化による統治疲弊を重視する説が併存し、火器がもたらした軍事革命をアフリカ史にどこまで適用できるかが論点となる。' },
+  { id:'great_zimbabwe', name:'グレート・ジンバブエ', category:'nation', lat:-20.27, lng:30.93, start:1100, end:1450, region:'南部アフリカ(現ジンバブエ)',
+    desc:'石造建築群で知られる王国。内陸の金や象牙をインド洋交易網に結びつけ、その石垣遺構は現在の国名の由来ともなった。',
+    bg:'内陸の金・銅鉱山地帯とインド洋沿岸のスワヒリ交易網とを結ぶ中継地に位置し、牧畜と農業を組み合わせた経済基盤の上に王権が形成された。',
+    process:'石造建築(モルタルを用いない乾式石積み)による王宮・城壁群が11〜15世紀にかけて拡張され、金・象牙をキルワなどスワヒリ都市経由でインド洋交易に供給する体制を確立したが、牧草地の枯渇や交易路の変化により15世紀半ばに放棄された。',
+    significance:'サハラ以南アフリカにおける高度な石造都市文明の存在を示す代表例であり、20世紀初頭には人種主義的偏見から白人文明起源説が唱えられたが、考古学的研究により現地バントゥー系住民の建設であることが確定した。',
+    debate:'遺跡の建設主体をめぐる論争は、白人至上主義的な植民地史学と、独立後のジンバブエにおけるナショナリズム的再評価との間で政治化されており、遺跡の名称が国名の由来となったこと自体も脱植民地化の象徴として論じられる。' },
+  { id:'kongo_kingdom', name:'コンゴ王国', category:'nation', lat:-6.27, lng:14.23, start:1390, end:1857, region:'中部アフリカ(コンゴ川流域)',
+    desc:'コンゴ川流域に成立した王国。16世紀にポルトガルと接触してキリスト教や交易関係を築いたが、後に奴隷貿易の影響で弱体化した。',
+    bg:'コンゴ川下流域の農業・製鉄・交易網を基盤に統合された王国で、大西洋岸に近接していたことが後のヨーロッパとの接触を早める要因となった。',
+    process:'1483年のポルトガル人来航を機に国王ンジンガ・ア・ンクウが改宗しキリスト教・ヨーロッパ式官僚制を導入したが、大西洋奴隷貿易の拡大に伴う労働力供給圧力が国内秩序を破壊し、内戦や周辺勢力の介入で徐々に解体した。',
+    significance:'サハラ以南アフリカで自発的にキリスト教と外交関係を受容した数少ない事例であり、後にポルトガルの植民地(アンゴラ)拡大の起点ともなったことから、アフリカと大西洋世界の初期接触の典型例として扱われる。',
+    debate:'王国衰退の要因を奴隷貿易による社会破壊に求める説と、当初から存在した地方分権的な統治構造の限界を重視する説が対立し、ヨーロッパとの接触は近代化の契機か破壊の契機かという評価の分かれ目になっている。' },
+  { id:'ethiopian_empire', name:'エチオピア帝国(ソロモン朝)', category:'dynasty', lat:12.60, lng:37.47, start:1270, end:1974, region:'東アフリカ高原(現エチオピア)',
+    desc:'ソロモン王とシバの女王の子孫を称する王朝。周辺のイスラム勢力や後には植民地勢力とも対峙し続け、アフリカで数少ない独立を保った国の一つ。',
+    bg:'アクスム王国以来のキリスト教国家としての伝統と、ソロモン王とシバの女王の子孫であるとする建国神話により王権の正統性が支えられていた。',
+    process:'1270年にザグウェ朝を倒して成立し、周辺のイスラム勢力との抗争を経て、19世紀後半のテオドロス2世・メネリク2世による近代化・領土拡張、1896年のアドワの戦いでのイタリア撃退を経て独立を保ったが、1936〜41年には一時イタリアに占領された。',
+    significance:'アフリカ分割の時代にほぼ唯一独立を維持した国として汎アフリカ主義の象徴となり、1963年のアフリカ統一機構本部誘致にもつながったが、1974年の軍事クーデターにより帝政は廃止された。',
+    debate:'ハイレ・セラシエ体制下の近代化については、国際的地位向上と農地改革の遅れ(封建的土地制度の温存)という功罪の両面から評価が分かれ、1973〜74年の飢饉への対応の遅さが帝政崩壊の直接要因かどうかも論点となる。' },
+  { id:'haile_selassie', name:'ハイレ・セラシエ', category:'person', parentId:'ethiopian_empire', lat:9.03, lng:38.74, start:1892, end:1975, region:'エチオピア帝国',
+    desc:'エチオピア帝国最後の皇帝。国際連盟でイタリアの侵略を訴え、後にアフリカ統一機構(OAU)の設立にも尽力した。',
+    bg:'メネリク2世の縁戚として摂政・皇太子の地位を歴任し、伝統的封建貴族層と近代化志向の官僚層の均衡の上に権力基盤を築いていた。',
+    process:'1930年に即位し中央集権的な近代化(憲法制定、軍・行政改革)を進めたが、1935年のイタリアによる侵略を受けて亡命し、1936年に国際連盟で行った演説で集団安全保障の機能不全を訴え、1941年の解放後に復位した。',
+    significance:'国際連盟・国際連合を通じた集団安全保障の理念の体現者として、また1963年のアフリカ統一機構創設の主導者として汎アフリカ主義に大きな足跡を残した。',
+    debate:'国内統治については近代化の推進者としての評価と、封建的土地制度・専制的権力構造を温存し飢饉対策を怠ったとする批判が併存し、その両義性が1974年の革命的崩壊の解釈をめぐる論争の核心となっている。' },
+  { id:'benin_empire', name:'ベニン王国', category:'nation', lat:6.34, lng:5.62, start:1180, end:1897, region:'西アフリカ(現ナイジェリア)',
+    desc:'精巧なブロンズ彫刻(ベニン・ブロンズ)で知られる王国。交易と高度な行政機構を備えたが、1897年にイギリスの遠征軍により滅ぼされた。',
+    bg:'ニジェール川デルタ地帯の農業生産力と、森林資源(ヤシ油・胡椒)、後には大西洋奴隷貿易の中継地としての立地を背景に、エド人の王権(オバ)が確立された。',
+    process:'15世紀にポルトガル人と交易関係を結んで火器を入手し軍事力を強化して最盛期を迎えたが、19世紀末に奴隷貿易廃止後の合法的商業への転換を迫られる中、1897年にイギリスの遠征軍により王宮が破壊され併合された。',
+    significance:'精巧な真鍮・ブロンズ彫刻(ベニン・ブロンズ)は西アフリカの高度な工芸技術と宮廷文化を示す証拠として国際的評価が高いが、遠征時に略奪され欧米の博物館に収蔵された経緯から、近年その返還が国際的な議論の的となっている。',
+    debate:'ベニン遠征の正当化根拠(人身供犠の存在を理由とした文明化の使命言説)については当時のイギリス側のプロパガンダとしての側面が強いとする批判的研究が進み、美術品返還問題は植民地収奪の清算という現代的論点と直結している。' },
+  { id:'ashanti_empire', name:'アシャンティ王国', category:'nation', lat:6.69, lng:-1.62, start:1701, end:1901, region:'西アフリカ(現ガーナ)',
+    desc:'金と交易で栄えた王国連合。「黄金の椅子」を王権の象徴とし、イギリスと複数回にわたる戦争(アシャンティ戦争)の末に併合された。',
+    bg:'森林地帯の金鉱資源とコーラナッツ交易、および大西洋奴隷貿易における中間商人としての利益を基盤に、オセイ・トゥトゥのもとでアシャンティ諸国連合が形成された。',
+    process:'黄金の椅子を王権と国民統合の象徴として掲げつつ北方内陸への軍事的拡大を進めたが、19世紀に入るとイギリスとの間で複数次にわたるアシャンティ戦争が勃発し、1900年の黄金の椅子戦争の鎮圧を経て1901年に完全併合された。',
+    significance:'西アフリカ随一の軍事力と行政組織を備えた国家として長期にわたりイギリスの進出に抵抗した事例であり、独立後のガーナにおいてもアシャンティの伝統的権威が現在まで存続する点で植民地化と伝統的権威の並存を示す好例となっている。',
+    debate:'対英抵抗の評価については、近代国家形成の萌芽とみる説と、内部における奴隷制・貢納制度の存在を重視し単純な反植民地英雄史観に対する批判的視点も提示されている。' },
+  { id:'zulu_kingdom', name:'ズールー王国', category:'nation', lat:-28.31, lng:31.42, start:1816, end:1897, region:'南部アフリカ(現南アフリカ)',
+    desc:'シャカによって軍事的に強化された王国。独自の戦術で周辺勢力を圧倒したが、後にイギリスとの戦争を経て植民地支配下に組み込まれた。',
+    bg:'南部アフリカにおける人口増加・牧草地の逼迫、およびポルトガル系交易拠点(デラゴア湾)をめぐる交易利権争いが、軍事的統合による勢力再編の圧力を生み出していた。',
+    process:'シャカによる軍制改革(インパイ制、短剣アッセガイの導入)で周辺諸族を吸収して急速に拡大し、1879年のズールー戦争ではイサンドルワナの戦いでイギリス軍に大敗を与えたものの、最終的にウルンディの戦いで敗れ、1897年に完全併合された。',
+    significance:'アフリカの軍事国家がヨーロッパの正規軍に一時的とはいえ完勝した稀有な事例として世界的に注目され、南部アフリカ全域の政治地図を再編したムフェカネの震源としても位置づけられる。',
+    debate:'ムフェカネにおける人口移動・暴力の規模を、ズールー拡張の直接的帰結とする従来説に対し、1980年代以降ボーア人の土地収奪や奴隷交易需要など外部要因を重視する修正主義的解釈が提起され、現在も論争が続いている。' },
+  { id:'shaka_zulu', name:'シャカ・ズールー', category:'person', parentId:'zulu_kingdom', lat:-28.31, lng:31.42, start:1787, end:1828, region:'ズールー王国',
+    desc:'ズールー王国を築いた王。インパイと呼ばれる軍制と短剣アッセガイの戦術改革により、小規模な首長国を地域大国へと変貌させた。',
+    bg:'ムテトワ族の首長ディンギスワヨの庇護のもとで軍事指導者としての経験を積み、小規模なズールー氏族の後継者争いに乗じて実権を掌握した。',
+    process:'密集隊形と短剣アッセガイによる白兵戦、若年層を年齢階梯制の常備軍(インパイ)に編成する制度改革により軍事力を飛躍的に強化し、周辺諸族を武力併合・服属させて短期間で広域国家を築いたが、1828年に異母兄弟による暗殺で生涯を終えた。',
+    significance:'その軍制改革は南部アフリカ全域の政治秩序を再編する引き金(ムフェカネ)となり、後継のズールー王国が19世紀後半までイギリスの拡張に対する最大の軍事的障壁であり続ける基盤を築いた。',
+    debate:'シャカの人物像については、残虐な専制君主として描く19世紀ヨーロッパ人証言(一部は正当化目的の誇張とされる)と、優れた軍事的天才・近代国家建設者として再評価するアフリカ側の史学との間で大きな解釈の隔たりがある。' },
+
+  // 植民地化と分割
+  { id:'berlin_conference', name:'ベルリン会議(アフリカ分割)', category:'treaty', lat:52.52, lng:13.40, start:1884, end:1885, region:'ヨーロッパ(ベルリン、アフリカ分割を協議)',
+    desc:'ヨーロッパ列強がアフリカの現地住民の意向を無視して境界線を取り決めた会議。以後の急速な植民地分割(スクランブル・フォー・アフリカ)を制度的に後押しした。',
+    bg:'1880年代にコンゴ盆地の資源(ゴム・象牙)をめぐるベルギー・フランス・ポルトガルの利権競合が激化し、列強間の武力衝突を回避する必要からビスマルクが調停の場を設定した。',
+    process:'現地の統治者や住民の代表を一切招くことなく、実効支配の原則(占領の事実を通告すれば領有権が認められる)を定め、コンゴ自由国をレオポルド2世の私領として承認するなど、地図上での境界線引きを列強間の外交交渉のみで決定した。',
+    significance:'以後30年間で列強によるアフリカ分割を制度的・法的に正当化し、民族・言語集団を無視した恣意的な国境線は独立後の内戦・民族紛争の一因として今日まで影響を残している。',
+    debate:'会議の位置づけについては、分割の開始点として過大評価すべきでないとする説(実際の分割は会議以前から進行していたとする)と、国際法上初めて分割を制度化した画期とみる説とが対立し、現代の国境紛争との因果関係の強さについても評価が分かれる。' },
+  { id:'scramble_for_africa', name:'アフリカ分割(スクランブル・フォー・アフリカ)', category:'event', lat:0.0, lng:20.0, start:1881, end:1914, region:'アフリカ大陸全域',
+    desc:'ヨーロッパ列強が短期間でアフリカのほぼ全域を植民地化した動き。第一次世界大戦前夜にはエチオピアとリベリアを除く全土が分割された。',
+    bg:'第二次産業革命による原材料需要の増大、ヨーロッパ列強間のナショナリズム的競争、スエズ運河開通による戦略的価値の上昇など複合的要因が、アフリカへの進出を加速させた。',
+    process:'エジプトの財政破綻を機とした英仏の介入(1882年イギリスによるエジプト占領)を皮切りに、ベルリン会議を経て列強が競って内陸部へ勢力を拡大し、1898年のファショダ事件のような衝突を経ながらも、1914年までにエチオピアとリベリアを除く全土が分割された。',
+    significance:'現地の政治・経済構造は輸出用一次産品(鉱物・農産物)生産に特化させられ、恣意的な国境線と間接統治・直接統治の各方式の違いは独立後のアフリカ諸国の統治構造・経済格差に長期的な影響を残した。',
+    debate:'分割の主動因については経済的利益(資本輸出先・原料供給地の確保)を重視するホブソン=レーニン的帝国主義論と、列強間の外交的威信競争や戦略的要衝確保を重視する周辺理論が対立し、現在も帝国主義研究の中心的論点であり続けている。' },
+  { id:'mahdist_war', name:'マフディー戦争', category:'war', lat:15.55, lng:32.53, start:1881, end:1899, region:'東アフリカ(現スーダン)',
+    desc:'イスラム指導者ムハンマド・アフマドが「マフディー(救世主)」を称して起こした反英・反エジプト運動。一時はスーダンにイスラム国家を樹立した。',
+    bg:'エジプト(事実上イギリスの管理下)によるスーダン統治への不満と重税、およびイスラム的な救世主待望の宗教的伝統が、ムハンマド・アフマドによる宗教的動員を可能にした。',
+    process:'1881年にマフディー(救世主)を自称して蜂起し、1885年にはハルツームを陥落させてイギリス軍人ゴードンを戦死させ、独自のマフディー国家を樹立したが、1898年のオムドゥルマンの戦いでキッチナー率いる英エジプト軍の機関銃により壊滅的敗北を喫した。',
+    significance:'近代火器の圧倒的な火力差を象徴する戦闘として知られ、以後スーダンは英エジプト共同統治下に置かれ、20世紀のスーダン独立運動における宗教的・政治的ナショナリズムの源流ともなった。',
+    debate:'マフディー運動の性格については、単なる宗教的狂信運動とする植民地側の当時の見方に対し、反植民地・反税ナショナリズムの初期形態として再評価する研究が進み、ゴードン将軍の英雄的最期という帝国主義的記憶の形成過程自体も批判的検討の対象となっている。' },
+  { id:'boer_war', name:'ボーア戦争(南ア戦争)', category:'war', lat:-25.75, lng:28.19, start:1899, end:1902, region:'南部アフリカ(現南アフリカ)',
+    desc:'金とダイヤモンドの利権をめぐり、イギリスとオランダ系移民ボーア人の共和国との間で戦われた戦争。イギリスの勝利で南アフリカ全域が支配下に入った。',
+    bg:'トランスヴァールでの金鉱発見(1886年)を機にウィットランダー(外国人移住者)の政治的権利をめぐる対立が深まり、イギリスの帝国主義的拡張路線と衝突した。',
+    process:'開戦当初はボーア人ゲリラの奇襲戦術に苦戦したが、イギリスは焦土作戦と強制収容所政策により民間人を含む徹底した掃討戦を展開し、多数の死者(特に子供)を出しながら1902年のフェリーニヒング条約でボーア人共和国を併合した。',
+    significance:'強制収容所での高い死亡率は国際的批判を招き人道に対する罪の先駆的事例として記憶される一方、戦後は1910年の南アフリカ連邦成立を経てボーア人とイギリス系白人の権力分有体制が敷かれ、これが後のアパルトヘイト体制の政治的基盤となった。',
+    debate:'強制収容所政策を近代における最初のジェノサイド的政策とみなすか、当時の戦時措置として他の事例と同列に扱うべきでないとするかで評価が分かれ、アフリカ人(黒人)の被害・関与が長らく白人同士の戦争という枠組みで等閑視されてきた点も近年の研究で問題視されている。' },
+
+  // 独立運動と現代
+  { id:'egyptian_revolution_1952', name:'エジプト革命(1952年)', category:'revolution', lat:30.04, lng:31.24, start:1952, end:1956, region:'北アフリカ(現エジプト)',
+    desc:'自由将校団によるクーデターで王政を廃止し共和制へ移行した革命。ナセルの指導のもと、スエズ運河国有化など反植民地主義路線を強めた。',
+    bg:'1948年の第一次中東戦争敗北による軍への不満、ファールーク国王の親英的姿勢と腐敗、都市中間層の反植民地ナショナリズムの高揚が、若手将校層の不満を蓄積させていた。',
+    process:'1952年に自由将校団がクーデターで王政を打倒し、1953年に共和制を宣言、1954年にナセルが実権を掌握して1956年にスエズ運河国有化を断行、これに対するスエズ危機を政治的に乗り切ったことで国内外での指導力を確立した。',
+    significance:'第三世界における反植民地主義・非同盟運動(1955年バンドン会議への参加)の中心的存在となり、アラブ民族主義(ナセリズム)の模範として中東・アフリカ各地の独立運動に強い影響を与えた。',
+    debate:'ナセル体制の評価については、反植民地主義・アラブ統一の英雄とする見方と、一党的な権威主義体制・言論統制を敷いた独裁者とする見方が対立し、経済政策(国有化・農地改革)の効果についても発展への貢献と非効率性の助長という両面から議論されている。' },
+  { id:'mau_mau', name:'マウマウの反乱(ケニア独立闘争)', category:'war', lat:-1.29, lng:36.82, start:1952, end:1960, region:'東アフリカ(現ケニア)',
+    desc:'土地収奪への不満を背景にキクユ人を中心に展開された武装抵抗運動。イギリスの弾圧を招いたが、ケニア独立への機運を高めた。',
+    bg:'ケニア高地における肥沃な土地が白人入植者に収奪され、キクユ人を中心とする現地農民が経済的疎外と土地不足に苦しんだことが、武装抵抗運動の温床となった。',
+    process:'秘密結社的な誓約儀礼を通じて組織化された武装勢力による襲撃活動に対し、イギリスは1952年に非常事態を宣言し、大規模な強制収容所への収監・拷問を伴う徹底的な鎮圧作戦を展開して1956年までに軍事的には制圧した。',
+    significance:'鎮圧作戦の過酷さ(拷問・虐待)は2013年にイギリス政府が公式に謝罪と賠償を行う契機となり、軍事的敗北にもかかわらず政治的には1963年のケニア独立を早めるイギリス側の政策転換を促した。',
+    debate:'マウマウを単なるテロ組織とする植民地時代の公式見解に対し、独立後は反植民地民族解放闘争として再評価する動きが進んだが、キクユ人内部の対立(親英派との内戦的側面)を軽視すべきでないとする視点もあり、単純な英雄史観への批判もある。' },
+  { id:'ghana_independence', name:'ガーナ独立', category:'event', lat:5.60, lng:-0.19, start:1957, end:1957, region:'西アフリカ(現ガーナ)',
+    desc:'エンクルマの指導のもとサハラ以南アフリカで最初に独立を達成した国。以後の大陸各地の独立運動の象徴となった。',
+    bg:'カカオ輸出による経済的自立の基盤があったことに加え、エンクルマが率いる会議人民党による今すぐ自治ををスローガンとした大衆動員が、比較的平和的な独立交渉を可能にした。',
+    process:'1948年のアクラ暴動を契機に自治要求が高まり、エンクルマの主導する非暴力的な大衆運動(ストライキ・ボイコット)を経て、1951年の自治政府樹立を経て1957年にサハラ以南アフリカで最初の独立国となった。',
+    significance:'ガーナの成功はサハラ以南アフリカ全域の独立運動を鼓舞する象徴となり、エンクルマ自身も汎アフリカ主義とアフリカ統一機構構想の主導者として影響力を発揮した。',
+    debate:'エンクルマの急進的な工業化・汎アフリカ主義路線については、独立初期のアフリカに理想を示したとする肯定的評価と、経済運営の失敗と権威主義化(一党制導入)を招いたとする批判的評価が対立し、1966年のクーデターによる失脚の解釈とも結びついている。' },
+  { id:'algerian_war', name:'アルジェリア独立戦争', category:'war', lat:36.75, lng:3.06, start:1954, end:1962, region:'北アフリカ(現アルジェリア)',
+    desc:'フランスからの独立を求めて戦われた激しい戦争。多数の犠牲を経て1962年に独立を達成し、フランスの植民地体制に大きな衝撃を与えた。',
+    bg:'フランスがアルジェリアを海外県として本国同様に扱い、100万人規模のヨーロッパ系入植者(ピエ・ノワール)が政治・経済の実権を握っていたことが、現地アラブ・ベルベル系住民の疎外感を極限まで高めていた。',
+    process:'1954年に民族解放戦線(FLN)がゲリラ戦を開始し、フランス軍は組織的拷問(アルジェの戦い)を含む徹底鎮圧を行うも、国際世論の批判とフランス本国の政治危機(第四共和政崩壊、ド・ゴール復権)を招き、1962年のエヴィアン協定で独立が承認された。',
+    significance:'フランスにおける第四共和政崩壊と第五共和政成立という本国の政治体制変動を引き起こすほどの衝撃を与え、フランツ・ファノンの著作などを通じて第三世界の反植民地思想に理論的支柱を提供した。',
+    debate:'フランス軍による組織的拷問の実態については長年公式に否認されてきたが、1990年代以降の当事者証言や公文書公開により事実として広く認められるようになり、植民地戦争の記憶をどう国民史に位置づけるかがフランス国内で現在も政治的論争の対象となっている。' },
+  { id:'year_of_africa', name:'「アフリカの年」', category:'event', lat:-4.44, lng:15.27, start:1960, end:1960, region:'アフリカ大陸各地',
+    desc:'コンゴ民主共和国をはじめ17か国が一斉に独立を果たした年。アフリカ大陸における脱植民地化が大きく進展した象徴的な年とされる。',
+    bg:'1950年代を通じてガーナ独立やバンドン会議に触発された独立運動が大陸各地で高揚し、フランス・イギリス双方が財政負担の増大と国際世論を背景に統治コストの見直しを迫られていた。',
+    process:'フランスが西アフリカ・中央アフリカの旧植民地に一括して独立を認める方針に転じたことと、ベルギーが準備不足のままコンゴの独立を急いだことが重なり、1960年単年で17か国が一斉に独立を達成した。',
+    significance:'国連加盟国に占めるアフリカ諸国の比率が急増し、国際政治におけるアフリカ・第三世界の発言力(非同盟運動)を高める大きな転機となったが、同年勃発したコンゴ動乱は拙速な独立移行が抱えるリスクを露呈した。',
+    debate:'1960年を独立の画期として一括りに語ることについては、実際の統治能力移譲の準備状況が国ごとに大きく異なっていた点を軽視しているとの批判があり、フランスによる独立付与を真の脱植民地化とみるか新植民地主義の温存とみるかでも評価が分かれる。' },
+  { id:'oau_au', name:'アフリカ統一機構(OAU)→アフリカ連合(AU)', category:'treaty', lat:9.03, lng:38.74, start:1963, end:2020, region:'エチオピア(本部:アディスアベバ)',
+    desc:'独立したアフリカ諸国の連帯と植民地主義の克服を目指して発足した国際機構。2002年にはより統合を進めたアフリカ連合(AU)へと発展的に改組された。',
+    bg:'独立を達成したアフリカ諸国の間で、汎アフリカ主義の理想(エンクルマらが唱えたアフリカ合衆国構想)と、各国の主権・国境線を尊重する現実路線との間で統合のあり方をめぐる路線対立があった。',
+    process:'1963年にアディスアベバで穏健派(国家主権尊重路線)が主導する形でOAUが発足し、以後植民地解放運動支援や国境不可侵原則の確認で一定の役割を果たしたが、内政不干渉原則が域内の人権侵害・内戦に対する実効的介入を妨げ、2002年によりガバナンス重視のアフリカ連合(AU)へと改組された。',
+    significance:'国境線を独立時のまま維持するとの合意により大規模な国境紛争の再燃を一定程度抑止した一方、AU改組後は平和維持部隊の派遣など内政関与を強める方向へと役割を拡大させている。',
+    debate:'OAUの内政不干渉原則については、大陸の安定に寄与したとする評価と、独裁政権の人権侵害を黙認する独裁者クラブ化を招いたとする批判が対立し、AUへの改組がこの限界をどこまで克服できたかも継続的な検証課題である。' },
+  { id:'apartheid', name:'アパルトヘイト(人種隔離政策)', category:'event', lat:-33.92, lng:18.42, start:1948, end:1994, region:'南部アフリカ(現南アフリカ)',
+    desc:'白人少数政権が法制度により人種を分離・差別した政策。国内外での抵抗運動と国際的な制裁を経て、1994年の全人種選挙により終結した。',
+    bg:'20世紀初頭からの人種別居住区分・パス法など既存の人種隔離慣行を基盤に、1948年にアフリカーナー系の国民党が人種の純粋性維持を掲げて選挙に勝利したことで、隔離政策が体系的な法制度として確立された。',
+    process:'人口登録法・集団地域法・パス法などにより人種分類と居住・雇用の分離を徹底し、1960年のシャープビル虐殺以降は国内での武装抵抗と国際的経済制裁が強まる中、1990年代前半のデクラーク大統領による法制度撤廃と交渉プロセスを経て1994年の全人種選挙で終結した。',
+    significance:'国際的な人権規範(反アパルトヘイト運動)の形成における重要な事例となり、また真実和解委員会による移行期正義のモデルは、後の紛争後社会における和解プロセスの参照例として世界的に注目された。',
+    debate:'体制転換の主因については、国内の大衆闘争の圧力を重視する説と、国際的経済制裁の実効性を重視する説、支配層内部の経済的合理性判断を重視する説が並立し、移行の平和裏の性格がどこまで真の正義の実現を伴ったかも和解委員会の評価をめぐり議論が続く。' },
+  { id:'nelson_mandela', name:'ネルソン・マンデラ', category:'person', parentId:'apartheid', lat:-26.20, lng:28.05, start:1918, end:2013, region:'南アフリカ',
+    desc:'反アパルトヘイト運動の指導者。27年間の投獄を経て1994年に南アフリカ初の全人種選挙で大統領に選出され、和解に基づく国家再建を進めた。',
+    bg:'コーサ人の首長家系に生まれ、弁護士としてアパルトヘイト体制下の人種差別法制の不条理を実務的に痛感したことが、ANCへの参加と非暴力抵抗運動への傾倒を促した。',
+    process:'1960年のシャープビル虐殺後に非暴力路線の限界を認識して武装組織の結成を主導し、1964年のリヴォニア裁判で終身刑となり27年間投獄されたが、獄中でも国際的な釈放運動の象徴であり続け、1990年釈放後はデクラークとの交渉を主導し1994年に南アフリカ初の全人種選挙で大統領に選出された。',
+    significance:'大統領就任後は真実和解委員会を通じた報復によらない国民和解路線を掲げ、和解の象徴として国際的に高く評価され、1993年にはデクラークと共にノーベル平和賞を受賞した。',
+    debate:'マンデラの評価については、和解路線が体制転換期の流血を回避した現実的英知とする見方と、経済構造(土地・資本の分配)の抜本的変革を先送りし人種間経済格差を温存したとする左派的批判が対立し、若年期の武装闘争路線との整合性も議論の対象となる。' },
+  { id:'rwandan_genocide', name:'ルワンダ虐殺', category:'event', lat:-1.95, lng:30.06, start:1994, end:1994, region:'東アフリカ(現ルワンダ)',
+    desc:'民族対立を背景に短期間で多数の犠牲者を出した悲劇的な出来事。国際社会の対応の遅れが強く批判され、後の紛争予防や国際協力のあり方に大きな影響を与えた。',
+    bg:'ベルギー植民地統治下で身分証明書に民族区分(フツ・ツチ)を記載する政策が導入されて社会的分断が制度化され、独立後も政治権力をめぐるフツ・ツチ間の緊張が繰り返し発生していた。',
+    process:'1990年からの内戦を背景に緊張が高まる中、1994年4月の大統領搭乗機撃墜事件を契機として組織的な虐殺が短期間で全国的に実行され、国連平和維持部隊が増派されないまま推移する中、ルワンダ愛国戦線の軍事的勝利により7月に事態が収束した。',
+    significance:'国際社会・国連の介入の遅れは深刻な反省を招き、後の保護する責任(R2P)概念の形成や国際刑事裁判所・ルワンダ国際刑事裁判所による個人の刑事責任追及の先例となった。',
+    debate:'国際社会の不介入の要因については、ソマリアでの介入失敗による米国の消極姿勢を重視する説と、旧宗主国フランスの関与のあり方を問う説があり、フランスの責任の程度は現在も外交上の係争点であり続けている。' },
+
+  // 古代(追加)
+  { id:'punt', name:'プント(交易の地)', category:'nation', lat:11.35, lng:43.48, start:-2500, end:-1000, region:'アフリカの角(現ソマリア沿岸付近)',
+    desc:'古代エジプトが乳香・没薬・金・象牙などを求めて交易を行った紅海沿岸の地域。ハトシェプスト女王の遠征記録などで知られる。',
+    bg:'紅海沿岸の乳香・没薬の産地という希少資源の存在が、宗教儀礼や防腐処理(ミイラ作り)に大量の香料を必要とした古代エジプトとの恒常的な交易関係を生む条件となった。',
+    process:'古王国時代から間欠的に海路遠征が行われ、特に新王国時代のハトシェプスト女王(前15世紀)による大規模な交易遠征が神殿レリーフに詳細に記録され、香料・金・黒檀・動物などが持ち帰られた。',
+    significance:'古代エジプトの対外交易網が紅海を越えてアフリカの角にまで及んでいたことを示す事例であり、後のアクスム王国につながる紅海交易圏の古層を形成した。',
+    debate:'プントの具体的な位置については、現在のソマリア沿岸とする説のほか、エリトリア・イエメン・スーダン沿岸とする説など諸説あり、地理的比定そのものが古代エジプト学における未解決の論点となっている。' },
+  { id:'numidia', name:'ヌミディア王国', category:'nation', lat:36.37, lng:6.61, start:-202, end:-46, region:'北アフリカ(現アルジェリア)',
+    desc:'ベルベル系の王が治めた王国。ポエニ戦争ではローマと結んでカルタゴに対抗したが、後にローマに併合された。',
+    bg:'北アフリカの遊牧・半農耕ベルベル系諸部族が、カルタゴとローマという二大勢力の抗争の間隙で自立の機会を模索していたことが、統一王国形成の背景にあった。',
+    process:'マシニッサが第二次ポエニ戦争でローマ側に付いてカルタゴに対抗し、戦後にヌミディア王国として承認されたが、後継のユグルタがローマとの戦争(ユグルタ戦争)に敗れ、前46年には内紛に乗じたカエサルにより属州化された。',
+    significance:'ベルベル系勢力が地中海の大国間政治を巧みに利用して独立を維持した事例として、また後のローマ属州アフリカにおける現地エリート層の政治参加の先例として位置づけられる。',
+    debate:'マシニッサの対ローマ同盟については、対等な同盟関係とみるか、事実上の従属関係の始まりとみるかで評価が分かれ、北アフリカのその後のローマ化(属州支配)の起点としてどこまで重要視すべきかも議論がある。' },
+
+  // 中世イスラム王朝(追加)
+  { id:'fatimid', name:'ファーティマ朝', category:'dynasty', lat:30.06, lng:31.25, start:909, end:1171, region:'北アフリカ・エジプト',
+    desc:'シーア派イスマーイール派を奉じたカリフ国。カイロを建設し、学問の中心アズハルを創設するなど文化的にも大きな足跡を残した。',
+    bg:'シーア派イスマーイール派の宣教網がチュニジア(イフリーキヤ)で現地ベルベル系勢力の支持を獲得し、スンナ派のアッバース朝カリフ権威に対抗する正統性の主張を可能にした。',
+    process:'909年にチュニジアで建国後、969年にエジプトを征服してカイロを新首都として建設し、地中海・インド洋交易の利益を背景に最盛期を迎えたが、十字軍の圧力とスンナ派勢力の台頭により弱体化し、1171年にサラディンによって滅ぼされスンナ派アイユーブ朝が成立した。',
+    significance:'カイロの建設とアズハル学院(現存する世界最古級の高等教育機関の一つ)の創設は、後のイスラム世界における学問・文化の中心地としてのカイロの地位を決定づけた。',
+    debate:'シーア派カリフ国でありながらエジプトの多数派スンナ派住民への強制改宗を行わなかった統治姿勢については、宗教的寛容とみる説と、単に統治の実利を優先した結果とみる説があり、その解釈は当時のイスラム世界における宗派間関係の理解に影響する。' },
+  { id:'almoravid', name:'ムラービト朝', category:'dynasty', lat:31.63, lng:-7.99, start:1040, end:1147, region:'北西アフリカ・イベリア半島',
+    desc:'ベルベル人のイスラム改革運動から興った王朝。モロッコを統一しイベリア半島にも進出、サハラ以南への布教にも影響を与えた。',
+    bg:'サハラ砂漠周辺のベルベル系遊牧民(サンハージャ族)の間で、イスラム法の厳格な実践を求める宗教改革運動が広がったことが運動の出発点となった。',
+    process:'イブン・ヤーシーンの宗教指導のもとユースフ・イブン・ターシュフィーンが軍事的統合を進めてモロッコ・西サハラを制圧し、1086年にはイベリア半島に渡りサグラハスの戦いでカスティーリャ王国を破ってアル=アンダルスにおけるイスラム勢力を支援した。',
+    significance:'サハラ以南西アフリカ(ガーナ王国)への軍事的圧力を通じてイスラムの南方伝播を促進する一方、北方ではイベリア半島のイスラム支配を一時延命させ、マグリブとイベリアを一体化した史上稀な政治圏を現出させた。',
+    debate:'ガーナ王国への征服の実態については、かつて信じられていたような大規模な軍事征服・首都占領を疑問視し、実際には交易路をめぐる圧力や部分的な影響力行使にとどまったとする近年の考古学的知見が、旧来のアラビア語年代記に基づく征服説を修正しつつある。' },
+  { id:'almohad', name:'ムワッヒド朝', category:'dynasty', lat:31.63, lng:-7.99, start:1121, end:1269, region:'北西アフリカ・イベリア半島',
+    desc:'ムラービト朝を倒して成立したベルベル系の王朝。マグリブ全域とイベリア半島南部を支配する広大な帝国を築いた。',
+    bg:'ムラービト朝の教義的緩みを批判するイブン・トゥーマルトの神学的改革運動(タウヒード=神の唯一性の徹底)が、新たな王朝樹立の思想的基盤となった。',
+    process:'イブン・トゥーマルトの後継者アブド・アルムーミンが軍事的統合を進めてムラービト朝を打倒し、マグリブ全域とイベリア半島南部を統一する史上最大級のベルベル系帝国を築いたが、1212年のラス・ナバス・デ・トロサの戦いでキリスト教連合軍に大敗し、以後急速に衰退した。',
+    significance:'哲学者イブン・ルシュド(アヴェロエス)を宮廷に擁するなど学問・建築の面でも高い文化的達成を示し、その衰退はレコンキスタの本格化とイベリア半島におけるイスラム勢力後退の画期となった。',
+    debate:'ラス・ナバス・デ・トロサでの敗北を帝国衰退の決定的転換点とみる従来の見方に対し、内部の部族間対立や統治コストの増大など構造的要因を重視する説もあり、単一の軍事的敗北のみに帰す説明の妥当性が問い直されている。' },
+  { id:'mamluk_sultanate', name:'マムルーク朝', category:'dynasty', lat:30.04, lng:31.24, start:1250, end:1517, region:'エジプト・シリア',
+    desc:'奴隷軍人(マムルーク)出身者が建てた王朝。アイン・ジャールートの戦いでモンゴル軍を撃退し、後にオスマン帝国に併合された。',
+    bg:'アイユーブ朝が軍事力の中核として登用していたトルコ系奴隷軍人(マムルーク)が、第七回十字軍撃退などの軍事的実績を背景に政治的発言力を強めていたことが王朝簒奪の土壌となった。',
+    process:'1250年にアイユーブ朝を廃してマムルーク出身の武将が実権を握り、1260年のアイン・ジャールートの戦いでモンゴル軍を撃退してその西進を史上初めて食い止め、以後シリアの十字軍残存勢力(1291年のアッコン陥落)も一掃したが、1517年にオスマン帝国のセリム1世に敗れて滅亡した。',
+    significance:'モンゴル帝国の拡張を初めて実力で阻止した勢力として中東イスラム世界の防波堤の役割を果たし、カイロを中心にイスラム学問・建築の一大中心地を形成した。',
+    debate:'マムルークによる王朝という統治形態の特異性については、実力主義による効率的軍事国家とみる評価と、世襲によらない権力継承が恒常的な内部抗争・政情不安を招いたとする批判が併存する。' },
+
+  // 西アフリカの諸国家(追加)
+  { id:'kanem_bornu', name:'カネム=ボルヌ帝国', category:'nation', lat:12.85, lng:14.15, start:700, end:1893, region:'中央スーダン(現チャド・ナイジェリア北東部)',
+    desc:'チャド湖周辺で長期にわたり存続したイスラム国家。サハラ縦断交易路の要衝を押さえ、千年以上にわたり地域の大国であり続けた。',
+    bg:'チャド湖周辺という水資源に恵まれたオアシス地帯が、サハラ縦断交易路(北アフリカとの塩・奴隷・武器交易)の南の起点として重要な戦略的価値を持っていた。',
+    process:'8世紀頃にカネムとして興り11世紀にイスラムを受容して交易国家化し、14世紀の内紛でボルヌへ遷都した後、16世紀のイドリース・アローマの治世に火器を導入して最盛期を迎えたが、19世紀にフラニ人の聖戦勢力の圧力を受け、最終的にヨーロッパ列強の分割によって解体した。',
+    significance:'千年以上にわたりほぼ同一王朝(サイフ朝)が存続した点でアフリカ史上稀有な政治的持続性を示し、中央スーダン地域におけるイスラムの定着と交易網の維持に長期にわたり中心的役割を果たした。',
+    debate:'千年王朝という長期持続の要因については、地理的な交易上の優位性を重視する説と、柔軟な部族連合的統治構造による適応力を重視する説があり、いずれを主因とみるかで王朝の性格づけが異なる。' },
+  { id:'hausa_states', name:'ハウサ諸都市国家', category:'nation', lat:12.00, lng:8.52, start:1000, end:1808, region:'西アフリカ(現ナイジェリア北部)',
+    desc:'カノなどの都市を中心に自治を保った都市国家群。手工業と交易、イスラム学問で栄えたが、後にソコト・カリフ国に組み込まれた。',
+    bg:'サハラ縦断交易路上の要衝という立地に加え、綿織物業・皮革業など高度な手工業生産力を備えていたことが、カノ・カツィナなど独立性の高い都市国家群の並立的発展を可能にした。',
+    process:'各都市が個別に交易・軍事で競合しつつイスラムを受容して都市文明を発展させたが、統一されない分立状態が続いたため、19世紀初頭にフラニ人指導者ウスマン・ダン・フォディオが提唱するイスラム改革運動(ジハード)の対象となり、1804〜1808年にかけて次々と征服されてソコト・カリフ国に編入された。',
+    significance:'現在のナイジェリア北部における都市文明の基層を形成し、征服後もハウサ語・ハウサ文化はソコト・カリフ国の支配層(フラニ人)に受容され、両者が融合したハウサ・フラニ文化圏として今日まで存続している。',
+    debate:'ハウサ諸国の征服については、単純な軍事的敗北とみるか、都市エリート層とフラニ人改革派との間の宗教的・政治的正統性をめぐる交渉の産物とみるかで解釈が分かれる。' },
+  { id:'sokoto_caliphate', name:'ソコト・カリフ国', category:'nation', lat:13.06, lng:5.24, start:1804, end:1903, region:'西アフリカ(現ナイジェリア北部)',
+    desc:'ウスマン・ダン・フォディオのジハードにより成立したイスラム国家。19世紀アフリカ最大級の国家となったが、イギリスの侵攻で滅んだ。',
+    bg:'ハウサ諸国における為政者の不正課税やイスラム法の不徹底な運用への不満が、フラニ人知識層を中心とする厳格なイスラム改革運動の支持基盤を形成していた。',
+    process:'1804年にウスマン・ダン・フォディオがジハードを宣言してハウサ諸国を次々と征服し、その子孫による分権的だが緩やかに統合されたカリフ制国家を確立して西アフリカ最大級の版図を築いたが、1903年にイギリス軍がソコトを陥落させて併合し、間接統治の枠組みに組み込まれた。',
+    significance:'西アフリカ最大規模のイスラム国家として19世紀のイスラム改革運動の頂点に位置し、イギリスによる併合後もその行政機構が間接統治の基盤としてほぼそのまま利用された点で、植民地統治と在来権力の連続性を示す代表例となっている。',
+    debate:'ジハードの動機については、純粋な宗教改革運動とする説と、既存のハウサ支配層に対する社会経済的不満を背景とする階級的反乱の側面を重視する説があり、両者の比重づけが現在も議論されている。' },
+  { id:'usman_dan_fodio', name:'ウスマン・ダン・フォディオ', category:'person', parentId:'sokoto_caliphate', lat:13.06, lng:5.24, start:1754, end:1817, region:'ソコト・カリフ国',
+    desc:'イスラム法学者・改革者。ハウサ諸国の腐敗を批判してジハード(聖戦)を起こし、ソコト・カリフ国を樹立した。',
+    bg:'フラニ人の遊牧民・学者階層の家系に生まれ、各地を巡って説教を行う中でハウサ諸国の統治者による重税・不正なイスラム法運用への批判を強めていった。',
+    process:'1804年に信奉者集団とともにヒジュラ(聖遷)を行ってジハードを宣言し、複数のハウサ王国を打倒して征服地を息子・弟に分割統治させる形でソコト・カリフ国の礎を築いたが、統治実務は後継者に委ね自らは晩年宗教的著作活動に専念した。',
+    significance:'その思想と行動は19世紀西アフリカ全域(マシナ、トゥクロールなど)で連鎖的に発生したイスラム改革運動(ジハード国家群)の先駆けとなり、西アフリカにおけるイスラム化の第二の波を主導した。',
+    debate:'彼の運動を宗教改革と反植民地的先駆のいずれとして位置づけるかについては、実際には彼の死後に本格化したヨーロッパ植民地化以前の運動である点をどう解釈するかをめぐり、後世の民族主義的読み替えの妥当性が問われている。' },
+  { id:'oyo_empire', name:'オヨ王国', category:'nation', lat:8.15, lng:4.27, start:1400, end:1836, region:'西アフリカ(現ナイジェリア南西部)',
+    desc:'ヨルバ人の強力な王国。騎兵戦力と、王権を牽制する評議会制度を備えた独自の統治機構で知られた。',
+    bg:'サバンナ地帯という地形が騎兵の運用に適しており、北方のサハラ交易路からの馬の入手が可能であったことが、ヨルバ諸国の中でもオヨが軍事的優位を確立する条件となった。',
+    process:'強力な騎兵戦力を背景に周辺のヨルバ諸国やダホメ王国を服属させて最盛期を迎え、王(アラーフィン)の権力は有力者評議会(オヨ・メシ)によって制度的に牽制される独自の統治機構を発展させたが、18世紀末以降の内紛と19世紀初頭のフラニ人ジハード勢力の圧力により急速に衰退・解体した。',
+    significance:'西アフリカ森林地帯における数少ない騎兵運用国家として軍事史的に重要であり、王権を制度的に制約する評議会制度は、専制王権のみをアフリカ国家の典型とみなす見方に対する反証としてしばしば言及される。',
+    debate:'衰退の主因については、フラニ人ジハードによる外部圧力を重視する説と、内部の権力闘争(王権対評議会の対立激化)を重視する説が対立し、大西洋奴隷貿易における人的資源の流出が果たした役割の大小についても議論がある。' },
+  { id:'dahomey', name:'ダホメ王国', category:'nation', lat:7.18, lng:1.99, start:1600, end:1904, region:'西アフリカ(現ベナン)',
+    desc:'中央集権的な統治体制と、女性のみで構成された精鋭部隊で知られる王国。大西洋交易にも深く関与した後、フランスに征服された。',
+    bg:'大西洋岸に近い立地から、ヨーロッパ商人との奴隷交易(奴隷海岸)を通じた武器(火器)の入手が可能となり、これが強力な中央集権的軍事国家の形成を後押しした。',
+    process:'17世紀に建国後、王権に権力を集中させる高度に組織化された官僚制と、女性のみで構成される精鋭部隊を発展させて周辺国を服属させ、19世紀後半の奴隷貿易廃止後はパーム油交易への転換を図ったが、1892〜94年の第二次フランス・ダホメ戦争に敗れフランス保護領となった。',
+    significance:'国家が組織的に奴隷交易に関与した典型例として大西洋奴隷貿易の構造(現地権力とヨーロッパ商人の相互依存関係)を示す重要な事例であり、女性戦士部隊の存在は近代における国家組織の中でのジェンダー役割を考える上でも注目されてきた。',
+    debate:'国家が奴隷交易に主体的に関与した責任の重さについては、外部(ヨーロッパ側)の需要創出を主因とする説と、現地国家自身の政治的・経済的合理性による能動的関与を重視する説が対立し、奴隷貿易史における加害・被害の単純な二分法自体が近年批判的に再検討されている。' },
+  { id:'atlantic_slave_trade', name:'大西洋奴隷貿易', category:'event', lat:5.08, lng:-1.35, start:1500, end:1867, region:'西アフリカ沿岸(主要拠点)',
+    desc:'ヨーロッパ商人が西アフリカ沿岸の要塞を拠点に、数百万人を強制的にアメリカ大陸へ移送した貿易。西アフリカ社会に長期にわたり甚大な影響を及ぼした。',
+    bg:'新大陸におけるプランテーション労働力需要と、先住民人口の激減(疫病等による)が、ヨーロッパ諸国に代替労働力の調達を迫り、既存の西アフリカ内陸の奴隷制度・交易網と接続する形で貿易が拡大した。',
+    process:'三角貿易(ヨーロッパの工業製品→西アフリカの奴隷→アメリカの砂糖・綿花→ヨーロッパ)の構造の下、西アフリカ沿岸の要塞(エルミナ城など)を拠点に現地権力者と欧州商人が協働して調達・輸送を担い、18世紀にピークを迎えた後、1807年の英国奴隷貿易廃止法などを経て19世紀後半に終息した。',
+    significance:'推計1200万人以上がアメリカ大陸へ強制移送されたとされ、西アフリカ・中央アフリカの人口構成と社会構造(奴隷獲得を目的とした国家間戦争の恒常化など)に長期的な打撃を与え、大西洋を挟むアフリカ系ディアスポラ文化の形成という帰結ももたらした。',
+    debate:'責任の所在については、ヨーロッパ商人の需要創出を主因とする説と、現地アフリカ国家・商人の能動的関与を重視する説が対立し、この貿易が西アフリカの経済的低開発化にどの程度寄与したかをめぐる論争が現在も続いている。' },
+
+  // 東アフリカの諸国家(追加)
+  { id:'swahili_coast', name:'スワヒリ海岸都市国家群', category:'nation', lat:-8.98, lng:39.51, start:1000, end:1505, region:'東アフリカ沿岸(現タンザニア・ケニア)',
+    desc:'インド洋交易網に組み込まれた港市国家群。金・象牙・奴隷などを扱い、アラビアやインドとの交流の中でスワヒリ文化が育まれた。',
+    bg:'季節風(モンスーン)を利用したインド洋交易網の存在と、内陸アフリカの金・象牙・奴隷という交易品への需要が、東アフリカ沿岸に多数の交易港市が並立する条件を作り出した。',
+    process:'キルワ・モンバサ・マリンディなどの都市がそれぞれ独立にスルタン(アラブ系・現地バントゥー系の混血支配層)のもとで自治を保ちつつ、アラビア語・アラビア文字を取り入れたスワヒリ語文化を共有して緩やかなネットワークを形成したが、1498年のヴァスコ・ダ・ガマ来航以降ポルトガルが海上交易路の武力支配を進め、1505年前後に主要都市が相次いで攻略された。',
+    significance:'アラブ・ペルシア・インド・アフリカの要素が融合したスワヒリ文明を生み出し、後の東アフリカ全域における共通語としてのスワヒリ語の基盤となったほか、インド洋交易網が大西洋交易網とは独立に発展したもう一つのグローバル化の事例として世界史上重要視される。',
+    debate:'スワヒリ文明の担い手をめぐっては、アラブ系移民が主導したとする旧来のアラブ起源説に対し、考古学的発掘の進展によりバントゥー系現地住民が主体でありアラブ的要素は交易を通じた文化受容にすぎないとするアフリカ起源説が優勢となっており、この修正は植民地時代の史学が現地文明の主体性を過小評価してきたことへの反省でもある。' },
+  { id:'zanzibar_sultanate', name:'ザンジバル・スルタン国', category:'nation', lat:-6.16, lng:39.19, start:1698, end:1964, region:'東アフリカ沿岸(現タンザニア)',
+    desc:'オマーンから移った王家が治めたスルタン国。丁子(クローブ)交易と奴隷交易の拠点として栄えたが、革命により王政は終わりを告げた。',
+    bg:'オマーンがポルトガルを東アフリカ沿岸から駆逐したことを機に、スワヒリ海岸への影響力拡大を図り、丁子(クローブ)プランテーションと奴隷交易の一大拠点としてザンジバルに着目した。',
+    process:'1840年にオマーン王家がザンジバルに遷都して独立のスルタン国となり、東アフリカ内陸部へのキャラバン交易網(象牙・奴隷)を掌握して繁栄したが、1890年にイギリスの保護領となり、1963年の形式的独立直後の1964年にアフリカ系住民による革命でスルタン政権は崩壊した。',
+    significance:'東アフリカ内陸部への交易ネットワークの結節点として、内陸の民族分布や交易路の形成に長期的影響を与え、東アフリカにおける奴隷交易の主要な出荷港としての歴史は現在世界遺産として記憶されている。',
+    debate:'アラブ系支配層による内陸奴隷交易の規模・実態については、大西洋奴隷貿易に比べ研究の蓄積が薄く過小評価されてきたとの指摘があり、革命(1964年)の性格を人種対立の帰結とみるか階級対立の帰結とみるかでも解釈が分かれる。' },
+  { id:'buganda', name:'ブガンダ王国', category:'nation', lat:0.31, lng:32.58, start:1300, end:1966, region:'東アフリカ(現ウガンダ)',
+    desc:'ヴィクトリア湖畔に発展した中央集権的な王国。精緻な宮廷組織を備え、後にイギリスの保護領となり、ウガンダ建国後も自治王国として存続した。',
+    bg:'ヴィクトリア湖畔の肥沃なバナナ栽培地帯という安定した食料基盤が、常備軍や専門官僚を養う余力を持つ中央集権国家の形成を可能にした。',
+    process:'14世紀の建国以降、王(カバカ)を頂点に県知事制度など高度に組織化された官僚制を発展させて周辺国との覇権争いに勝利し、19世紀後半にはイギリスの進出に際し他勢力に先んじて協力関係を選択したことで、1894年の保護領化後も自治王国としての地位を維持したが、独立後の1966年にオボテ首相との対立から王国制度は廃止された(後1993年に儀礼的王国として復活)。',
+    significance:'イギリスの間接統治政策(既存の統治機構を活用する方式)の模範例とされ、ウガンダという国名自体がブガンダに由来するなど、独立後の国家形成においても中心的な位置を占め続けた。',
+    debate:'ブガンダがイギリスとの協力関係を選んだことについては、他の周辺王国を犠牲にした対英協調による延命戦略の成功例とする評価と、結果的に植民地支配の便利な代理人になったとする批判的評価が対立し、1966年の王国廃止をめぐる中央政府との対立も現在のウガンダ国内の地域対立の歴史的背景として言及される。' },
+  { id:'adwa_battle', name:'アドワの戦い', category:'war', lat:14.17, lng:38.90, start:1895, end:1896, region:'東アフリカ(現エチオピア)',
+    desc:'エチオピアがイタリアの侵略軍を打ち破った戦い。列強による分割の時代にあって、独立を守り抜いた数少ない事例として広く知られる。',
+    bg:'ベルリン会議後の分割競争の中でイタリアがエリトリアを拠点に内陸への勢力拡大を狙い、1889年のウッチャリ条約の解釈(アムハラ語版とイタリア語版の内容の食い違い)を口実に保護領化を主張したことが開戦の直接的引き金となった。',
+    process:'エチオピア皇帝メネリク2世は近代火器(フランス・ロシア経由で入手)を用いて全国的な動員を行い、1896年3月のアドワの戦いで数的にも優勢な軍勢を組織してイタリア軍を包囲・壊滅させた。',
+    significance:'アフリカ分割時代にヨーロッパの正規軍を完全に打ち破った稀有な事例として、エチオピアの独立を国際的に承認させ(1896年アディスアベバ条約)、20世紀の汎アフリカ主義・反植民地運動における象徴的出来事として語り継がれている。',
+    debate:'勝因については、メネリク2世の卓越した外交・軍事指導力を重視する説と、山岳という地形的条件やイタリア側の兵站・情報の不備といった偶発的要因を重視する説があり、敗北したイタリア国内では長らくこの戦いの記憶が屈辱として抑圧され歴史認識上の空白となってきた点も指摘される。' },
+  { id:'maji_maji_rebellion', name:'マジ・マジ蜂起', category:'war', lat:-8.90, lng:36.60, start:1905, end:1907, region:'東アフリカ(旧ドイツ領東アフリカ、現タンザニア)',
+    desc:'ドイツ植民地当局の強制労働政策に対する現地住民の抵抗運動。厳しい鎮圧により多数の犠牲を出したが、後の民族運動の源流の一つとなった。',
+    bg:'ドイツ領東アフリカにおける強制的な綿花栽培義務(現地の食料生産を圧迫)と苛烈な労働徴発が、複数の民族集団を横断する広範な不満を蓄積させていた。',
+    process:'呪術師キンジキティレが聖水を浴びればドイツ軍の弾丸が水に変わると説いてこれを民族の枠を超えた蜂起へと組織化し、当初は広範な地域で蜂起が成功したが、ドイツ軍が焦土作戦(食料・住居の組織的破壊による飢餓誘発)を展開したことで、戦闘よりも多い餓死者を含む大量の犠牲者を出して鎮圧された。',
+    significance:'複数の民族集団が聖水という共通の信仰のもとに連帯した点で、後のタンザニアにおける国民統合・ナショナリズムの先駆的事例として位置づけられ、ドイツ本国でも植民地統治の過酷さへの批判が高まる契機となった。',
+    debate:'犠牲者数(諸説で数万〜数十万人)の推計や、ドイツ側の焦土作戦を意図的なジェノサイドとみなすかどうかについては、同時期のヘレロ・ナマ虐殺との比較の中で議論が続いており、ドイツにおける植民地責任の総括の一環として近年再検証が進んでいる。' },
+  { id:'zanzibar_revolution', name:'ザンジバル革命', category:'revolution', lat:-6.16, lng:39.19, start:1964, end:1964, region:'東アフリカ沿岸(現タンザニア)',
+    desc:'スルタン政権を打倒した革命。同年内にタンガニーカと統合してタンザニアが成立する契機となった。',
+    bg:'人口の少数派であるアラブ系支配層(スルタン家と地主層)が政治・経済の実権を握り続けていたことへの多数派アフリカ系住民の不満が、独立(1963年)後もそのまま持ち越されていた。',
+    process:'1964年1月、武装蜂起によりスルタンを追放し、アフリカ・シラジ党を中心とする革命政権が樹立され、多数のアラブ系・インド系住民が犠牲・追放される混乱を伴った。',
+    significance:'革命政権の不安定化を懸念したザンジバルは同年内にタンガニーカと合邦してタンザニア連合共和国を形成し、この統合は東アフリカにおける独立後国家再編の代表例となった。',
+    debate:'革命時の暴力の規模と性格(民族浄化的側面の有無)については史料が乏しく実証研究が困難であり、統合(タンザニア形成)の主導権が革命政権の自発的選択かタンガニーカ側の政治的思惑によるものかについても解釈が分かれる。' },
+  { id:'eritrean_war', name:'エリトリア独立戦争', category:'war', lat:15.32, lng:38.93, start:1961, end:1991, region:'東アフリカ(現エリトリア)',
+    desc:'エチオピアからの分離独立を求めた長期の武装闘争。アフリカ最長級の独立戦争とされ、1993年の住民投票を経て独立が確定した。',
+    bg:'第二次世界大戦後にイタリア植民地であったエリトリアが国連決議によりエチオピアと連邦制を組んだが、1962年にハイレ・セラシエが一方的に連邦制を廃止し併合したことが、分離独立運動の直接的な火種となった。',
+    process:'エリトリア解放戦線、後にエリトリア人民解放戦線がゲリラ戦を展開し、エチオピア側の政権交代(帝政崩壊後の軍事政権メンギスツ政権)を経ても戦闘は継続したが、1991年にエチオピア国内の反政府勢力(ティグレ人民解放戦線)との連携によりメンギスツ政権を打倒し、事実上の独立を達成した。',
+    significance:'アフリカで最も長期にわたった独立戦争の一つとされ、1993年の国連監視下の住民投票を経て正式に独立が承認されたことは、国境変更に消極的なOAU原則の下でも例外的に新国家樹立が認められた事例として国際法上も注目される。',
+    debate:'エチオピア国内の民族解放戦線同士の連携がその後の両国関係(1998〜2000年のエリトリア・エチオピア国境紛争)にどのような影響を与えたかについては、解放の同志から国境紛争の当事者への転換の背景として継続的に検証されている。' },
+  { id:'south_sudan_independence', name:'南スーダン独立', category:'event', lat:4.85, lng:31.58, start:2011, end:2011, region:'東アフリカ(現南スーダン)',
+    desc:'長期の内戦を経て住民投票により誕生した、アフリカ大陸最新の独立国。21世紀のアフリカにおける国家形成を象徴する出来事の一つ。',
+    bg:'イギリス統治時代からアラブ系イスラム文化圏の北部とアフリカ系キリスト教・伝統宗教文化圏の南部という統治上の分断策が敷かれ、独立後のスーダンにおいても資源(石油)配分や宗教・言語政策をめぐる南北対立が根深く存在していた。',
+    process:'二度にわたる南北内戦(1955〜72年、1983〜2005年)を経て、2005年の包括和平合意により南部に自治権と将来の住民投票実施が約束され、2011年1月の住民投票で圧倒的多数が分離独立を支持したことを受け同年7月に独立を達成した。',
+    significance:'21世紀に入って国連加盟を果たした最も新しい独立国であり、アフリカにおける内戦解決の一形態としての合意に基づく分離独立の先例となったが、独立後まもなく2013年から民族対立を背景とする内戦が再燃した。',
+    debate:'分離独立を紛争解決の成功例とみるか、根本的な国家建設能力の不足を放置したまま独立を急いだ結果とみるかについては、独立直後の内戦再燃を踏まえて評価が分かれている。' },
+
+  // 中部アフリカの諸国家(追加)
+  { id:'luba_kingdom', name:'ルバ王国', category:'nation', lat:-6.50, lng:25.50, start:1585, end:1889, region:'中部アフリカ(現コンゴ民主共和国)',
+    desc:'神聖王権の思想を核とした王国。その政治モデルは周辺地域の国家形成にも影響を与えた。',
+    bg:'コンゴ盆地南部の湖沼・サバンナ地帯における漁労・農業・製鉄の複合的経済基盤が、地域の有力首長による政治統合を可能にする条件を提供した。',
+    process:'神聖王権(王を超自然的存在の体現者とする観念)と精巧な記憶術・王統伝承装置(ルカシャ記憶版)を用いた統治制度を発達させて周辺地域に影響圏を広げたが、19世紀後半にはスワヒリ・アラブ系の奴隷交易商人の侵入と、ベルギー(コンゴ自由国)の進出により1889年前後に解体した。',
+    significance:'その神聖王権と統治の正統性を可視化する象徴体系(記憶版など)は周辺のルンダなど中部アフリカ諸国家の政治文化に広く伝播し、ルバ的統治モデルとして中部アフリカ国家形成史における重要な参照点となっている。',
+    debate:'王国の統合の程度については、強固な中央集権国家とみる説と、実態は儀礼的権威による緩やかな連合体であったとする説が対立し、記憶版に刻まれた王統系譜の史実性(どこまでが史実でどこまでが正統性構築のための創作か)も史料批判上の論点である。' },
+  { id:'lunda_empire', name:'ルンダ王国', category:'nation', lat:-9.00, lng:22.00, start:1665, end:1887, region:'中部アフリカ(現コンゴ民主共和国・アンゴラ)',
+    desc:'朝貢関係にある首長のネットワークを通じて広い版図を治めた交易国家。象牙や奴隷の交易で大西洋経済とも結びついた。',
+    bg:'ルバ王国の政治的伝統(神聖王権)を取り入れつつ、中部アフリカ内陸と大西洋岸(アンゴラ)を結ぶ交易路の結節点という地理的条件を生かして勢力を拡大する余地があった。',
+    process:'首長ムワンタ・ヤーヴァのもとで、征服した地域の首長に王の称号を分与する形で緩やかな朝貢関係のネットワークを構築し、象牙・奴隷・ゴムなどを大西洋交易に供給して繁栄したが、19世紀後半のスワヒリ・アラブ系交易商人やチョクウェ人の侵入により弱体化し解体した。',
+    significance:'中央集権的な直接支配ではなく称号の分与による緩やかな統合という独自の帝国統治モデルを示し、大西洋交易とインド洋交易(スワヒリ交易網)の双方に接続する中部アフリカの結節点としての役割を果たした。',
+    debate:'この称号分与型統治モデルを効率的な帝国統治手法として積極的に評価する説と、実効支配の弱さゆえの脆弱な統合にすぎなかったとする説があり、大西洋・インド洋両交易網からの外部圧力にどの程度耐性があったかという評価とも関連する。' },
+  { id:'congo_crisis', name:'コンゴ動乱', category:'event', lat:-4.44, lng:15.27, start:1960, end:1965, region:'中部アフリカ(現コンゴ民主共和国)',
+    desc:'独立直後の政治的混乱と分離独立の動き、外国勢力の介入が絡み合った危機。冷戦下における大国の代理対立の舞台ともなった。',
+    bg:'ベルギーが独立直前まで現地エリート育成や行政移譲の準備をほとんど行わなかったこと(独立時に大学卒業者が数十人規模にとどまったとされる)が、独立直後の統治能力の著しい欠如を招いた。',
+    process:'独立直後にカタンガ州の分離独立宣言(ベルギー資本の鉱山利権が背景)と軍の反乱が同時発生し、初代首相ルムンバがソ連に支援を要請したことで冷戦の代理対立に発展、国連平和維持部隊の介入下でルムンバが失脚・殺害され、最終的にモブツによる軍事クーデター(1965年)で混乱が収束した。',
+    significance:'国連平和維持活動が大国間対立に翻弄され機能不全に陥った初期の代表例となり、以後約30年続くモブツの独裁体制(冷戦下で西側の対ソ防波堤として黙認された)の出発点ともなった。',
+    debate:'ルムンバ殺害への西側諸国(ベルギー・アメリカ)の関与の程度については長らく否定されてきたが、2000年代以降のベルギー議会調査報告などにより関与が公式に認められつつあり、冷戦下の代理殺害としての位置づけが国際的な歴史認識の焦点となっている。' },
+  { id:'patrice_lumumba', name:'パトリス・ルムンバ', category:'person', parentId:'congo_crisis', lat:-4.44, lng:15.27, start:1925, end:1961, region:'コンゴ動乱',
+    desc:'コンゴ民主共和国の初代首相。独立直後に失脚・殺害され、その死は冷戦下におけるアフリカへの外部介入を象徴する事件となった。',
+    bg:'植民地下で数少ない現地人エリート(郵便局員から政治活動家へ)として頭角を現し、コンゴ全土を単位とする統一国家的民族主義を掲げて支持を広げた。',
+    process:'1960年6月の独立式典でベルギー国王を前に植民地支配を痛烈に批判する演説を行い初代首相に就任したが、同年のカタンガ分離独立と軍反乱への対応をめぐり大統領カサヴブと対立して解任され、国連軍の保護を離れた直後にカタンガへ移送されて1961年1月に殺害された。',
+    significance:'その死は汎アフリカ主義・反植民地主義運動における殉教者として大陸全域に強い衝撃を与え、独立直後のアフリカにおける新植民地主義的な外部介入の危険性を象徴する事件として記憶されている。',
+    debate:'殺害への関与主体(ベルギー政府・CIA・カタンガ地方政権の相互関係)については長く不透明であったが、近年の公文書公開により西側諸国の積極的関与が明らかになりつつあり、冷戦史・脱植民地化史の双方において継続的に検証が進む論点である。' },
+  { id:'angolan_war', name:'アンゴラ独立戦争', category:'war', lat:-8.84, lng:13.23, start:1961, end:1974, region:'南部アフリカ(現アンゴラ)',
+    desc:'ポルトガルからの独立を求めた長期の武力闘争。独立達成後も内戦が続き、冷戦の対立構造の影響を強く受けた。',
+    bg:'ポルトガルが本国の権威主義体制(サラザール独裁)のもとで植民地を海外州として手放す意思を見せなかったことに加え、コーヒー農園などにおける強制労働制度への不満が現地住民の間に広がっていた。',
+    process:'民族解放人民運動(MPLA)、アンゴラ民族解放戦線(FNLA)、アンゴラ全面独立民族同盟(UNITA)という3つの独立運動組織が、それぞれ異なる外部勢力(ソ連・キューバ、アメリカ・ザイール、南アフリカなど)の支援を受けつつポルトガルと戦い、1974年のポルトガル本国での軍事クーデター(カーネーション革命)を機に翌年独立が承認された。',
+    significance:'独立運動が単一でなく複数の対立組織に分裂していたことがそのまま独立後の大規模内戦(1975〜2002年)へと直結し、冷戦・南アフリカのアパルトヘイト体制の存続という国際的文脈とも深く結びついた代理戦争の典型例となった。',
+    debate:'この独立戦争および後続の内戦を脱植民地化闘争として捉えるか、冷戦の代理戦争として捉えるかについては、支援国の関与の重みづけをめぐり歴史家の間で評価が分かれている。' },
+
+  // 南部アフリカ(追加)
+  { id:'basotho_kingdom', name:'バソト王国', category:'nation', lat:-29.31, lng:27.48, start:1822, end:1868, region:'南部アフリカ(現レソト)',
+    desc:'山岳地帯を拠点にモシェシュ1世が築いた王国。周辺勢力の脅威からイギリスの保護を得ることで独立性を保った。',
+    bg:'ムフェカネによる社会的動乱で故郷を追われた各地の難民集団が、モシェシュのもとに集まって山岳地帯(タバ・ボシウ)を拠点とする防衛的な政治共同体を形成する必要に迫られていた。',
+    process:'難民集団を統合しつつ、ズールー・ンデベレなど周辺の軍事勢力の攻撃を天然の要害(台地状の岩山)を利用して撃退し、その後ボーア人入植者との土地紛争が激化する中、モシェシュは1868年にイギリスへの保護領編入を自ら要請してボーア人による併合を回避した。',
+    significance:'弱小勢力が大国間の対立関係を巧みに利用して独立性を保つバランス・オブ・パワー外交の成功例とされ、現在のレソトが南アフリカに完全に囲まれながらも独立国として存続する歴史的起源となった。',
+    debate:'イギリスへの保護領編入という選択については、独立維持のための現実的な外交的英断とみる評価と、結局は植民地支配下に組み込まれた点で限定的な成果にすぎないとする評価が対立する。' },
+  { id:'moshoeshoe', name:'モシェシュ1世', category:'person', parentId:'basotho_kingdom', lat:-29.31, lng:27.48, start:1786, end:1870, region:'バソト王国',
+    desc:'バソト王国の建国者。ムフェカネの動乱で生まれた難民集団を統合し、巧みな外交でズールーやボーア人の脅威から王国を守った。',
+    bg:'小規模なコナ族の首長家系に生まれ、ムフェカネの動乱の中で多くの難民集団が生じるという政治的混乱期に、統率者としての資質を発揮する機会を得た。',
+    process:'台地(タバ・ボシウ)という防衛に適した地形を拠点に難民を受け入れて勢力を拡大し、外交交渉と時に人質・贈答を通じた懐柔策を駆使して軍事衝突を回避しつつ、最終的にボーア人との紛争激化を受けて1868年にイギリスの保護を要請した。',
+    significance:'軍事力に頼らない統合と外交による国家存続の手法はアフリカ的な政治的知恵の代表例としてしばしば称揚され、レソト建国の父として現在も国民的英雄と位置づけられている。',
+    debate:'難民集団の統合過程における暴力・強制の有無(単純な平和的統合者像に対する異論)については史料が限られる中で議論があり、理想化された英雄像がどこまで史実を反映しているかが史学上の検討課題となっている。' },
+  { id:'mfecane', name:'ムフェカネ(激動の時代)', category:'event', lat:-28.50, lng:30.00, start:1815, end:1840, region:'南部アフリカ全域',
+    desc:'一連の戦争と大規模な人口移動を伴った社会変動。ズールー王国の台頭と連動して起こり、南部アフリカの政治地図を大きく塗り替えた。',
+    bg:'人口増加による牧草地の逼迫、ポルトガル系交易拠点(デラゴア湾)における象牙・奴隷交易利権をめぐる競合、および乾燥化などの環境変化が複合的に作用し、南部アフリカ諸社会の間で資源をめぐる緊張を高めていた。',
+    process:'ズールー王国の軍事的拡張を震源として周辺諸族が連鎖的に移動・再編を余儀なくされ、この動乱の波は南部アフリカ全域から中央アフリカ(現在のザンビア・マラウイ)にまで及び、各地で新たな国家(ンデベレ王国、バソト王国など)の形成を促した。',
+    significance:'南部アフリカの民族分布・国家配置を根本的に再編し、結果として生じた広大な無人地帯が後のボーア人によるグレート・トレック(内陸移住)を容易にしたとされる点で、植民地化の展開にも間接的な影響を与えた。',
+    debate:'ムフェカネをズールー拡張が引き起こした内発的な激変とする伝統的解釈に対し、1980年代以降実際の暴力と人口移動の規模はボーア人の土地収奪や奴隷交易需要など外部要因によって誇張・捏造された側面が強いとする修正主義的解釈が提示され、南部アフリカ史における最大級の史学論争の一つとなっている。' },
+  { id:'great_trek', name:'グレート・トレック', category:'event', lat:-29.12, lng:26.21, start:1835, end:1846, region:'南部アフリカ(現南アフリカ内陸部)',
+    desc:'イギリス支配を嫌ったボーア人開拓民が内陸へ移住した動き。移住先での先住民との衝突は、後のボーア人共和国建国につながった。',
+    bg:'1834年の奴隷制廃止(イギリスによる帝国内奴隷解放)がボーア人農場主に補償不足という経済的打撃を与えたことに加え、イギリス統治下での土地政策・言語政策への反発が、内陸への集団移住を決意させる要因となった。',
+    process:'数千人規模のボーア人(トレックボーア)が幌馬車隊を組んで内陸へ移動し、各地で先住のアフリカ人諸勢力(ンデベレ、ズールーなど)との武力衝突(1838年のブラッド・リバーの戦いなど)を経て土地を占拠し、トランスヴァール共和国・オレンジ自由国を建国した。',
+    significance:'この移住神話は後のアフリカーナー(ボーア人)ナショナリズムの中核的物語として位置づけられ、20世紀のアパルトヘイト体制のイデオロギー的正当化にも利用された。',
+    debate:'グレート・トレックを自由と独立を求めた開拓者精神の発露として称揚するアフリカーナー史観に対し、実際には先住民の土地を暴力的に収奪した植民地主義的膨張にほかならないとする批判的史学が、アパルトヘイト後の南アフリカで公式の歴史認識として優勢となっている。' },
+  { id:'herero_nama_genocide', name:'ヘレロ・ナマ虐殺', category:'event', lat:-22.57, lng:17.08, start:1904, end:1908, region:'南西アフリカ(現ナミビア)',
+    desc:'ドイツ植民地当局による弾圧で多数の犠牲者を出した歴史的な悲劇。2021年にドイツ政府が公式に謝罪し、ジェノサイドとして認定した。',
+    bg:'ドイツ領南西アフリカにおいて入植者による牧畜地・水利権の収奪が進み、ヘレロ人・ナマ人の生活基盤が著しく圧迫されていたことが、1904年の武装蜂起の直接的引き金となった。',
+    process:'蜂起鎮圧のため派遣されたドイツ軍司令官ロータル・フォン・トロタが絶滅命令を発してヘレロ人を砂漠地帯へ追い立てて水源へのアクセスを断ち、生存者を強制収容所に収容して労働に酷使し、結果としてヘレロ人の推定7〜8割、ナマ人の約半数が死亡したとされる。',
+    significance:'絶滅命令という明文化された絶滅意図を伴う点で20世紀最初のジェノサイドの一つとして国際的に位置づけられ、収容所での人体実験や頭骨の本国送付といった手法は後のナチス・ドイツの人種政策との連続性という観点からも研究対象とされてきた。',
+    debate:'長年ドイツ政府はこれを戦争行為の延長として法的なジェノサイド認定を回避してきたが、2021年に公式にジェノサイドと認め賠償に相当する開発支援を約束したことで一つの区切りを迎えた一方、賠償の形式や金額の妥当性については被害者団体との間で現在も交渉が続いている。' },
+  { id:'sharpeville_massacre', name:'シャープビル虐殺', category:'event', lat:-26.68, lng:27.87, start:1960, end:1960, region:'南アフリカ',
+    desc:'パス法への抗議デモに対し警察が発砲し多数の死傷者を出した事件。国際的な非難を招き、反アパルトヘイト運動の大きな転換点となった。',
+    bg:'パス法(黒人の移動を管理する身分証携帯義務)への不満が高まる中、アフリカ民族会議から分離したパン・アフリカニスト会議が、より急進的な非暴力抗議行動としてパス手帳焼却運動を計画した。',
+    process:'1960年3月21日、シャープビルの警察署前に集まった非武装の抗議者に対し警察が発砲し、69名が死亡・180名以上が負傷し、多くが背後から撃たれていたことが後の調査で明らかになった。',
+    significance:'国内では非暴力抵抗路線の限界が広く認識されANC・PACの武装闘争路線への転換を促す一方、国連安全保障理事会が初めてアパルトヘイトを非難する決議を採択するなど国際的孤立化の起点となった。',
+    debate:'発砲命令の系統(現場指揮官の独断か上層部の方針か)については南アフリカ真実和解委員会でも十分に解明されず、事件の記憶と責任追及のあり方自体が移行期正義の課題として論じられている。' },
+  { id:'mozambique_war', name:'モザンビーク独立戦争', category:'war', lat:-25.97, lng:32.57, start:1964, end:1974, region:'南部アフリカ(現モザンビーク)',
+    desc:'解放戦線FRELIMOが主導したポルトガルからの独立闘争。1974年のポルトガル本国での政変を経て、翌年独立を達成した。',
+    bg:'ポルトガルの権威主義体制(サラザール・カエターノ政権)が多民族一体のポルトガルというイデオロギーの下で植民地放棄を拒み続け、現地住民に対する強制労働・強制栽培制度が長期にわたり存続していたことが不満を蓄積させた。',
+    process:'モザンビーク解放戦線(FRELIMO、初代指導者エドゥアルド・モンドラーネ)が北部から農村ゲリラ戦を展開し、都市中間層や隣国の支援も得て抗戦を継続する中、1974年のポルトガル本国での軍事クーデター(カーネーション革命、長期化する植民地戦争への疲弊が一因)を受けて交渉が急展開し、1975年に独立を達成した。',
+    significance:'アンゴラ・ギニアビサウと並ぶポルトガル植民地解放戦争の一つであり、その長期化(3方面同時の植民地戦争)がポルトガル本国の財政・社会を疲弊させ、本国の民主化を誘発した点で、周辺から宗主国の政治体制を変えた稀有な事例となった。',
+    debate:'独立戦争を主導したFRELIMOのマルクス主義路線については、社会主義的近代化を志向した進歩的運動とする評価と、その後の一党制・計画経済化が独立後の内戦(1977〜92年、レナモとの対立)を招いた一因とする批判的評価が対立する。' },
+  { id:'rhodesian_bush_war', name:'ローデシア紛争(ジンバブエ独立闘争)', category:'war', lat:-17.83, lng:31.05, start:1964, end:1979, region:'南部アフリカ(現ジンバブエ)',
+    desc:'白人少数政権の一方的独立宣言に対するゲリラ闘争。1979年のランカスター・ハウス合意を経て、翌年ジンバブエとして独立した。',
+    bg:'白人少数政権(スミス政権)が1965年に本国イギリスの同意なく一方的独立宣言(UDI)を行い、多数派である黒人住民への参政権付与を拒否し続けたことが、武装闘争の直接的原因となった。',
+    process:'ジンバブエ・アフリカ民族同盟(ZANU)とジンバブエ・アフリカ人民同盟(ZAPU)がそれぞれ異なる外部支援(中国・ソ連など)を受けてゲリラ戦を展開し、国際的経済制裁と軍事的消耗によりスミス政権が交渉に応じ、1979年のランカスター・ハウス合意により翌年黒人多数支配によるジンバブエ独立が実現した。',
+    significance:'白人少数支配体制がアフリカで最後まで抵抗した事例の一つであり、独立後の土地改革(白人所有農地の再分配)問題は21世紀に入っても続くジンバブエの経済・政治危機の火種として現在まで影響を残している。',
+    debate:'独立後のムガベ政権による急進的な土地収用政策については、植民地期の不公正な土地配分を是正する正当な措置とする擁護論と、法的手続きを欠いた収奪が経済崩壊を招いたとする批判論が、国内外で鋭く対立している。' },
+  { id:'namibian_independence', name:'ナミビア独立', category:'event', lat:-22.57, lng:17.08, start:1990, end:1990, region:'南部アフリカ(現ナミビア)',
+    desc:'南アフリカによる統治から国連の関与を経て達成された独立。アフリカにおける脱植民地化の最終段階の一つとされる。',
+    bg:'第一次世界大戦後に国際連盟の委任統治領として南アフリカの統治下に置かれたが、南アフリカが国連による信託統治への移行を拒み続けアパルトヘイト的統治を延長したことが、国際的な違法占領との批判を招いていた。',
+    process:'南西アフリカ人民機構(SWAPO)が1966年から武装闘争を開始し、国連総会・国際司法裁判所も南アフリカの統治の不当性を繰り返し確認する中、冷戦終結に伴うアンゴラ内戦をめぐる米ソ・キューバ・南アフリカ間の国際合意(1988年)を経て国連監視下の選挙が実施され、1990年に独立を達成した。',
+    significance:'国連の関与によって長期の国際的係争(委任統治の不法な継続)が平和的に解決された事例として国際法上重要視され、冷戦終結という国際環境の変化がアフリカの脱植民地化の最終局面を後押しした典型例となった。',
+    debate:'ナミビア独立の実現を国連の多国間協調の成功例とみるか、実際には冷戦終結という大国間政治の副産物にすぎなかったとみるかについては、国連の役割の評価をめぐり見解が分かれる。' },
+
+  // 独立と国際関係(追加)
+  { id:'nigeria_independence', name:'ナイジェリア独立', category:'event', lat:6.52, lng:3.38, start:1960, end:1960, region:'西アフリカ(現ナイジェリア)',
+    desc:'イギリスから独立を達成した、アフリカ最大の人口を抱える国。多様な民族・宗教構成を抱えたまま連邦国家として出発した。',
+    bg:'イギリスが北部(ハウサ・フラニ系、イスラム教徒多数)・西部(ヨルバ系)・東部(イボ系)という統治上の地域区分をそのまま連邦制の州区分として存続させたことが、独立時点で強い地域的・民族的多元性を抱えた国家構造を生んだ。',
+    process:'各地域の政党がそれぞれの地域基盤を代表する形で自治拡大を求める交渉を重ね、1954年の連邦制導入を経て1960年に独立を達成したが、地域間の権力バランス(特に人口の多い北部の優位)をめぐる火種は解消されないまま独立した。',
+    significance:'アフリカ最大の人口を擁する国家として独立時から国際的な存在感を持ったが、地域間対立は1966年のクーデターと1967〜70年のビアフラ内戦(イボ系の分離独立の試みとその鎮圧)という形で早くも顕在化した。',
+    debate:'独立時の連邦制設計については、多様な民族集団の共存を可能にした現実的枠組みとする評価と、植民地期の地域区分をそのまま踏襲したことが後の内戦・地域対立を構造的に温存したとする批判があり、イギリスの脱植民地化の設計責任を問う視点として今日でも参照される。' },
+  { id:'suez_canal', name:'スエズ運河開通', category:'event', lat:30.50, lng:32.30, start:1859, end:1869, region:'北東アフリカ(現エジプト)',
+    desc:'地中海と紅海を結ぶ人工水路。開通により欧州とアジアを結ぶ航路が劇的に短縮され、エジプトへの列強の関与を強める一因ともなった。',
+    bg:'ヨーロッパとアジア(特にインド)を結ぶ航路の大幅な短縮という経済的利益への期待から、フランス人技師フェルディナン・ド・レセップスがエジプト政庁から掘削権を獲得したことが計画の出発点となった。',
+    process:'主にエジプト人労働者の強制動員(賦役)により10年をかけて建設され、1869年に開通したが、建設費用の負担がエジプト財政を圧迫し、1875年にはエジプト政府保有株がイギリスに売却され、1882年のイギリスによるエジプト占領の経済的伏線となった。',
+    significance:'世界貿易・海運のあり方を一変させ、地政学的にもエジプトを列強の戦略的関心の焦点に押し上げ、以後20世紀を通じてイギリスの対インド航路・中東政策における最重要拠点の一つであり続けた。',
+    debate:'運河建設の経済効果については世界貿易促進という肯定的評価が一般的である一方、建設労働における強制労働の犠牲(推計で万単位の死者)や、財政負担がエジプトの半植民地化を招いた点をどこまで重視すべきかについて、経済史・帝国主義史の観点から異なる力点が置かれる。' },
+  { id:'suez_crisis', name:'スエズ危機', category:'event', lat:30.50, lng:32.30, start:1956, end:1957, region:'北東アフリカ(現エジプト)',
+    desc:'ナセルによる運河国有化に対し、英仏とイスラエルが軍事介入した事件。国際的な圧力により撤退に追い込まれ、旧宗主国の威信低下を象徴した。',
+    bg:'ナセルが進めるアスワン・ハイダム建設資金をめぐり米英が融資を撤回したことへの対抗措置として、ナセルが1956年にスエズ運河の国有化を宣言したことが直接の引き金となった。',
+    process:'イギリス・フランスはイスラエルと密約(セーヴル議定書)を結んでイスラエルにシナイ半島侵攻を行わせ、これを口実に英仏が軍事介入する計画を実行したが、アメリカ・ソ連双方がこれに強く反発して国連を通じた撤退圧力(通貨危機を利用したアメリカの経済的圧力を含む)をかけ、英仏軍は屈辱的な撤退を余儀なくされた。',
+    significance:'イギリス・フランスが自国の意向だけでは中東・アフリカに軍事介入できない現実を露呈させ、旧来の帝国主義的大国としての地位の終焉を象徴する事件となり、以後の脱植民地化を加速させる国際的雰囲気を醸成した。',
+    debate:'この危機における勝者はナセルかアメリカかをめぐり評価が分かれ、英仏がイスラエルと結んだ密約の存在は当時否定され続け、数十年後の文書公開でようやく事実関係が確定した経緯自体が秘密外交と歴史検証の好例として論じられる。' }
+];
+
+/* =========================================================================
+   以下、アプリケーションの動作ロジック（変更なし）
+   ========================================================================= */
+
+let activeCategories = new Set(['person', 'nation', 'dynasty', 'event', 'war', 'revolution', 'treaty']);
+let currentYear = -500;
+let isPlaying = false;
+let playInterval = null;
+let speed = 5;
+let searchQuery = '';
+let selectedEntryId = null;
+
+const map = L.map('map', {
+  center: [2.0, 20.0],
+  zoom: 3,
+  minZoom: 3,
+  maxZoom: 9
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const markersLayer = L.layerGroup().addTo(map);
+const clusterGroup = L.markerClusterGroup({
+  maxClusterRadius: 40,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  iconCreateFunction: function(cluster) {
+    const count = cluster.getChildCount();
+    return L.divIcon({
+      html: `<div class="cluster-marker-wrap"><div class="cluster-badge">${count}</div></div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+  }
+});
+map.addLayer(clusterGroup);
+
+const categoryMeta = {
+  person:     { name: '人物', color: 'var(--cat-person)' },
+  nation:     { name: '国家・王国', color: 'var(--cat-nation)' },
+  dynasty:    { name: '王朝', color: 'var(--cat-dynasty)' },
+  event:      { name: '事件・出来事', color: 'var(--cat-event)' },
+  war:        { name: '戦争・戦い', color: 'var(--cat-war)' },
+  revolution: { name: '革命・独立運動', color: 'var(--cat-revolution)' },
+  treaty:     { name: '条約・国際機構', color: 'var(--cat-treaty)' }
+};
+
+function formatYear(y) {
+  if (y < 0) return `紀元前${Math.abs(y)}年`;
+  return `西暦${y}年`;
+}
+
+function initSidebar() {
+  const filterList = document.getElementById('filterList');
+  filterList.innerHTML = '';
+  
+  const counts = {};
+  for (let cat in categoryMeta) counts[cat] = 0;
+  historicalData.forEach(item => {
+    if (counts[item.category] !== undefined) counts[item.category]++;
+  });
+
+  for (let cat in categoryMeta) {
+    const meta = categoryMeta[cat];
+    const row = document.createElement('label');
+    row.className = 'filter-row';
+    row.innerHTML = `
+      <input type="checkbox" value="${cat}" checked>
+      <span class="swatch" style="background:${meta.color}"></span>
+      <span class="fname">${meta.name}</span>
+      <span class="fcount">${counts[cat]}</span>
+    `;
+    const checkbox = row.querySelector('input');
+    checkbox.addEventListener('change', (e) => {
+      if (e.target.checked) activeCategories.add(cat);
+      else activeCategories.delete(cat);
+      updateMap();
+    });
+    filterList.appendChild(row);
+  }
+
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+function updateMap() {
+  clusterGroup.clearLayers();
+  
+  const year = currentYear;
+  const filtered = historicalData.filter(item => {
+    if (!activeCategories.has(item.category)) return false;
+    if (year < item.start || year > item.end) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchName = item.name.toLowerCase().includes(q);
+      const matchDesc = [item.desc, item.bg, item.process, item.significance, item.debate]
+        .join(' ').toLowerCase().includes(q);
+      const matchRegion = item.region && item.region.toLowerCase().includes(q);
+      if (!matchName && !matchDesc && !matchRegion) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('visibleCount').textContent = filtered.length;
+
+  filtered.forEach(item => {
+    const meta = categoryMeta[item.category] || { color: '#fff', name: item.category };
+    const markerHtml = `
+      <div style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+        <div style="width:12px; height:12px; border-radius:50%; background:${meta.color}; box-shadow:0 0 0 2px rgba(27,36,48,0.8), 0 0 4px rgba(0,0,0,0.4);"></div>
+      </div>
+    `;
+    const icon = L.divIcon({
+      html: markerHtml,
+      className: '',
+      iconSize: [12, 12],
+      iconAnchor: [6, 6]
+    });
+
+    const marker = L.marker([item.lat, item.lng], { icon });
+    marker.bindTooltip(item.name, {
+      permanent: true,
+      direction: 'right',
+      offset: [8, 0],
+      className: 'entry-label'
+    });
+
+    marker.on('click', () => {
+      selectEntry(item.id);
+    });
+
+    clusterGroup.addLayer(marker);
+  });
+}
+
+function selectEntry(id) {
+  selectedEntryId = id;
+  const item = historicalData.find(d => d.id === id);
+  const panel = document.getElementById('detailPanel');
+  const content = document.getElementById('detailContent');
+
+  if (!item) {
+    panel.classList.add('hidden');
+    return;
+  }
+
+  panel.classList.remove('hidden');
+  const meta = categoryMeta[item.category] || { color: '#666', name: item.category };
+
+  let relatedHtml = '';
+  const relatedPersons = historicalData.filter(d => d.parentId === item.id);
+  if (relatedPersons.length > 0) {
+    relatedHtml = `
+      <div class="related-persons">
+        <h4>関連する人物・項目 (${relatedPersons.length})</h4>
+        <ul>
+          ${relatedPersons.map(p => {
+            const pMeta = categoryMeta[p.category] || { color: '#666', name: p.category };
+            return `
+              <li class="person-list-item" onclick="selectEntry('${p.id}')">
+                <div>
+                  <span class="related-cat-badge" style="background:${pMeta.color}">${pMeta.name}</span>
+                  <span class="person-name">${p.name}</span>
+                </div>
+                <span class="person-years">${formatYear(p.start)}〜${formatYear(p.end)}</span>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  let backBtnHtml = '';
+  if (item.parentId) {
+    backBtnHtml = `<button class="back-btn" onclick="selectEntry('${item.parentId}')">← 親項目に戻る</button>`;
+  }
+
+  content.innerHTML = `
+    ${backBtnHtml}
+    <div><span class="detail-badge" style="background:${meta.color}">${meta.name}</span></div>
+    <h3>${item.name}</h3>
+    <div class="detail-meta">
+      <div><b>期間:</b> ${formatYear(item.start)} 〜 ${formatYear(item.end)}</div>
+      ${item.region ? `<div><b>地域:</b> ${item.region}</div>` : ''}
+    </div>
+    <p>${item.desc}</p>
+    <div class="essay-section">
+      <h4>背景</h4>
+      <p>${item.bg}</p>
+    </div>
+    <div class="essay-section">
+      <h4>経過</h4>
+      <p>${item.process}</p>
+    </div>
+    <div class="essay-section">
+      <h4>意義・影響</h4>
+      <p>${item.significance}</p>
+    </div>
+    <div class="essay-section debate">
+      <h4>論点・史学上の論争</h4>
+      <p>${item.debate}</p>
+    </div>
+    ${relatedHtml}
+  `;
+}
+
+document.getElementById('closeDetail').addEventListener('click', () => {
+  document.getElementById('detailPanel').classList.add('hidden');
+  selectedEntryId = null;
+});
+
+const yearSlider = document.getElementById('yearSlider');
+const yearDisplay = document.getElementById('yearDisplay');
+
+yearSlider.addEventListener('input', (e) => {
+  currentYear = parseInt(e.target.value, 10);
+  yearDisplay.textContent = formatYear(currentYear);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+  document.querySelectorAll('#filterList input[type="checkbox"]').forEach(cb => cb.checked = true);
+  activeCategories = new Set(Object.keys(categoryMeta));
+  updateMap();
+});
+
+document.getElementById('selectNoneBtn').addEventListener('click', () => {
+  document.querySelectorAll('#filterList input[type="checkbox"]').forEach(cb => cb.checked = false);
+  activeCategories.clear();
+  updateMap();
+});
+
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim();
+  updateMap();
+});
+
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+
+speedSelect.addEventListener('change', (e) => {
+  speed = parseInt(e.target.value, 10);
+});
+
+playBtn.addEventListener('click', () => {
+  if (isPlaying) {
+    stopPlay();
+  } else {
+    startPlay();
+  }
+});
+
+function startPlay() {
+  isPlaying = true;
+  playBtn.textContent = '❚❚ 停止';
+  playInterval = setInterval(() => {
+    currentYear += speed;
+    if (currentYear > 2020) {
+      currentYear = -3000;
+    }
+    yearSlider.value = currentYear;
+    yearDisplay.textContent = formatYear(currentYear);
+    updateMap();
+  }, 100);
+}
+
+function stopPlay() {
+  isPlaying = false;
+  playBtn.textContent = '▶ 再生';
+  if (playInterval) clearInterval(playInterval);
+}
+
+function initTicks() {
+  const ticksContainer = document.getElementById('ticks');
+  ticksContainer.innerHTML = '';
+  const min = -3000, max = 2020;
+  const steps = [-3000, -2000, -1000, 0, 500, 1000, 1500, 2000];
+  steps.forEach(y => {
+    const percent = ((y - min) / (max - min)) * 100;
+    const tick = document.createElement('div');
+    tick.className = 'tick';
+    tick.style.left = `${percent}%`;
+    tick.textContent = y < 0 ? `前${Math.abs(y)}` : `${y}`;
+    ticksContainer.appendChild(tick);
+  });
+}
+
+initSidebar();
+initTicks();
+updateMap();
+</script>
 </body>
 </html>

@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>中央・南アメリカ史地図 — 世界史探究</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+<style>
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
+
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
+
+    --header-h:68px;
+    --footer-h:104px;
+  }
+
+  *{box-sizing:border-box;}
+  :root{
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+  }
+  html{ scroll-padding-top:env(safe-area-inset-top, 0px); }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
+
+  a{color:var(--gold-strong);}
+
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
+
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ---------- Header ---------- */
+  #app-header{
+    height:calc(var(--header-h) + env(safe-area-inset-top, 0px));
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:env(safe-area-inset-top, 0px) 22px 0;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
+
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
+
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
+
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
+
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
+
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+  }
+  .entry-label::before{ display:none; }
+
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
+
+  /* Detail panel */
+  #detailPanel{
+    width:340px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-340px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .desc-sections{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .desc-section{
+    padding-left:12px;
+    border-left:3px solid var(--line-parchment);
+  }
+  .desc-section.sec-background{ border-left-color:#3f7ea6; }
+  .desc-section.sec-process{ border-left-color:#c99a4a; }
+  .desc-section.sec-significance{ border-left-color:#3f8f74; }
+  .desc-section.sec-debate{ border-left-color:#8a3a3a; }
+  .desc-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .desc-section.sec-background .desc-label{ color:#3f7ea6; }
+  .desc-section.sec-process .desc-label{ color:#a67c2e; }
+  .desc-section.sec-significance .desc-label{ color:#2f7358; }
+  .desc-section.sec-debate .desc-label{ color:#8a3a3a; }
+  .desc-text{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    margin:0;
+  }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
+
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
+
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
+
+  /* Footer timeline */
+  #timeline{
+    height:calc(var(--footer-h) + env(safe-area-inset-bottom, 0px));
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px env(safe-area-inset-bottom, 0px);
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
+
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
+
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <header id="app-header">
+    <div>
+      <h1>中央・南アメリカ史 地図で学ぶ世界史</h1>
+      <p class="subtitle">紀元前3000年 〜 西暦2030年 ・ 高校世界史探究 学習用(メキシコ・中米・アンデス・ブラジル・アルゼンチン・チリほか)</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">紀元前500年</span>
+    </div>
+  </header>
+
+  <div id="main">
+
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
+
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
+
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: シモン・ボリバル、メキシコ革命">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-3000" max="2030" step="1" value="1500">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   中央・南アメリカ史 地図アプリ — データ本体
+   -------------------------------------------------------------------------
+   ジャンル(category)は以下の7種:
+     person     人物
+     nation     国家
+     dynasty    王朝
+     event      事件・出来事
+     war        戦争・戦い
+     revolution 革命
+     treaty     条約
+
+   各エントリの形式:
+   {
+     id:       一意の文字列ID
+     name:     表示名(日本語)
+     category: 上記7種のいずれか
+     lat, lng: 地図上の座標(代表都市・場所)
+     start:    存在/在位/発生開始年(西暦。紀元前はマイナスで表現。例: 紀元前500年 = -500)
+     end:      終了年(単発の出来事は start と同じか、数年程度の幅を持たせる)
+     region:   地域・国名の補助タグ
+     desc:     詳細説明文
+   }
+
+   ★ データは今後、国・地域ごとに分割して追加していきます。
+     新しいブロックを追加する際は、この配列に要素を push する形で
+     どんどん拡張できます(下記はコメントで地域ごとに区切り済み)。
+   ========================================================================= */
+
+const historicalData = [
+  // ===================== コロンブス到達と新大陸の分割 =====================
+  { id:"columbus_arrival", name:"コロンブスの新大陸到達", category:"event", lat:24.03, lng:-74.5, start:1492, end:1492, region:"カリブ海(サンサルバドル島)", relatedIds:["treaty_of_tordesillas"], desc:{background:'オスマン帝国の東地中海進出により陸路での対アジア交易が困難化する中、大西洋を西回りでアジアに到達しようとする航海構想が、スペイン王室の財政的利害と結びついた。', process:'ジェノヴァ出身の航海者コロンブスが女王イサベルの支援を受けて大西洋を横断しカリブ海の島に到達したが、本人は生涯アジアに到達したと信じていた。', significance:'この「到達」を機にヨーロッパ人による新大陸の探検・征服・植民地化が本格化し、先住民社会に疫病・強制労働・人口激減という破滅的な影響をもたらす「コロンブス交換」の時代が始まった。', debate:'コロンブスを「新大陸発見の英雄」とみるか「先住民社会破壊の元凶」とみるかで評価が近年大きく分かれ、アメリカ大陸各地でのコロンブス像撤去運動などにも表れる歴史認識論争の焦点となっている。'} },
+  { id:"treaty_of_tordesillas", name:"トルデシリャス条約", category:"treaty", lat:41.5, lng:-5.0, start:1494, end:1494, region:"スペイン(トルデシリャス)", desc:{background:'コロンブスの到達後、スペイン・ポルトガル両国が新領土をめぐり衝突する危険を回避するため、教皇による仲裁が求められたことが背景にある。', process:'教皇の調停のもとスペインとポルトガルが大西洋上に南北の境界線を引いて新大陸における勢力圏を分割し、この境界線により現在のブラジル東部がポルトガルの取り分となった。', significance:'これが後にブラジルがスペイン語圏の中で唯一ポルトガル語を公用語とする国となった歴史的背景となり、現在に至るラテンアメリカの言語分布の直接的起源となっている。', debate:'当事国以外の第三者(教皇)による一方的な世界分割という行為の正当性は、後の国際法における「先占」原則や植民地主義批判の文脈でしばしば問い直される。'} },
+
+  // ===================== アンデス文明(古代・先インカ期) =====================
+  { id:"caral_civilization", name:"カラル文明(ノルテ・チコ文明)", category:"event", lat:-10.89, lng:-77.52, start:-3000, end:-1800, region:"ペルー北部海岸(スーペ渓谷)", desc:{background:'ペルー北部海岸の谷が、アンチョビなど豊富な海産資源と灌漑農業を組み合わせられる特異な生態環境を提供したことが、早期の複雑社会形成を可能にした。', process:'ピラミッド状の巨大な祭祀建造物群と円形広場を持つ都市遺跡カラルを中心に栄えたが、土器・文字・戦争の痕跡がほとんど見られない特異な文明として発展した。', significance:'エジプトのピラミッド建設とほぼ同時代にアンデス文明の原型となる社会がすでに形成されていたことを示す発見として、1990年代以降の発掘調査で世界的注目を集めた。', debate:'戦争の痕跡が見られないことから「平和的文明」と評価する見方がある一方、大規模建造物の動員は何らかの権力的強制を伴ったはずだとする批判的見解もあり、初期国家形成の性格をめぐり議論が続く。'} },
+  { id:"chavin_culture", name:"チャビン文化", category:"event", lat:-9.6, lng:-77.18, start:-900, end:-200, region:"ペルー中央高地(チャビン・デ・ワンタル)", desc:{background:'アンデス山脈の東西を結ぶ交通の要衝に位置したことが、チャビン・デ・ワンタルを広域的な宗教的巡礼・交易の中心地たらしめた地理的条件となった。', process:'ジャガーやコンドルなど猛禽・猛獣を組み合わせた神像を刻んだ石造神殿を中心に、交易と巡礼を通じて広範囲に類似の宗教美術・土器様式を波及させた。', significance:'後のアンデス諸文明に共通する図像的伝統(猛獣合成神像など)の基礎を築き、アンデス文明の宗教的統一の原点として位置づけられる。', debate:'チャビンの影響拡大を武力による征服とみるか、宗教的権威に基づく平和的な巡礼ネットワークの拡大とみるかで、アンデス考古学における「ホライズン(地平)」概念の解釈が分かれる。'} },
+  { id:"nazca_culture", name:"ナスカ文化", category:"event", lat:-14.7, lng:-75.13, start:-100, end:800, region:"ペルー南部海岸(ナスカ)", desc:{background:'極度に乾燥した高原地帯という環境条件が、地表の礫を取り除くだけで長期間残存する巨大地上絵の制作を可能にした。', process:'動物や幾何学模様を描いた巨大な地上絵(ナスカの地上絵)を残し、地下水路(プキオ)を築いて乏しい水資源を利用する高度な灌漑技術も発達させた。', significance:'この地上絵は現代でも航空機からしか全体像を把握できない規模を持ち、古代社会の天文学的・宗教的知識と技術力を示す世界的な文化遺産となっている。', debate:'地上絵の目的については祭祀・天文観測・雨乞いの儀礼など諸説があり今なお議論が続いており、一部には非科学的な異星人建造説も流布したが学術的には否定されている。'} },
+  { id:"moche_culture", name:"モチェ文化", category:"nation", lat:-8.11, lng:-79.03, start:100, end:700, region:"ペルー北部海岸(モチェ渓谷)", desc:{background:'ペルー北部海岸の谷間における灌漑農業の発達が、大規模な労働力動員と階層的な王権(神官王)の形成を可能にする経済的基盤となった。', process:'太陽のワカ・月のワカと呼ばれる巨大な日干し煉瓦のピラミッド神殿を築き、精巧な写実表現の肖像土器や金銀細工の技術を発達させたが、6世紀後半の大規模な自然災害(エルニーニョ現象による洪水や干魃)を機に衰退した。', significance:'写実的な肖像土器は個人の顔立ちまで再現する高度な芸術性を示し、当時の社会構造・儀礼(人身供犠を含む)を知る上で重要な考古学的資料となっている。', debate:'衰退の主因を環境的要因(エルニーニョによる複合災害)に求めるか、それに伴う社会的動揺・内部対立に求めるかで、環境考古学の観点から議論が続いている。'} },
+  { id:"tiwanaku_civilization", name:"ティワナク文明", category:"nation", lat:-16.55, lng:-68.67, start:300, end:1000, region:"ボリビア(チチカカ湖畔ティワナク)", desc:{background:'チチカカ湖畔という高地の厳しい環境で、寒冷地に適応した独自の農業技術(高床式農地スカ・コジュ)を発達させたことが、大規模な人口扶養を可能にした。', process:'「太陽の門」に代表される精緻な石造建築と、高地・低地を結ぶ広域交易網を発達させ、ジャガイモなど高地作物の乾燥保存技術(チューニョ)を確立したが、11世紀頃長期の干魃を機に急速に衰退した。', significance:'高地アンデスにおける宗教・交易国家の代表例として、後のインカ帝国の統治理念や農業技術に大きな影響を与えたと考えられている。', debate:'衰退の年代・原因(気候変動による干魃説が有力だが、内部の政治的崩壊との複合要因説もある)については古気候学的データの解釈をめぐり研究者間で議論が続く。'} },
+  { id:"wari_empire", name:"ワリ帝国", category:"nation", lat:-13.08, lng:-74.21, start:600, end:1000, region:"ペルー中央高地(アヤクーチョ近郊ワリ)", desc:{background:'ティワナクとは異なる中央高地の生態環境の中、軍事的・行政的な統治技術の革新が、広域帝国形成を可能にする条件となった。', process:'道路網の整備や倉庫制度による物資の再分配システムなど、後のインカ帝国の統治手法の先駆けとなる仕組みを各地に導入し、アンデス中央部から北部海岸に至る広い範囲を影響下に置いたが、1000年頃に解体した。', significance:'インカ帝国が確立する道路網・倉庫制度・行政区画といった統治技術の多くがワリに起源を持つとされ、「アンデス帝国」の原型を提供した点で高く評価される。', debate:'ワリを中央集権的な「帝国」とみるか、より緩やかな地域間ネットワークとみるかは、ティワナクとの関係性の解釈とあわせてアンデス考古学の中心的論争の一つである。'} },
+
+  // ===================== インカ帝国 =====================
+  { id:"kingdom_of_cusco", name:"クスコ王国(インカ帝国以前)", category:"nation", lat:-13.53, lng:-71.97, start:1200, end:1438, region:"ペルー(クスコ)", desc:{background:'クスコ盆地が農業生産に適した肥沃な谷であったことと、周辺諸部族との抗争を勝ち抜く中で軍事的経験を蓄積したことが、王国発展の基盤となった。', process:'周辺の諸部族と抗争を繰り返しながら勢力を蓄えたが、隣接するチャンカ族の大軍による攻撃を受け滅亡の危機に瀕した際、皇太子ユパンキ(後のパチャクテク)がこれを撃退したことを契機に急速な対外拡張へと転じた。', significance:'この危機的勝利が広域帝国インカへの発展の直接的転機となり、クスコが単なる地方王国から南北アメリカ最大の帝国の中心へと飛躍する出発点となった。', debate:'チャンカ族撃退の経緯(建国神話としての性格)がどこまで史実か、後のインカ王権による正統性演出のための脚色がどこまで含まれるかが史料批判上の論点となる。'} },
+  { id:"inca_empire", name:"インカ帝国(タワンティンスウユ)", category:"dynasty", lat:-13.53, lng:-71.97, start:1438, end:1533, region:"ペルー(クスコ)", relatedIds:["pachacuti","huayna_capac_civil_war","atahualpa"], desc:{background:'チャンカ族撃退という軍事的成功と、アンデス各地の先行文明(ワリ・ティワナクなど)の統治技術・宗教理念の蓄積が、急速な帝国拡張を可能にする条件を整えていた。', process:'文字を持たずキープ(結縄)による記録と精緻な石造建築、アンデス山脈を縦断する道路網(インカ道)、労働力を租税とするミタ制と国家的な備蓄倉庫制度により広大な領域を統治したが、1533年スペイン人フランシスコ・ピサロによって皇帝アタワルパが処刑され事実上滅亡した。', significance:'文字を持たない社会でありながら南北アメリカ最大の版図を築き上げた統治システムは、国家形成論において「文字なき帝国」の稀有な成功例として世界史的に重要視される。', debate:'文字を持たなかったことが帝国の脆弱性(記録・伝達の限界)につながりスペイン征服を許した一因かどうかは、文明の発展段階を評価する上での論争的な論点である。'} },
+  { id:"pachacuti", name:"パチャクテク", category:"person", parentId:"inca_empire", lat:-13.53, lng:-71.97, start:1418, end:1471, region:"インカ帝国", desc:{background:'チャンカ族の侵攻という国家存亡の危機の中で示した軍事的才能が、実父を差し置いて即位する異例の権力継承を正当化する根拠となった。', process:'クスコの都市改造やマチュピチュをはじめとする壮麗な石造建築群の造営、道路網と倉庫制度の整備、太陽神信仰を核とする国家宗教体系の確立などを通じてインカ帝国の統治機構の基礎を築いた。', significance:'「大改革者」としてインカを一地方国家から大帝国へと飛躍させ、彼が確立した統治制度は約1世紀後のスペイン征服までインカの国家運営の基本枠組みであり続けた。', debate:'マチュピチュの本来の用途(離宮か宗教施設か)について諸説あり、パチャクテク自身との関係性(彼の別荘であったとする説が有力だが確証はない)は現在も考古学上の論争点である。'} },
+  { id:"huayna_capac_civil_war", name:"ワイナ・カパックの死と帝位継承内乱", category:"war", lat:-2.17, lng:-79.9, start:1527, end:1532, region:"インカ帝国(クスコ・キト)", relatedIds:["atahualpa"], desc:{background:'スペイン人到来に先んじて中米経由で伝播したとされる天然痘が皇帝を突然死させたことで、後継体制が未整備のまま権力の空白が生じたことが内乱の直接的背景となった。', process:'クスコを本拠とする兄ワスカルと、キトを本拠とする弟アタワルパとの間で数年にわたり戦われ、アタワルパが勝利しワスカルを捕らえた。', significance:'この内乱による国力の疲弊と混乱が、直後に到来したスペイン人によるわずかな兵力での帝国征服を可能にした一因とされ、征服史における「内部分裂」の決定的重要性を示す事例である。', debate:'スペイン人到来以前に疫病(天然痘)がすでに帝国内部に広がっていたとする説は、旧大陸の病原体が征服者本人の到達に先行して先住民社会を破壊していた「見えない侵略」の実態を示すものとして近年重視されている。'} },
+  { id:"atahualpa", name:"アタワルパ", category:"person", parentId:"inca_empire", lat:-6.77, lng:-79.84, start:1502, end:1533, region:"インカ帝国(カハマルカ)", desc:{background:'帝位継承内乱に勝利した直後という権力の絶頂期に、未知の武装集団(スペイン人)の到来という予期せぬ事態に直面したことが、彼の運命を決定づけた。', process:'カハマルカでフランシスコ・ピサロ率いるスペイン人一行と会見した際、奇襲により捕縛され、部屋いっぱいの金銀を身代金として差し出したにもかかわらず処刑された。', significance:'この事件によりインカ帝国の中枢は事実上崩壊し、わずか168人程度のスペイン人が数百万人規模の帝国を征服するという世界史上稀有な事例の決定的瞬間となった。', debate:'身代金を払ったにもかかわらず処刑された経緯(裁判の名目や改宗要求の拒否など)は、スペイン側の記録に基づくため史実性に疑問が呈され、征服の「正当化」の物語として批判的に検討されている。'} },
+
+  // ===================== メソアメリカ文明(古代) =====================
+  { id:"olmec_civilization", name:"オルメカ文明", category:"event", lat:17.98, lng:-94.53, start:-1400, end:-400, region:"メキシコ湾岸(サン・ロレンソ・ラ・ベンタ)", desc:{background:'メキシコ湾岸の湿潤な低地における豊かな農業生産力とゴム産出地という資源条件が、複雑な祭祀センターの形成を可能にした。', process:'人面に幼児的な特徴とジャガーの要素を融合させた「オルメカの巨石人頭像」を残し、球技(宗教的儀礼を伴うメソアメリカ特有の球戯)や暦法・文字の萌芽もこの文明にさかのぼるとされる。', significance:'後のマヤ・アステカなど諸文明に共通する文化要素の多くの原点(「母なる文化」)とされ、メソアメリカ文明全体の共通基盤を提供した点で世界史的に重要である。', debate:'オルメカを本当に他文明の「母」とみるべきか、それとも同時代に並行して発展した複数文明の一つに過ぎないとみるかで、メソアメリカ考古学の中心的論争(「母文化論」対「姉妹文化論」)が続いている。'} },
+  { id:"teotihuacan", name:"テオティワカン", category:"nation", lat:19.69, lng:-98.84, start:100, end:550, region:"メキシコ中央高原(テオティワカン)", desc:{background:'メキシコ中央高原の盆地という肥沃で交易上の要衝という立地条件が、大規模な計画都市の建設と黒曜石交易の独占的支配を可能にした。', process:'「太陽のピラミッド」「月のピラミッド」に象徴される計画的な都市構造を持ち、黒曜石交易を通じてマヤ地域を含む広範囲に強い文化的影響を及ぼしたが、7世紀頃に都市中心部が破壊・放棄され急速に衰退した。', significance:'後のアステカ人はこの廃墟を「神々の生まれた場所」として神聖視するなど、メソアメリカ文明における記憶と神話形成に長期的な影響を及ぼした最盛期人口10万人超の巨大都市であった。', debate:'都市中心部の破壊が外敵の侵攻によるものか、内部の社会的反乱(エリート層への民衆の蜂起)によるものかについては、考古学的証拠の解釈をめぐり論争が続いている。'} },
+  { id:"maya_classic_period", name:"マヤ文明(古典期)", category:"dynasty", lat:17.22, lng:-89.62, start:250, end:900, region:"メキシコ南部・グアテマラ・ベリーズ・ホンジュラス(ティカル、パレンケ、コパンなど)", relatedIds:["pakal_the_great","maya_collapse"], desc:{background:'メソアメリカ南部の熱帯雨林という多様な生態環境の中、各地の都市国家が独自の水利・農業技術を発達させたことが、統一王権を持たない多数の都市国家並立という政治構造の背景となった。', process:'精緻な長期暦(ロングカウント)と天文学、マヤ文字による石碑(ステラ)への記録、階段状ピラミッド神殿の建築で高度な水準に達したが、9世紀を境に南部低地の諸都市が相次いで放棄される「古典期マヤ文明の崩壊」を迎えた。', significance:'マヤ文字の解読(20世紀後半に本格的に進展)により、王朝の系譜・戦争・儀礼など具体的な歴史叙述が可能となった、文字を持つ数少ない古代アメリカ文明として特筆される。', debate:'統一王権を持たない都市国家並立という体制を、政治的未成熟とみるか、むしろメソアメリカ的な多極的国家形態の洗練された一形態とみるかで評価が分かれる。'} },
+  { id:"pakal_the_great", name:"パカル大王", category:"person", parentId:"maya_classic_period", lat:17.48, lng:-92.04, start:603, end:683, region:"マヤ文明(パレンケ)", desc:{background:'パレンケが周辺の都市国家との抗争を勝ち抜き地域的な覇権を確立していたことが、大規模な建築事業を可能にする経済的・政治的基盤となった。', process:'60年以上の長期にわたる治世で碑文の神殿をはじめとする壮麗な建築群を造営し、その石棺に刻まれた精緻な浮彫を残した。', significance:'1952年の発掘により発見されたその石棺は「マヤのファラオ」として世界的な注目を集め、マヤ王権の宗教的宇宙観(死後の再生思想)を具体的に示す考古学的発見となった。', debate:'石棺の浮彫に描かれた図像(古くは古代宇宙飛行士説などの疑似科学的解釈もあったが)は、現在ではマヤの宇宙樹・冥界下降の神話的表現として学術的に確立している。'} },
+  { id:"maya_collapse", name:"古典期マヤ文明の崩壊", category:"event", lat:17.22, lng:-89.62, start:800, end:950, region:"メキシコ南部・グアテマラ(マヤ低地)", desc:{background:'人口増加による土地・資源への圧力の高まりと、長期にわたる干魃という気候変動が複合的に作用したことが、この現象の根本的背景として近年重視されている。', process:'9世紀を中心にティカルをはじめとする南部低地の主要都市が相次いで放棄され、大規模な石碑建立や王権も途絶えたが、北部ユカタン半島のチチェン・イッツァなど一部の都市は後古典期にも繁栄を続けた。', significance:'文明の「崩壊」が全メソアメリカ的な現象ではなく地域的なものであったことを示す事例として、環境考古学における気候変動と文明衰退の関係を考える上での重要な参照事例となっている。', debate:'「崩壊」の主因を干魃(古気候データによる裏付けが進む)に求めるか、都市間抗争の激化や人口過剰による環境破壊に求めるかで、複合的要因のどこに力点を置くかが論争の焦点となっている。'} },
+  { id:"chichen_itza", name:"チチェン・イッツァ(後古典期マヤ)", category:"nation", lat:20.68, lng:-88.57, start:900, end:1200, region:"メキシコ・ユカタン半島(チチェン・イッツァ)", desc:{background:'古典期マヤ崩壊による南部低地の衰退という空白の中、ユカタン半島北部が新たな中心地として台頭する条件が整っていた。', process:'中央メキシコのトルテカ文明との交流(あるいは征服)の影響を色濃く受けたとされ、羽毛の蛇神ククルカン(ケツァルコアトル)を祀るピラミッド神殿「エル・カスティーヨ」に代表される独特の建築様式を発達させた。', significance:'マヤとトルテカという異なる文化圏の融合を示す建築様式は、メソアメリカにおける文化的相互作用と広域的なネットワークの存在を示す代表例として重視される。', debate:'トルテカとの関係を軍事的征服とみるか、交易・婚姻を通じた平和的な文化伝播とみるかで、メソアメリカ史における「トルテカ影響論」をめぐる論争が続いている。'} },
+
+  // ===================== メキシコ(後古典期〜アステカ帝国) =====================
+  { id:"toltec_civilization", name:"トルテカ文明", category:"dynasty", lat:19.9, lng:-99.23, start:900, end:1168, region:"メキシコ中央高原(トゥーラ)", desc:{background:'テオティワカン崩壊後の中央メキシコにおける政治的空白が、新たな軍事的勢力の台頭を可能にする条件となった。', process:'都トゥーラには「戦士像柱」として知られる巨大な石造彫刻が残り、その王ケツァルコアトル(神官王)にまつわる伝説が確立された。', significance:'後のアステカ人からは理想化された文明の担い手として崇敬され、ケツァルコアトルの伝説はアステカの神話・王権観に大きな影響を与え、コルテス到来時の誤認(神の再来説)にもつながったとされる。', debate:'コルテスをケツァルコアトルの再来と誤認しモクテスマ2世が融和策をとったとする通説は、征服後のスペイン側史料に基づく可能性が高く、近年の研究ではその史実性に懐疑的な見方が強まっている。'} },
+  { id:"aztec_triple_alliance", name:"アステカ帝国(三都市同盟)", category:"dynasty", lat:19.43, lng:-99.13, start:1428, end:1521, region:"メキシコ中央高原(テノチティトラン)", relatedIds:["moctezuma_ii","spanish_conquest_aztec"], desc:{background:'メキシコ中央高原における複数の都市国家間の勢力争いの中、テノチティトラン・テツココ・トラコパンの3都市が軍事同盟を結成したことが帝国形成の出発点となった。', process:'メキシコ中央高原から広範囲の従属都市に貢納を課して繁栄し、湖上に築かれた首都テノチティトランは人口20万人規模ともいわれる壮大な都市に発展、太陽神信仰と結びついた活発な人身供犠の慣習でも知られたが、1521年にスペイン人エルナン・コルテスの遠征により滅ぼされた。', significance:'湖上都市という特異な立地に築かれた高度な都市計画(水上農地チナンパなど)は、限られた土地条件下での高密度な人口扶養の実現例として評価される。', debate:'大規模な人身供犠の実態(規模・頻度)については、スペイン側の記録が誇張している可能性が指摘され、実際の規模や宗教的・政治的機能をめぐる評価が研究者間で分かれている。'} },
+  { id:"moctezuma_ii", name:"モクテスマ2世", category:"person", parentId:"aztec_triple_alliance", lat:19.43, lng:-99.13, start:1466, end:1520, region:"アステカ帝国(テノチティトラン)", desc:{background:'アステカ帝国が最盛期にありながら、従属都市の反乱の潜在的リスクと、未知の来訪者(スペイン人)への宗教的・政治的判断が求められる状況にあったことが背景となる。', process:'版図を大きく拡大し官僚機構を整備したが、コルテス率いるスペイン人の到来に際して当初は使者を送り贈物で懐柔を試みるなど融和的な対応をとり、後にコルテスに捕らえられ人質とされた後、1520年の混乱の中で落命した。', significance:'その融和的対応が結果的に征服を許す一因となったとされ、先住民国家がヨーロッパ人来訪にどう向き合うべきかという普遍的な問いを投げかける象徴的事例となっている。', debate:'モクテスマの融和策を宗教的な誤認(神の再来説)による判断とみるか、当時の外交儀礼上の合理的な情報収集戦略とみるかで、近年の研究では後者を支持する見方が有力になりつつある。'} },
+
+  // ===================== スペインによる征服 =====================
+  { id:"spanish_conquest_aztec", name:"アステカ帝国の征服", category:"war", lat:19.43, lng:-99.13, start:1519, end:1521, region:"メキシコ(テノチティトラン)", relatedIds:["hernan_cortes","noche_triste"], desc:{background:'アステカの過酷な貢納要求に不満を持つ従属都市(トラスカラなど)が多数存在したことが、少数のスペイン人による征服を可能にする決定的な条件となった。', process:'エルナン・コルテス率いるわずか数百人のスペイン人が、アステカに敵対する先住民諸勢力と同盟し、天然痘の大流行にも助けられてアステカ帝国を打倒し、1521年包囲戦の末に首都テノチティトランが陥落した。', significance:'その廃墟の上にメキシコシティが築かれ、以後のヌエバ・エスパーニャ副王領統治の基盤となった、ヨーロッパによる新大陸征服の最も象徴的な事例である。', debate:'この征服の主因をスペイン側の軍事技術的優位(鉄砲・馬)に求めるか、先住民同盟軍の存在と疫病(天然痘)という要因に求めるかで、征服史研究における力点の置き方が分かれる。'} },
+  { id:"hernan_cortes", name:"エルナン・コルテス", category:"person", parentId:"spanish_conquest_aztec", lat:19.43, lng:-99.13, start:1485, end:1547, region:"スペイン領メキシコ", desc:{background:'キューバでの征服事業に飽き足らず、より大きな富と名声を求める野心が、独断でのメキシコ遠征という危険な賭けに踏み切らせた。', process:'キューバ総督の許可を得ずに独断でメキシコ遠征を敢行し、先住民勢力との同盟と巧みな政治工作によってわずかな兵力でアステカ帝国を滅ぼした。', significance:'その征服はスペインによるラテンアメリカ植民地支配の出発点となり、以後のヌエバ・エスパーニャ副王領という広大な植民地統治体制の基礎を築いた。', debate:'晩年の不遇(本国政府による功績の軽視)は、征服者(コンキスタドール)個人の野心と、王権による植民地統制強化との間の緊張関係を象徴する事例として論じられる。'} },
+  { id:"noche_triste", name:"悲しみの夜(ノチェ・トリステ)", category:"war", lat:19.43, lng:-99.13, start:1520, end:1520, region:"メキシコ(テノチティトラン)", desc:{background:'モクテスマ2世の死後、指導者を失ったアステカ側の怒りが頂点に達し、テノチティトランに滞在していたスペイン軍に対する全面的な蜂起を引き起こした。', process:'テノチティトランに立てこもっていたコルテス一行が、蜂起したアステカ軍によって壊滅的な損害を受けながら脱出し、多くのスペイン兵と同盟先住民が戦死・溺死した。', significance:'この大敗にもかかわらずコルテスはトラスカラで態勢を立て直し、翌年改めて大軍を率いて首都を包囲・攻略しており、この事件は征服戦争の非直線的な過程を示す重要な転換点となっている。', debate:'この敗北を「一時的な躓き」とみるか、アステカ側がスペイン軍を撃退できる実力を十分に有していたことの証拠とみるかで、征服戦争の帰趨における偶然性・必然性の評価が分かれる。'} },
+  { id:"conquest_of_yucatan", name:"ユカタン半島マヤ征服", category:"war", lat:20.97, lng:-89.62, start:1527, end:1697, region:"メキシコ・ユカタン半島、グアテマラ", desc:{background:'マヤ地域が統一王権を持たず多数の小王国に分立していたことが、逆説的にアステカやインカのような一挙の中枢崩壊による征服を困難にした。', process:'密林とマヤ側の頑強な抵抗により、アステカ・インカに比べ征服には長い年月を要し、最後まで独立を保ったペテン湖畔のイツァ族の王国が陥落したのは1697年のことであった。', significance:'コロンブス到達から実に2世紀以上を経てからの完全征服は、単一の中央集権国家を打倒するよりも分散型の政治体制の方が外部からの征服に対しむしろ強靭であり得ることを示す事例となっている。', debate:'マヤ地域の長期抵抗を「分裂による脆弱性の欠如」の証左とみるか、密林という地理的条件による軍事的困難さの結果とみるかで、征服の困難さの要因分析が分かれる。'} },
+  { id:"conquest_of_peru", name:"インカ帝国の征服", category:"war", lat:-6.77, lng:-79.84, start:1532, end:1572, region:"ペルー(カハマルカ・クスコ)", relatedIds:["francisco_pizarro","atahualpa"], desc:{background:'アステカ征服の成功例が他のコンキスタドールを刺激し、また先述の帝位継承内乱によるインカの内部分裂が、少数兵力での征服を可能にする決定的な好機を提供した。', process:'フランシスコ・ピサロが率いる200人に満たないスペイン人一行が、帝位継承内乱で疲弊していたインカ帝国を奇襲し皇帝アタワルパを捕縛・処刑して帝国を事実上崩壊させたが、その後もマンコ・インカによるクスコ包囲や亡命インカ国家(ビルカバンバ)の抵抗が続き、1572年に最後の皇帝トゥパク・アマルーが処刑されて征服は完了した。', significance:'アタワルパ処刑後も約40年続いた抵抗の存在は、征服が単一の決定的事件ではなく長期のプロセスであったことを示し、この構図は後の植民地時代を通じた先住民抵抗運動の原型ともなった。', debate:'アステカ・インカ両帝国がいずれも内部対立(継承争いや従属民族の不満)を抱えていたことが征服の決定的要因であったとする説は、征服を単純な「文明の優劣」の物語から相対化する近年の視点として重視されている。'} },
+  { id:"francisco_pizarro", name:"フランシスコ・ピサロ", category:"person", parentId:"conquest_of_peru", lat:-12.05, lng:-77.04, start:1478, end:1541, region:"スペイン領ペルー(リマ)", desc:{background:'私生児としての低い出自から新大陸で身を立てようとする強い野心が、危険を顧みないインカ帝国征服への挑戦を後押しした。', process:'カハマルカでアタワルパを捕縛して莫大な身代金を得た後も処刑を強行し、征服後は太平洋岸にリマを建設して統治拠点とした。', significance:'リマの建設は以後300年近くにわたる南米大陸統治の中心地の起点となり、彼の征服はスペインによる南米大陸支配の決定的な出発点となった。', debate:'征服者仲間との利権争いの末に暗殺されたその最期は、征服事業がもたらした富をめぐる征服者間の内部抗争という、コンキスタドール社会に共通する構造的な暴力性を象徴する事例とされる。'} },
+
+  // ===================== 植民地時代 =====================
+  { id:"viceroyalty_new_spain", name:"ヌエバ・エスパーニャ副王領", category:"nation", lat:19.43, lng:-99.13, start:1535, end:1821, region:"メキシコ・中米・カリブ海(メキシコシティ)", relatedIds:["mexican_war_of_independence"], desc:{background:'アステカ征服により獲得した広大な領域を、スペイン本国が効果的に統治・搾取するための行政制度を必要としたことが副王領設置の背景となった。', process:'銀鉱山の開発とカトリック布教(教会と修道会による大土地所有=アシエンダ制)を柱に統治され、先住民・スペイン人・アフリカ系との混血(カスタ制度による身分階層化)が進んだが、19世紀初頭のナポレオンによるスペイン本国占領を機に独立運動が急速に高まった。', significance:'現在のメキシコから中米・フィリピンにまで及ぶ広大な版図を統治した副王領であり、その行政・宗教・社会制度は独立後のメキシコ社会にも長期的な影響を残した。', debate:'カスタ制度(人種混淆による細密な身分階層化)を、単なる差別的抑圧の道具とみるか、征服後社会における独自の社会秩序形成の試みとみるかで、植民地社会史研究における評価が分かれる。'} },
+  { id:"viceroyalty_peru", name:"ペルー副王領", category:"nation", lat:-12.05, lng:-77.04, start:1542, end:1824, region:"ペルー(リマ)", relatedIds:["tupac_amaru_ii_rebellion","potosi_silver_mines"], desc:{background:'インカ帝国征服により獲得した豊富な鉱産資源(特に銀)を効率的に収奪するための行政・労働動員システムの構築が、副王領統治の最優先課題となった。', process:'リマを拠点にポトシ銀山などアンデスの豊富な鉱産資源を収奪し先住民に過酷な強制労働(ミタ制)を課してスペイン本国に莫大な富をもたらしたが、18世紀後半のブルボン改革による増税と統制強化は各地の反乱を誘発した。', significance:'当初は南米大陸のほぼ全域を管轄した最重要の副王領として、ポトシ銀山からの銀は世界的な価格革命を引き起こすなど、グローバルな経済史に決定的な影響を及ぼした。', debate:'ミタ制による強制労働を、インカ帝国期の労働徴発制度(ミタ)の継続的悪用とみるか、スペイン植民地支配特有の収奪的性格の産物とみるかで、制度の連続性・断絶性をめぐる議論がある。'} },
+  { id:"potosi_silver_mines", name:"ポトシ銀山の開発", category:"event", lat:-19.58, lng:-65.75, start:1545, end:1810, region:"ボリビア(ポトシ)", desc:{background:'1545年に発見された「銀の山(セロ・リコ)」という桁外れの銀鉱床の存在が、この地を世界経済史上まれにみる資源開発拠点へと押し上げる決定的条件となった。', process:'先住民に課された強制労働制度ミタのもとで採掘された膨大な銀はスペイン本国からさらにヨーロッパ全域・アジアへと流れ、世界的な価格革命や国際交易網の拡大を引き起こす一因となった。', significance:'最盛期には人口16万人を超える当時世界有数の大都市に発展し、この銀は中国・アジアとの太平洋貿易(マニラ・ガレオン)にも流入するなど、初期グローバル経済を駆動する原動力となった。', debate:'ポトシの銀がヨーロッパにもたらした「価格革命」の程度・因果関係については経済史上議論があり、また過酷な労働による先住民人口の激減という人的犠牲の規模も歴史人口学上の重要な検討課題である。'} },
+  { id:"tupac_amaru_ii_rebellion", name:"トゥパク・アマルー2世の反乱", category:"war", lat:-13.53, lng:-71.97, start:1780, end:1783, region:"ペルー(クスコ・アンデス高地)", desc:{background:'ブルボン改革による増税と統制強化が先住民・混血層の経済的困窮を深刻化させ、インカ王家への郷愁と結びついた反乱の機運を高めた。', process:'インカ王家の末裔を称するホセ・ガブリエル・コンドルカンキが、先住民への過酷な労役と重税に反発して蜂起し、一時はクスコ周辺の広範囲を制圧する勢いを見せたが、スペイン当局の反撃により鎮圧され、指導者は同市の広場で残虐な方法で処刑された。', significance:'植民地時代最大級の反乱として先住民の権利意識を大きく刺激し、後の独立運動にも影響を与えたとされる、南米先住民抵抗史における画期的事件である。', debate:'この反乱を先住民ナショナリズムの先駆けとみるか、あくまで重税への経済的反発にとどまる局地的騒擾とみるかで、独立運動史における位置づけが議論される。'} },
+
+  // ===================== メキシコ(独立〜現代) =====================
+  { id:"mexican_war_of_independence", name:"メキシコ独立戦争", category:"revolution", lat:21.15, lng:-101.67, start:1810, end:1821, region:"メキシコ(ドロレス・グアナフアト)", relatedIds:["miguel_hidalgo","agustin_de_iturbide"], desc:{background:'ナポレオンによるスペイン本国占領という権力の空白と、啓蒙思想の流入による社会不満の高まりが、独立運動勃発の直接的背景となった。', process:'司祭ミゲル・イダルゴが1810年9月16日に発した「ドロレスの叫び」を端緒とし、当初は先住民・混血層を中心とする急進的な社会革命の色彩が強かったが、イダルゴ処刑後は指導者が交代しつつ長期化し、最終的には保守層も取り込んだアグスティン・デ・イトゥルビデの主導により1821年コルドバ条約でスペインからの独立が達成された。', significance:'当初の急進的な社会革命運動から最終的に保守エリート主導の穏健な独立達成へと性格を変えたこの過程は、独立の「誰にとっての勝利か」という問いを提起する重要な事例である。', debate:'独立の主体が下からの社会革命(イダルゴ・モレーロス)か上からの保守的妥協(イトゥルビデ)かという評価の相違は、独立後のメキシコにおける社会改革の遅れをどう説明するかにも関わる重要な論点である。'} },
+  { id:"miguel_hidalgo", name:"ミゲル・イダルゴ", category:"person", parentId:"mexican_war_of_independence", lat:21.15, lng:-101.67, start:1753, end:1811, region:"メキシコ独立戦争", desc:{background:'ドロレスの教区司祭という立場にありながら啓蒙思想の影響を受け、先住民・混血農民の困窮する現実を目の当たりにしたことが、蜂起呼びかけの背景となった。', process:'1810年に「ドロレスの叫び」を発して蜂起を呼びかけ、先住民・混血農民を中心とする大軍勢を率いて一時は首都近郊まで迫ったが、軍事的には未熟で敗北を重ね、1811年に捕らえられ処刑された。', significance:'今日「メキシコ独立の父」として9月16日の独立記念日にその叫びが記念されており、独立運動の理念的原点として国民的記憶に深く刻まれている。', debate:'軍事的には失敗に終わったにもかかわらず「独立の父」として称えられる評価の構造は、独立運動における「精神的起点」と「実際の達成者」の乖離という、ナショナリズム史叙述に共通する問題を示している。'} },
+  { id:"first_mexican_empire", name:"メキシコ帝国(イトゥルビデ帝政)", category:"nation", lat:19.43, lng:-99.13, start:1821, end:1823, region:"メキシコ(メキシコシティ)", relatedIds:["agustin_de_iturbide"], desc:{background:'独立達成直後の政治的空白の中、王政的な国家形態を志向する保守層と、共和政を求める勢力との理念対立がすでに存在していたことが、この短命な帝政の背景にある。', process:'イトゥルビデが自ら皇帝アグスティン1世として即位して樹立したが、共和政を求める勢力の反発とサンタ・アナらの蜂起により1年余りで崩壊した。', significance:'当時の領域は現在の中米諸国をも含む広大なものであったが、崩壊後メキシコは連邦共和政へと移行し、以後の中米諸国分離の遠因ともなった。', debate:'この帝政の急速な崩壊を、イトゥルビデ個人の統治能力の欠如に帰すか、そもそもラテンアメリカにおいて君主政という統治形態自体が定着しにくい構造的問題があったとみるかで議論がある。'} },
+  { id:"agustin_de_iturbide", name:"アグスティン・デ・イトゥルビデ", category:"person", parentId:"first_mexican_empire", lat:19.43, lng:-99.13, start:1783, end:1824, region:"メキシコ帝国", desc:{background:'当初は独立派鎮圧にあたる王党派軍人であったが、1820年のスペイン本国での自由主義革命という国際情勢の激変が、彼の立場転換を促す決定的契機となった。', process:'独立派指導者ゲレーロと「イグアラ綱領」で合意して独立を実現させ、1822年に自ら皇帝に即位してメキシコ帝国を樹立したが、専制的な統治への反発から翌年退位に追い込まれた。', significance:'王党派軍人から独立の立役者、さらに皇帝へという劇的な転身は、ラテンアメリカ独立史における「エリート主導の妥協的独立」の典型例として位置づけられる。', debate:'1824年に帰国を試みたところを処刑された経緯は、独立達成後の権力争いにおける旧体制指導者への容赦のなさを示す事例として、独立戦争の「勝者」の定義をめぐる議論に関連する。'} },
+  { id:"mexican_republic", name:"メキシコ合衆国(共和政の成立)", category:"nation", lat:19.43, lng:-99.13, start:1824, end:2030, region:"メキシコ(メキシコシティ)", relatedIds:["mexican_american_war","porfiriato","mexican_revolution","benito_juarez"], desc:{background:'帝政崩壊という統治形態の失敗経験が、連邦共和制という新たな国家形態の選択を後押しした。', process:'1824年憲法により成立し、以後200年にわたり保守派・自由派の抗争、対外戦争による領土喪失、独裁と革命を経ながらも存続し続けた。', significance:'20世紀後半以降は北米自由貿易協定(NAFTA)の締結などを通じて中南米最大級の経済規模を持つ国家へと発展し、連邦制という国家形態が200年間の激動を経ても存続し続けた稀有な事例となっている。', debate:'19世紀を通じた保守・自由両派の抗争の激しさを、単なる政治的未成熟とみるか、植民地遺産(教会・軍の特権)と近代国家建設の間の必然的な緊張の表れとみるかで評価が分かれる。'} },
+  { id:"mexican_american_war", name:"米墨戦争", category:"war", lat:19.43, lng:-99.13, start:1846, end:1848, region:"アメリカ・メキシコ国境地帯、メキシコシティ", relatedIds:["treaty_guadalupe_hidalgo"], desc:{background:'テキサスのアメリカへの併合(1845年)をめぐる対立と、アメリカの「明白な運命(マニフェスト・デスティニー)」という領土拡張思想が、開戦の直接的背景となった。', process:'アメリカ軍がメキシコシティを占領するまでの一方的な展開となり、敗れたメキシコはグアダルーペ・イダルゴ条約により現在のカリフォルニア・テキサス・ニューメキシコなどを含む広大な北部領土(国土の約半分)をアメリカに割譲した。', significance:'この敗戦と領土喪失はメキシコの国民的トラウマとして深く記憶され、以後のメキシコとアメリカの非対称な力関係(「メキシコの遠さは神から、アメリカの近さは災い」という警句)を象徴する出来事となった。', debate:'アメリカ国内でもこの戦争の正当性(奴隷州拡大を狙う南部の陰謀とする批判を含む)をめぐり当時から論争があり、リンカーンら一部議員は開戦の口実(国境紛争)の正当性に疑義を呈していた。'} },
+  { id:"treaty_guadalupe_hidalgo", name:"グアダルーペ・イダルゴ条約", category:"treaty", lat:19.48, lng:-99.13, start:1848, end:1848, region:"メキシコ(グアダルーペ・イダルゴ)", desc:{background:'アメリカ軍によるメキシコシティ占領という軍事的完全勝利が、メキシコに対する広範な領土割譲要求を可能にする交渉上の優位をアメリカにもたらした。', process:'メキシコはカリフォルニア・ニューメキシコなど北部領土をアメリカに割譲し(1500万ドルの支払いを伴う)、リオグランデ川をテキサスとの国境と定めた。', significance:'この条約によりメキシコは国土の半分近くを失い、両国関係に長期にわたる影響を残すこととなり、現在のアメリカ南西部の広大な地域の歴史的起源を規定した。', debate:'割譲地域に居住していたメキシコ人・先住民の権利保護規定が条約に盛り込まれていたにもかかわらず、実際にはアメリカ編入後に十分保護されなかったとする批判があり、条約履行の実態が問われている。'} },
+  { id:"french_intervention_maximilian", name:"フランス介入とマクシミリアン帝政", category:"nation", lat:19.43, lng:-99.13, start:1862, end:1867, region:"メキシコ(メキシコシティ・ケレタロ)", relatedIds:["benito_juarez"], desc:{background:'内戦(改革戦争)後のメキシコの対外債務不履行を口実に、当時ヨーロッパでの威信拡大を狙うナポレオン3世のフランスが介入の機会を得たことが背景にある。', process:'フランス皇帝ナポレオン3世が軍事介入しオーストリア大公マクシミリアンを傀儡皇帝として擁立し、当初フランス軍はプエブラで一時撃退される(現在の「シンコ・デ・マヨ」の由来)も後に制圧を進めたが、南北戦争終結後のアメリカの圧力でフランス軍が撤退すると、ベニート・フアレス率いる共和派が反撃に転じ1867年にマクシミリアンは捕らえられ銃殺され共和政が回復した。', significance:'アメリカの南北戦争終結という国際情勢の変化が、モンロー主義の実効性を回復させヨーロッパ列強のラテンアメリカ再介入を頓挫させた点で、米州国際関係史上の重要な事例となっている。', debate:'マクシミリアン自身が意外にも自由主義的な統治(教会財産没収の継続など)を志向していたことは、彼を単なる「外国の傀儡」とみる単純化された評価に対する再検討を促している。'} },
+  { id:"benito_juarez", name:"ベニート・フアレス", category:"person", parentId:"mexican_republic", lat:19.43, lng:-99.13, start:1806, end:1872, region:"メキシコ共和国", desc:{background:'サポテカ系先住民という出自ながら教育の機会を得て法曹界に進んだ経歴が、自由主義改革運動の中核を担う政治的資質を育んだ。', process:'自由主義改革(フアレス法による教会・軍の特権廃止など)を推進し、フランスの軍事介入とマクシミリアン帝政という国難に際しても共和政の正統性を掲げて抵抗を続け、最終的に勝利してメキシコの主権を回復させた。', significance:'先住民出身者が国家指導者として外国の介入を退け共和政を守り抜いた事例として、今日でも国民的英雄として敬愛され、メキシコの近代国家形成における自由主義改革の象徴的人物となっている。', debate:'フアレス法などの自由主義改革が教会財産の没収を通じて結果的に一部の富裕な自由主義者・投機家に富を集中させたとする批判もあり、「改革」の受益者が誰であったかをめぐる社会経済史的検討が続く。'} },
+  { id:"porfiriato", name:"ポルフィリアート(ポルフィリオ・ディアス独裁)", category:"nation", lat:19.43, lng:-99.13, start:1876, end:1911, region:"メキシコ(メキシコシティ)", relatedIds:["mexican_revolution"], desc:{background:'フアレス死後の政治的混乱と、鉄道・外資導入による近代化への強い国家的要請が、強力な指導者による長期安定統治への希求を生んだ。', process:'軍人出身のポルフィリオ・ディアスが「秩序と進歩」を掲げて敷いた30年以上に及ぶ長期独裁体制のもと、鉄道建設や外資導入により経済的近代化を進め都市部に繁栄をもたらした一方、大土地所有制(アシエンダ)の強化により農民の困窮は深刻化し、1910年の再選をめぐる不正がメキシコ革命の引き金となった。', significance:'この時代に整備された鉄道網・輸出インフラは後のメキシコ経済の基盤となったが、その恩恵の著しい偏在(外国資本と少数エリートへの集中)は20世紀最初の大規模社会革命を引き起こす直接的要因となった。', debate:'ポルフィリアートを「近代化への貢献」と評価するか「農民収奪の上に築かれた見せかけの繁栄」と評価するかは、開発独裁一般の功罪を論じる上でも参照される典型的な論争点である。'} },
+  { id:"mexican_revolution", name:"メキシコ革命", category:"revolution", lat:19.43, lng:-99.13, start:1910, end:1920, region:"メキシコ全土", relatedIds:["francisco_madero","pancho_villa","emiliano_zapata","mexican_constitution_1917"], desc:{background:'ポルフィリオ・ディアスの長期独裁下での大土地所有制強化による農民の窮乏化と、政治的自由の抑圧への蓄積した不満が、革命勃発の社会的基盤となった。', process:'フランシスコ・マデロが蜂起したことに始まり、その後パンチョ・ビリャやエミリアーノ・サパタら地方の武装勢力が入り乱れる複雑な内戦へと発展し、推定100万人以上が犠牲になったとされる一方、1917年には土地改革・労働者の権利・教会の権限制限などを盛り込んだ当時世界でも先進的なメキシコ憲法が制定された。', significance:'20世紀最初の大規模な社会革命として、1917年憲法の社会権規定はワイマール憲法に先駆ける先進性を持ち、その後70年以上に及ぶ制度的革命党(PRI)による一党優位体制の政治的正統性の源泉ともなった。', debate:'革命の「成果」を誰が実際に得たか(急進派サパタらの土地改革要求がどこまで実現したか)については、革命後に成立したPRI体制の性格評価とも密接に関わる重要な論争点である。'} },
+  { id:"francisco_madero", name:"フランシスコ・マデロ", category:"person", parentId:"mexican_revolution", lat:19.43, lng:-99.13, start:1873, end:1913, region:"メキシコ革命", desc:{background:'富裕な地主出身でありながら民主的選挙の実現を求める自由主義的信念が、ディアス独裁打倒への蜂起を決意させた。', process:'ディアス独裁の打倒を掲げて1910年に蜂起を呼びかけ革命の口火を切り、ディアス退陣後に大統領に就任したが、急進派(サパタら)の土地改革要求に応えきれず孤立し、1913年に部下ウエルタ将軍のクーデターにより暗殺された。', significance:'革命の口火を切った指導者として記憶されるが、その穏健な自由主義的改革構想と農民の急進的な土地改革要求との乖離は、革命がさらなる長期化・急進化へ向かう構造的要因を象徴している。', debate:'マデロの暗殺への関与が疑われるアメリカ大使ヘンリー・レーン・ウィルソンの役割は、メキシコ革命における外部勢力(特にアメリカ)の介入の問題として議論される。'} },
+  { id:"pancho_villa", name:"パンチョ・ビリャ", category:"person", parentId:"mexican_revolution", lat:26.94, lng:-105.94, start:1878, end:1923, region:"メキシコ革命(チワワ州)", desc:{background:'北部チワワ州の牧畜経済と、貧農・アウトロー層の広範な支持基盤が、強力な農民軍「北方師団」を組織する条件を提供した。', process:'当初はカランサ・オブレゴンら他の革命勢力と共闘したが後に対立し、1916年にはアメリカ領内のコロンバスを襲撃してアメリカ軍の懲罰遠征を招くなど激しい抵抗を続けた。', significance:'アメリカ本土を攻撃した数少ない外国勢力として、アメリカの対メキシコ政策・国境警備政策に長期的な影響を与え、革命後は恩赦を受けて隠棲したが1923年に暗殺された。', debate:'ビリャを「義賊的英雄」とみるか「残虐な軍閥指導者」とみるかで評価が大きく分かれ、メキシコの大衆文化(コリード=バラッド歌謡など)における神話化の過程も重要な研究対象となっている。'} },
+  { id:"emiliano_zapata", name:"エミリアーノ・サパタ", category:"person", parentId:"mexican_revolution", lat:18.68, lng:-99.1, start:1879, end:1919, region:"メキシコ革命(モレロス州)", desc:{background:'南部モレロス州における大土地所有制(アシエンダ)の拡大が地元農民の伝統的な共有地(エヒード)を侵食していたことが、彼の急進的な農地改革要求の直接的背景となった。', process:'大土地所有制の解体と農地の農民への返還を求める急進的な農地改革(アヤラ綱領)を掲げて戦い続けたが、1919年にカランサ政権の謀略により暗殺された。', significance:'「土地と自由」の理念は今日でもメキシコ農民運動の象徴とされ続けており、1994年のサパティスタ蜂起(EZLN)もその名を冠するなど、後世の社会運動に長期的影響を残している。', debate:'サパタの農地改革要求がどこまで1917年憲法や革命後の実際の土地分配政策に反映されたか(不徹底に終わったとする批判が強い)は、メキシコ革命の「未完の革命」性を論じる際の中心的論点である。'} },
+  { id:"mexican_constitution_1917", name:"1917年メキシコ憲法", category:"treaty", lat:20.12, lng:-98.74, start:1917, end:1917, region:"メキシコ(ケレタロ)", desc:{background:'メキシコ革命を通じて噴出した土地改革・労働者権利・教会の政治的権限制限といった諸要求を、統一的な国家基本法として法制化する必要が生じたことが背景にある。', process:'農地改革・労働者の権利保障・教会の政治的権限制限などを盛り込んで制定され、当時としては世界でも先進的な社会権規定を含んでいた。', significance:'1919年のワイマール憲法に先立つ社会権規定を含む先進的憲法として世界的にも注目され、以後1世紀近くにわたりメキシコの政治体制の基本法として機能し続けている。', debate:'この憲法の理念(特に第27条の土地改革規定)が実際にどこまで履行されたかは政権によって大きく異なり、憲法の「先進性」と実態の乖離がメキシコ政治史の重要な検討課題となっている。'} },
+  { id:"pri_era", name:"制度的革命党(PRI)による一党優位体制", category:"nation", lat:19.43, lng:-99.13, start:1929, end:2000, region:"メキシコ(メキシコシティ)", relatedIds:["zapatista_uprising"], desc:{background:'メキシコ革命後の各革命勢力(軍閥・地方カウディーリョ)間の対立が続く不安定な状況が、これらを統合する単一の国家政党結成の必要性を生んだ。', process:'国家革命党(後の制度的革命党=PRI)が労働組合・農民組織・官僚機構を垂直的に統合するコーポラティズム的統治により、71年にわたり大統領選挙で勝ち続ける事実上の一党支配体制を築いたが、選挙不正や汚職も常態化し、2000年の大統領選挙でついに野党候補が勝利し一党優位体制は終焉した。', significance:'革命後の混乱を政治的安定に転換した「制度化された革命」の稀有な成功例として比較政治学上重要視される一方、その安定は民主主義の実質的制限(選挙不正)の上に築かれていたという二面性を持つ。', debate:'PRI体制を「安定と成長をもたらした賢明な統治システム」とみるか「革命の理念を形骸化させた権威主義の一形態」とみるかで、メキシコ現代政治史における評価が大きく分かれる。'} },
+  { id:"zapatista_uprising", name:"サパティスタ民族解放軍の蜂起", category:"event", lat:16.75, lng:-92.64, start:1994, end:1994, region:"メキシコ・チアパス州", desc:{background:'NAFTA発効による安価な輸入農産物の流入が予測される中、先住民の伝統的な共有地(エヒード)の解体を促す憲法改正が先んじて行われたことが、蜂起の直接的引き金となった。', process:'北米自由貿易協定(NAFTA)発効の当日に、先住民の権利と自治を求めてチアパス州の先住民ゲリラ組織サパティスタ民族解放軍(EZLN)が武装蜂起し、まもなく停戦したが、覆面姿の副司令官マルコスに象徴されるインターネットを駆使した情報発信により国際的な注目を集めた。', significance:'グローバル化に対する草の根の抵抗運動の先駆例として広く論じられ、以後の反グローバリゼーション運動(1999年シアトルWTO閣僚会議抗議など)にも思想的影響を与えたとされる。', debate:'武装蜂起でありながら実際の戦闘よりもメディア戦略・言説戦略で成果を上げたこの運動を、「新しい社会運動」の先駆例として高く評価する見方と、実質的な政治的成果の乏しさを指摘する批判的見方とが併存する。'} },
+
+  // ===================== 中米諸国 =====================
+  { id:"united_provinces_central_america", name:"中米連邦共和国(中米連合州)", category:"nation", lat:14.63, lng:-90.51, start:1823, end:1841, region:"中米(グアテマラシティ)", desc:{background:'メキシコ帝国崩壊という中心の消滅が、中米諸州の連邦制による共同独立国家樹立という選択肢を生んだ。', process:'グアテマラ・エルサルバドル・ホンジュラス・ニカラグア・コスタリカの5州が結成したが、自由派と保守派の対立、各州の自治意識の強さから内紛が絶えず、1838年以降に各州が相次いで分離独立を宣言し1841年までに事実上解体した。', significance:'この解体により中米は5つの独立国家に分立することとなり、現在も度々提唱される「中米統合」構想の失敗した先例として、地域統合の困難さを示す歴史的教訓となっている。', debate:'この分裂の主因を各州エリート間の権力争いに求めるか、そもそも山岳地形による地理的分断が単一国家の維持を構造的に困難にしていたと見るかで議論がある。'} },
+  { id:"panama_independence_from_colombia", name:"パナマ独立(コロンビアからの分離)", category:"event", lat:8.98, lng:-79.52, start:1903, end:1903, region:"パナマ(パナマシティ)", relatedIds:["panama_canal_construction"], desc:{background:'運河建設という巨大な経済的利権をめぐり、コロンビア議会が条約批准を拒否したことへのパナマ地峡住民の不満が、分離独立運動の直接的動機となった。', process:'運河建設を急ぐアメリカが海軍力でパナマの分離独立派を支援し、コロンビアからの分離独立を成功させ、独立直後新政府はアメリカに運河地帯の永久的な使用・支配権を認める条約を締結した。', significance:'アメリカの直接的な軍事的関与により人為的に作られた国家という性格は、以後長くパナマの主権問題として尾を引くこととなり、20世紀のアメリカのラテンアメリカ介入主義を象徴する事例となっている。', debate:'この独立を「パナマ人自身の民族的自決」とみるか「アメリカによる運河建設のための人工的な国家分割」とみるかで、パナマ・コロンビア両国の歴史認識が対立している。'} },
+  { id:"panama_canal_construction", name:"パナマ運河の建設", category:"event", lat:9.08, lng:-79.68, start:1904, end:1914, region:"パナマ", relatedIds:["panama_canal_handover"], desc:{background:'フランスによる先行建設事業が黄熱病・マラリアによる労働者の大量死と資金難で頓挫していたことが、アメリカによる引き継ぎ建設の技術的・財政的教訓となった。', process:'蚊の駆除による感染症対策の成功と閘門式運河の技術的達成により1914年に開通し、太平洋と大西洋を結ぶ大運河が完成した。', significance:'世界の海運と貿易の構造を一変させる一大インフラとなり、感染症対策(蚊媒介病の制圧)の成功は公衆衛生史上の画期的成果としても評価される。', debate:'この建設事業における労働者(特に西インド諸島出身の黒人労働者)の犠牲と人種的処遇格差については、アメリカの海外事業における人種主義の問題として批判的に検討されている。'} },
+  { id:"panama_canal_handover", name:"パナマ運河返還", category:"treaty", lat:8.98, lng:-79.52, start:1999, end:1999, region:"パナマ(パナマシティ)", desc:{background:'20世紀を通じたパナマ国内での運河主権回復要求運動の高まりと、1964年の反米暴動などの緊張が、アメリカに条約再交渉を迫る圧力となった。', process:'1977年に締結されたトリホス・カーター条約に基づき、20世紀を通じてアメリカが管理してきたパナマ運河の主権と管理権が完全にパナマへ返還された。', significance:'これによりパナマは自国領内を貫く戦略的要衝を完全な主権のもとに置くこととなり、運河収入は同国経済の重要な柱となっている、平和的な主権返還の成功例である。', debate:'カーター政権によるこの条約締結は当時アメリカ国内で「弱腰外交」との強い批判を受けており、アメリカの対外政策における「帝国」の縮小をめぐる国内論争の重要な事例となった。'} },
+  { id:"sandinista_revolution", name:"サンディニスタ革命(ニカラグア革命)", category:"revolution", lat:12.11, lng:-86.24, start:1978, end:1979, region:"ニカラグア(マナグア)", relatedIds:["contra_war","somoza_dynasty"], desc:{background:'ソモサ一族による40年以上に及ぶ独裁体制のもとでの国富の私物化と政治的抑圧の蓄積が、広範な社会階層を糾合する革命運動を生む土壌となった。', process:'左翼ゲリラ組織サンディニスタ民族解放戦線(FSLN)が都市部での蜂起とゲリラ戦を組み合わせて政権を打倒し、1979年に社会主義的な改革を掲げる新政権を樹立した。', significance:'中米における冷戦下の左翼革命の代表例として、その後アメリカの支援するコントラ(反革命ゲリラ)との内戦を招くなど、1980年代の中米紛争の中心的な発火点となった。', debate:'サンディニスタ政権を「社会主義的解放」とみるか「新たな権威主義への移行」とみるかで、革命後の統治(特に選挙実施の是非)をめぐる評価が国際的に分かれた。'} },
+  { id:"contra_war", name:"コントラ戦争", category:"war", lat:13.0, lng:-85.0, start:1981, end:1990, region:"ニカラグア全土", desc:{background:'冷戦下でソ連・キューバの影響力拡大を恐れるアメリカ・レーガン政権が、中米での共産主義拡大阻止を最優先課題としたことが、反革命勢力支援の背景となった。', process:'アメリカが資金・軍事支援を行った反革命ゲリラ「コントラ」とサンディニスタ政府軍との間で戦われ、アメリカ議会の承認なしに秘密裏に資金が供与されていたことが発覚した「イラン・コントラ事件」は当時のアメリカ政界を揺るがす大スキャンダルとなった。', significance:'1990年の選挙でサンディニスタが敗北し内戦は終結したが、この過程は冷戦下のアメリカの「代理戦争」政策とその国内的正当性(議会の統制を逃れた秘密工作)の問題を象徴する事例となった。', debate:'イラン・コントラ事件における大統領の関与の程度は、行政府の対外軍事介入に対する議会統制のあり方をめぐるアメリカ憲政史上の重要な論争を引き起こした。'} },
+  { id:"guatemalan_civil_war", name:"グアテマラ内戦", category:"war", lat:14.63, lng:-90.51, start:1960, end:1996, region:"グアテマラ全土(特に先住民地域)", relatedIds:["rigoberta_menchu"], desc:{background:'1954年のアメリカ支援によるクーデター(民主的に選ばれたアルベンス政権の転覆)により、農地改革を求める勢力と軍事政権との対立が抜き差しならないものとなったことが遠因となった。', process:'左翼ゲリラと軍事政権との36年に及ぶ内戦となり、特にマヤ系先住民が多い地域では軍による組織的な虐殺(ジェノサイドと認定される事例も含む)が行われ推定20万人以上が犠牲となったが、1996年の和平協定でようやく終結した。', significance:'国連の後援した真実究明委員会は軍による行為の一部を「ジェノサイド」と認定し、冷戦下の反共政策が引き起こした人道的惨禍の代表例として国際的に記憶されている。', debate:'1954年のクーデターにおけるアメリカ(CIA)の関与の是非は、企業利益(ユナイテッド・フルーツ社)保護のための民主政権転覆というアメリカの冷戦期介入主義批判の代表事例として繰り返し論じられる。'} },
+  { id:"rigoberta_menchu", name:"リゴベルタ・メンチュウ", category:"person", parentId:"guatemalan_civil_war", lat:15.47, lng:-91.19, start:1959, end:2035, region:"グアテマラ(キチェ県)", desc:{background:'内戦下でマヤ系先住民が軍による組織的弾圧の主要な対象となっていたことが、家族の多くを失う彼女個人の悲劇的経験の背景となった。', process:'自伝を通じて内戦下の先住民迫害の実態を国際社会に訴え、1992年にノーベル平和賞を受賞した。', significance:'先住民の権利と多文化共生を求める運動の国際的な象徴となり、中南米における先住民運動の国際的可視化に大きく貢献した。', debate:'彼女の自伝の一部記述の正確性(人類学者スタッルによる史実性への疑義提起)をめぐる論争があり、証言文学における「事実」と「代表性を持つ物語」の関係という方法論的問題を提起している。'} },
+  { id:"el_salvador_civil_war", name:"エルサルバドル内戦", category:"war", lat:13.69, lng:-89.19, start:1980, end:1992, region:"エルサルバドル全土", desc:{background:'貧富の格差と少数エリート層(「14家族」)による長期の政治支配、およびそれに対する農民・労働者の不満の蓄積が、内戦勃発の社会的背景となった。', process:'左翼ゲリラ組織ファラブンド・マルティ民族解放戦線(FMLN)とアメリカの支援する軍事政権との間で戦われ、1980年の大司教オスカル・ロメロ暗殺は国際的な衝撃を呼んだが、1992年の和平協定によりFMLNは合法政党として政治参加する道を開いた。', significance:'冷戦下の中米における「代理戦争」的性格を強く帯びた内戦の代表例であり、和平合意後のFMLNの合法政党化・選挙参加は武装闘争から民主的政治参加への転換の一事例として比較政治学上重要視される。', debate:'アメリカの軍事支援を受けた政府軍による人権侵害(エルモソテ村虐殺など)への関与の程度は、アメリカの中米政策における人権と反共戦略の優先順位をめぐる論争の核心である。'} },
+
+  // ===================== 南米北部(大コロンビア・シモン・ボリバル) =====================
+  { id:"muisca_confederation", name:"ムイスカ連合", category:"nation", lat:4.71, lng:-74.07, start:800, end:1537, region:"コロンビア中央高地(ボゴタ高原)", desc:{background:'コロンビア中央高地の肥沃な農業地帯と、周辺地域には乏しい塩・エメラルド資源の存在が、ムイスカ族の交易国家としての繁栄を可能にした。', process:'黄金を身にまとい聖なる湖に金の装飾品を投げ入れる儀礼を行っていたが、1530年代のスペイン人の到来により征服された。', significance:'この儀礼は「エル・ドラード(黄金郷)」伝説の起源になったとされ、この伝説はその後長くヨーロッパ人の南米探検を掻き立てる要因となった点で、南米征服史全体に間接的な影響を及ぼした。', debate:'「エル・ドラード」伝説が実際のムイスカの儀礼(グアタビータ湖の即位儀礼)にどこまで正確に基づくものか、後世の誇張・伝説化の過程がどう進んだかは史料批判上の関心事である。'} },
+  { id:"viceroyalty_new_granada", name:"ヌエバ・グラナダ副王領", category:"nation", lat:4.71, lng:-74.07, start:1717, end:1819, region:"コロンビア・ベネズエラ・エクアドル・パナマ(ボゴタ)", relatedIds:["simon_bolivar"], desc:{background:'既存のペルー副王領による広大な領域の統治の非効率性を改善する必要から、独立した行政単位としての副王領新設が図られたことが背景にある。', process:'ボゴタを首都に金・エメラルド交易で栄えたが、18世紀末のブルボン改革による増税・統制強化への反発と啓蒙思想の流入を背景に独立志向が高まった。', significance:'19世紀初頭にはシモン・ボリバルらの主導する独立戦争の主戦場の一つとなり、現在のコロンビア・ベネズエラ・エクアドル・パナマという広範な領域の行政的一体性の歴史的起源となった。', debate:'ブルボン改革(増税・行政効率化)を、植民地統治の近代化とみるか、結果的に独立運動を誘発した自滅的政策とみるかで評価が分かれる。'} },
+  { id:"venezuelan_independence_movement", name:"ベネズエラ独立運動(第一・第二共和国)", category:"event", lat:10.48, lng:-66.9, start:1810, end:1814, region:"ベネズエラ(カラカス)", desc:{background:'ナポレオンによるスペイン占領という権力の空白が、カラカスにおける自治政府樹立という独立への第一歩を可能にした。', process:'フランシスコ・デ・ミランダやシモン・ボリバルが指導したが、大地震という天災やスペイン王党派の反撃、奴隷制廃止をめぐる社会的亀裂もあって第一・第二共和国とも短期間で崩壊した。', significance:'独立の達成にはその後も長い戦いを要したことを示す事例であり、初期の性急な独立宣言が必ずしも実効的な独立確保につながらないことを示す教訓的事例となっている。', debate:'第一共和国崩壊の一因とされる大地震(1812年カラカス地震)を、聖職者側が「独立への神罰」と喧伝し民衆の離反を招いたとされる逸話は、宗教的言説が政治的正統性に与える影響の事例として論じられる。'} },
+  { id:"gran_colombia", name:"大コロンビア(グラン・コロンビア)", category:"nation", lat:4.71, lng:-74.07, start:1819, end:1831, region:"コロンビア・ベネズエラ・エクアドル・パナマ", relatedIds:["dissolution_gran_colombia","battle_of_boyaca","battle_of_carabobo"], desc:{background:'シモン・ボリバルが抱いていた南米統一国家の理想と、独立戦争を効率的に戦うための軍事的統合の必要性が、この広域国家樹立の理念的・実務的背景となった。', process:'現在のコロンビア・ベネズエラ・エクアドル・パナマを統合して樹立され南米北部の統一国家としてスペインからの独立を確定させたが、広大な領域内の地域対立とカウディーリョ(地方軍事指導者)間の権力争いにより統合は長続きせず、1830年前後にベネズエラ・エクアドルが相次いで分離、1831年に解体した。', significance:'ボリバルの統一構想の挫折は、以後の南米が単一の統合国家ではなく多数の国民国家として分立していく決定的な転機となり、今日に至るラテンアメリカの国家分立の原型を作った。', debate:'大コロンビア解体の主因を地域主義的なカウディーリョの権力欲に求めるか、そもそも広大で地理的に分断された領域を単一の中央集権国家として維持することの構造的困難さに求めるかで評価が分かれる。'} },
+  { id:"simon_bolivar", name:"シモン・ボリバル", category:"person", parentId:"gran_colombia", lat:10.48, lng:-66.9, start:1783, end:1830, region:"ベネズエラ・コロンビア・ペルー・ボリビア(南米北部・中部)", relatedIds:["battle_of_boyaca","battle_of_carabobo"], desc:{background:'カラカスの富裕なクリオージョ出身という立場と、ヨーロッパ滞在中に受けた啓蒙思想の影響が、独立運動への献身と統一国家構想を育んだ。', process:'南米大陸北部の広範囲をスペインから解放し「解放者(エル・リベルタドール)」と称えられ、ベネズエラ・コロンビア・エクアドル・ペルー・ボリビア(彼の名にちなみ命名)の独立に決定的な役割を果たしたが、南米諸国の連邦的統合(グラン・コロンビア)の構想は各国のカウディーリョによる分立志向の前に実現せず失意のうちに1830年に没した。', significance:'5か国の独立に関わった南米独立運動最大の指導者として、今日でも「解放者」として広く敬愛され、ボリビアの国名や各国の通貨単位(ボリバル、ボリビアーノ)にその名を残している。', debate:'晩年に独裁的権限(終身大統領制)を志向したことは、彼の理想主義(自由・統一)と現実政治における権威主義的傾向との間の緊張として、ラテンアメリカ政治史における「解放者から独裁者へ」という構図の先駆例としてしばしば論じられる。'} },
+  { id:"battle_of_boyaca", name:"ボヤカの戦い", category:"war", lat:5.46, lng:-73.5, start:1819, end:1819, region:"コロンビア(ボヤカ)", desc:{background:'ベネズエラでの独立戦争の膠着状態を打開するため、ボリバルが予想外の経路(アンデス越え)からの奇襲攻撃を計画したことが、この決戦を可能にした戦略的背景となる。', process:'アンデス山脈を越える奇襲行軍の末にスペイン王党派軍を壊滅させ、この勝利によりボゴタが解放されヌエバ・グラナダ(現コロンビア)の独立が事実上確定した。', significance:'大コロンビア建国への道が開かれたことから、コロンビアでは独立達成の象徴的な戦闘として記念されている、南米独立戦争の転換点となった戦いである。', debate:'この奇襲行軍を、サン・マルティンのアンデス越えと並ぶ「南米版アルプス越え」として軍事的天才性を強調する評価と、王党派側の油断・情報不足という受動的要因を重視する評価とがある。'} },
+  { id:"battle_of_carabobo", name:"カラボボの戦い", category:"war", lat:10.24, lng:-68.0, start:1821, end:1821, region:"ベネズエラ(カラボボ)", desc:{background:'ベネズエラ独立運動の度重なる挫折(第一・第二共和国崩壊)を経て、ボリバルとパエスが軍事的連携を強化し反撃の機を熟させていたことが、この決戦の背景となった。', process:'シモン・ボリバルとホセ・アントニオ・パエス率いる独立軍が、スペイン王党派軍に決定的な勝利を収めた。', significance:'この勝利によりベネズエラの独立が事実上確定し、以後ベネズエラでは独立記念の中核的な戦闘として位置づけられている。', debate:'この勝利の立役者パエスが後に大コロンビアからのベネズエラ分離独立を主導したことは、独立戦争における協力関係が国家統合の理念的一致を必ずしも意味しなかったことを示す事例である。'} },
+  { id:"dissolution_gran_colombia", name:"大コロンビアの解体", category:"event", lat:4.71, lng:-74.07, start:1830, end:1831, region:"コロンビア・ベネズエラ・エクアドル", desc:{background:'統合国家としての理想を掲げたボリバルの構想に反し、地域主義とカウディーリョ間の対立が独立戦争終結後に急速に先鋭化したことが背景にある。', process:'ベネズエラ(パエス主導)とエクアドル(フローレス主導)が相次いで離脱し、残ったヌエバ・グラナダも後にコロンビア共和国として再編された。', significance:'この分裂は以後の南米が単一の統合国家ではなく多数の国民国家として分立していく決定的な転機となり、汎米主義・南米統合の理想が現実政治の前に挫折する最初の大規模事例となった。', debate:'この解体を「地域住民の自然な自己決定」とみるか「一部エリート(カウディーリョ)の権力欲による人為的分裂」とみるかで、ラテンアメリカ統合論における評価が分かれる。'} },
+  { id:"colombian_conflict", name:"コロンビア内戦(暴力の時代〜FARCとの武力紛争)", category:"war", lat:4.71, lng:-74.07, start:1948, end:2016, region:"コロンビア全土", relatedIds:["colombia_farc_peace_accord"], desc:{background:'1948年の自由党指導者暗殺という単発的事件が、保守・自由両党間に蓄積していた根深い政治的対立と農村部の土地問題を一気に武力衝突へと転化させたことが背景にある。', process:'保守・自由両党支持者間の内戦「ラ・ビオレンシア」に端を発し、1960年代以降はコロンビア革命軍(FARC)などの左翼ゲリラ、麻薬カルテル、右翼準軍事組織が入り乱れる半世紀以上に及ぶ武力紛争へと変質した。', significance:'麻薬取引による資金調達が紛争を長期化させ、推定22万人以上が犠牲になったとされる中南米屈指の長期内戦となり、「麻薬戦争」と武力紛争が結びつく現代的な内戦の典型例として国際的に研究される。', debate:'紛争の性格が当初のイデオロギー対立(左翼ゲリラ対政府)から後年は麻薬利権をめぐる犯罪的性格へと変質したとする見方が有力であり、この変質の時期・程度をめぐり評価が分かれる。'} },
+  { id:"colombia_farc_peace_accord", name:"コロンビア和平合意(FARCとの和平)", category:"treaty", lat:4.71, lng:-74.07, start:2016, end:2016, region:"コロンビア(ハバナ・ボゴタ)", desc:{background:'半世紀以上続いた紛争による国土の疲弊と、国際社会(特にキューバ・ノルウェーなど仲介国)の後押しが、両者を交渉のテーブルに着かせる機運を醸成した。', process:'キューバの仲介による4年に及ぶ交渉の末、コロンビア政府とコロンビア革命軍(FARC)との間で締結され、FARCの武装解除と合法政党への転換を柱としたが、国内では合意の是非をめぐる国民投票が僅差で否決されるなど和平の定着には曲折も伴った。', significance:'大統領サントスはこの功績で同年のノーベル平和賞を受賞し、半世紀以上に及ぶ内戦を交渉により終結させた事例として国際的な和平プロセス研究における重要な参照事例となっている。', debate:'国民投票での僅差の否決(2016年)は、和平合意の内容(FARC戦闘員への処罰の軽さなど)に対する国内世論の根強い反発を示しており、「正義」と「和解」のどちらを優先すべきかという移行期正義論の重要な事例を提供している。'} },
+  { id:"bolivarian_revolution", name:"ベネズエラ・ボリバル革命(チャベス政権とその後)", category:"event", lat:10.48, lng:-66.9, start:1999, end:2030, region:"ベネズエラ(カラカス)", desc:{background:'1990年代のベネズエラにおける石油収入依存経済の行き詰まりと既存政党への幻滅が、新興の軍人出身指導者チャベスの台頭を可能にした。', process:'元軍人ウゴ・チャベスがシモン・ボリバルの理念を掲げて推進した社会主義的改革路線のもと、豊富な石油収入を財源に貧困層向けの社会福祉政策(ミッション)を拡充し中南米左派連携の中心的存在となったが、権力集中と統治機構への介入も強め、チャベスの死後は後継者マドゥロのもとで深刻な経済危機と大量の国外流出移民を招く事態に至っている。', significance:'21世紀初頭のラテンアメリカにおける「ピンクの潮流」を先導した最初の事例として、石油資源による福祉国家建設モデルの可能性と限界(資源価格下落時の脆弱性)の双方を示す事例となっている。', debate:'チャベス・マドゥロ体制を「参加型民主主義の実験」とみるか「権威主義への後退(独裁化)」とみるかで国際的評価が根本的に分かれ、現在のベネズエラ危機の原因分析(制裁の影響か統治の失敗か)もこの評価軸と連動して対立している。'} },
+
+  // ===================== ペルー・ボリビア(独立〜現代) =====================
+  { id:"jose_de_san_martin", name:"ホセ・デ・サン・マルティン", category:"person", parentId:"peru_independence", lat:-12.05, lng:-77.04, start:1778, end:1850, region:"アルゼンチン・チリ・ペルー(南米南部)", relatedIds:["crossing_of_the_andes"], desc:{background:'スペイン軍での軍歴を通じて培った軍事的専門知識と、南米独立運動への理念的共鳴が、彼の帰国後の独立戦争参加を促した。', process:'アルゼンチンの独立を確定させた後、アンデス越えの遠征でチリを解放し、さらに海路ペルーへ進軍して1821年にペルー独立を宣言した。', significance:'「南方解放者」として南米南部の独立に決定的な役割を果たしたが、1822年にグアヤキルでシモン・ボリバルと会見した後は表舞台から退き、以後は静かにヨーロッパで晩年を過ごした。', debate:'グアヤキル会見でサン・マルティンが自ら身を引いた理由(ボリバルとの権力・戦略をめぐる対立の内容)は史料が乏しく、南米独立史上最大級の謎として今も研究者の関心を集めている。'} },
+  { id:"crossing_of_the_andes", name:"アンデス越え遠征", category:"war", lat:-32.65, lng:-70.02, start:1817, end:1817, region:"アルゼンチン・チリ国境(アンデス山脈)", desc:{background:'チリの独立運動が王党派の反撃で挫折していた状況を打開するため、予想外の経路からの奇襲攻撃が必要とされたことが、この壮挙の戦略的背景となった。', process:'サン・マルティン率いる独立軍が標高3000m級の山道を越えてアルゼンチンからチリへ奇襲侵攻し、この遠征の成功によりチャカブコの戦いでスペイン王党派軍を破ってチリの解放に成功した。', significance:'ナポレオンのアルプス越えにも比される壮挙とされ、翌年のチリ独立宣言への道を開いた、南米独立戦争史上最大級の軍事的偉業として記憶されている。', debate:'この行軍の困難さ(高山病・凍傷による多数の犠牲)を美化して語る英雄叙事詩的な国民史観に対し、実際の犠牲の規模や兵站上の問題点を実証的に検討する近年の軍事史研究もある。'} },
+  { id:"peru_independence", name:"ペルー独立宣言", category:"event", lat:-12.05, lng:-77.04, start:1821, end:1821, region:"ペルー(リマ)", relatedIds:["battle_of_ayacucho"], desc:{background:'チリ解放の成功を受け、サン・マルティンが海路からペルーへ進軍する準備が整ったことが、独立宣言実現の直接的背景となった。', process:'サン・マルティンがリマに入城して独立を宣言したが、内陸部と高地には依然として強力なスペイン王党派軍が残存しており、独立の完全な確定にはその後シモン・ボリバルとその副官スクレによる遠征と1824年のアヤクーチョの戦いでの勝利を待たねばならなかった。', significance:'「宣言」と「実効的独立確定」との間に3年の歳月を要したこの事例は、独立戦争における「独立宣言」という行為の象徴性と、実際の主権確立の困難さとの乖離を示す典型例である。', debate:'サン・マルティン軍とボリバル軍という異なる独立勢力の連携・引き継ぎの実態(南北二方向からの解放運動の合流点としてのペルー)は、南米独立戦争の全体構造を理解する上で重要な論点となる。'} },
+  { id:"battle_of_ayacucho", name:"アヤクーチョの戦い", category:"war", lat:-13.16, lng:-74.22, start:1824, end:1824, region:"ペルー(アヤクーチョ)", relatedIds:["antonio_jose_de_sucre"], desc:{background:'サン・マルティンの表舞台からの退場後、ボリバルとその副官スクレが南米独立戦争の最終段階を主導する立場に立ったことが、この決戦の背景となった。', process:'ボリバルの副官アントニオ・ホセ・デ・スクレが指揮する独立軍が、南米大陸最後の主要なスペイン王党派軍を打ち破った。', significance:'この勝利により南米大陸におけるスペインの植民地支配は事実上終焉し、南米諸国の独立が最終的に確定した記念碑的な戦闘として位置づけられている。', debate:'この戦いをもって「南米独立戦争の終結」とする通説に対し、実際にはその後も各地で王党派の残存抵抗が続いたことを重視し、独立の「完了」時期をより後にずらして考えるべきとする見解もある。'} },
+  { id:"antonio_jose_de_sucre", name:"アントニオ・ホセ・デ・スクレ", category:"person", parentId:"bolivia_independence", lat:-19.05, lng:-65.26, start:1795, end:1830, region:"ボリビア(スクレ)", desc:{background:'ボリバルからの深い信頼を得て数々の戦いを指揮する経験を積んだことが、南米独立戦争最終段階での指導的地位を確立する基盤となった。', process:'アヤクーチョの戦いでの勝利で南米独立戦争の帰趨を決定づけ、1825年にはアルト・ペルー(現ボリビア)の独立を主導し初代大統領に就任した。', significance:'新国家は彼にちなみ「ボリビア」と名付けられ、南米独立戦争最大の功労者の一人として記憶されているが、1830年に政敵により暗殺された。', debate:'その暗殺の背後関係(政敵の特定)は完全には解明されておらず、独立達成後のカウディーリョ間の権力闘争の激しさを象徴する未解決の歴史的謎として論じられる。'} },
+  { id:"peru_bolivia_confederation", name:"ペルー・ボリビア連合", category:"nation", lat:-16.5, lng:-68.15, start:1836, end:1839, region:"ペルー・ボリビア", desc:{background:'ボリビアの指導者サンタ・クルスが抱いた地域統合構想が、ペルー国内の政治的混乱に乗じて実現可能と見なされたことが背景にある。', process:'ペルーとボリビアを統合して樹立を図ったが、地域の勢力均衡の変化を警戒したチリとアルゼンチンが軍事介入し、1839年のユンガイの戦いでの敗北により崩壊した。', significance:'ペルーとボリビアは再び分離した国家として存続することとなり、この失敗はアンデス地域における国家統合構想が周辺国の勢力均衡上の懸念によって阻まれる典型例となった。', debate:'チリの軍事介入を、地域覇権をめぐる純粋な勢力均衡政策とみるか、後の太平洋戦争(硝石戦争)にもつながるチリの拡張主義的傾向の初期の表れとみるかで評価が分かれる。'} },
+  { id:"bolivia_independence", name:"ボリビア独立", category:"event", lat:-19.05, lng:-65.26, start:1825, end:1825, region:"ボリビア(スクレ)", desc:{background:'アヤクーチョの戦いでの決定的勝利が、アルト・ペルー地域の解放とそれに続く独立国家樹立への道を開いたことが直接的背景となる。', process:'スクレが率いる軍がアルト・ペルー地域を解放して独立を宣言し、解放者シモン・ボリバルにちなんで国名が「ボリビア」と定められた。', significance:'当初はボリバル自身の名を冠した首都(現スクレ)が建設されるなど、南米独立戦争の理念的指導者への敬意が国家の根本的なアイデンティティに刻み込まれた稀有な事例である。', debate:'内陸国として海への出口を持たない地理的制約(後の太平洋戦争敗北による沿岸部喪失も含む)が、独立当初から今日に至るボリビアの経済的発展の障害となってきたことがしばしば論じられる。'} },
+  { id:"war_of_the_pacific", name:"太平洋戦争(硝石戦争)", category:"war", lat:-20.21, lng:-70.15, start:1879, end:1883, region:"チリ・ペルー・ボリビア(アタカマ砂漠沿岸)", desc:{background:'アタカマ砂漠地帯の硝石(化学肥料・火薬原料として当時世界的に重要な資源)資源の利権をめぐる領土問題が、チリとペルー・ボリビア両国間の緊張を高めていたことが開戦の背景となった。', process:'海軍力に優るチリが圧勝し、ペルーは硝石地帯タラパカを、ボリビアは太平洋岸の海岸地帯アントファガスタを失って内陸国となった。', significance:'この結果はボリビアに今日まで続く「海への出口」喪失問題を残し、チリ・ボリビア間の外交懸案として現在も尾を引いている、南米における資源をめぐる国境紛争の代表例である。', debate:'ボリビアが現在も国際司法裁判所などを通じて海への出口の回復を求め続けていることは、19世紀の戦争の結果が21世紀の国際関係に長期的影響を及ぼし続ける事例として国際法学上も注目される。'} },
+  { id:"shining_path_conflict", name:"センデロ・ルミノソ(輝く道)との内戦", category:"war", lat:-13.16, lng:-74.22, start:1980, end:2000, region:"ペルー全土(特にアヤクーチョ地方)", relatedIds:["fujimori_administration"], desc:{background:'アンデス山間部における深刻な貧困と、都市部エリートによる政治支配からの疎外感が、毛沢東主義を掲げる過激な武装組織の台頭を可能にする社会的土壌となった。', process:'センデロ・ルミノソがアンデス山間部を拠点に展開した長期の武力闘争で、政府軍・準軍事組織との間で凄惨な暴力の応酬が続き推定7万人近くが犠牲になったとされるが、1992年に指導者グスマンが逮捕されたことで組織は急速に弱体化した。', significance:'指導者一人の逮捕が組織全体の急速な弱体化をもたらした事例として、カリスマ的指導者への依存度が高い武装組織の脆弱性を示す代表例となっている。', debate:'犠牲者の多くが政府軍・センデロ双方による先住民農村部への暴力によるものであったとする真実和解委員会の報告は、内戦における「弱者」の位置づけと国家の責任について重要な問いを投げかけている。'} },
+  { id:"fujimori_administration", name:"フジモリ政権", category:"nation", lat:-12.05, lng:-77.04, start:1990, end:2000, region:"ペルー(リマ)", desc:{background:'ハイパーインフレとセンデロ・ルミノソの脅威という二重の危機が、既存政党に幻滅した有権者を無名の日系人候補フジモリの当選へと向かわせた。', process:'急進的な経済自由化(フジショック)とセンデロ・ルミノソの鎮圧で一定の成果を上げた一方、1992年には議会を強権的に閉鎖するクーデター的措置(オートゴルペ)を行い権威主義的な統治を強めた。', significance:'2000年に汚職疑惑の中で国外逃亡・失脚し、後年帰国して人権侵害の罪などで有罪判決を受けたことは、民主的に選出された指導者が権威主義化し最終的に法の裁きを受けるという、現代ラテンアメリカ政治の重要な事例となった。', debate:'経済安定化とテロ鎮圧という「成果」と、民主主義の実質的破壊(オートゴルペ)という「代償」のどちらを重く見るべきかは、フジモリ政権評価における中心的な論争点であり続けている。'} },
+
+  // ===================== ブラジル(植民地〜帝政) =====================
+  { id:"portuguese_arrival_brazil", name:"カブラルのブラジル到達", category:"event", lat:-16.02, lng:-39.03, start:1500, end:1500, region:"ブラジル(ポルト・セグーロ)", desc:{background:'インド航路開拓というポルトガルの国家的事業の一環として、大西洋を経由する航路探索が行われていたことが、意図せざる新大陸到達の背景となった。', process:'インド航路を目指していたポルトガル人ペドロ・アルヴァレス・カブラルの艦隊が、航路を大きく西に外れた末に南米大陸東岸に漂着した。', significance:'この「発見」によりポルトガルはブラジルの領有を宣言し、以後300年以上に及ぶポルトガルによる植民地統治の起点となった、トルデシリャス条約の実際の適用事例として重要である。', debate:'この「漂着」が本当に偶然であったか、当時すでにポルトガルが南米大陸の存在を把握しておりトルデシリャス条約の境界線を有利に設定するための計画的航海であった可能性も指摘され、真相は完全には解明されていない。'} },
+  { id:"colonial_brazil", name:"ポルトガル領ブラジル", category:"nation", lat:-12.97, lng:-38.5, start:1549, end:1815, region:"ブラジル(サルヴァドール→リオデジャネイロ)", relatedIds:["gold_rush_minas_gerais","portuguese_court_transfer"], desc:{background:'熱帯性気候がサトウキビ栽培に適していたことと、アフリカとの奴隷貿易ルートに近い地理的条件が、プランテーション経済発展の基盤となった。', process:'サトウキビ・プランテーション経済(サトウキビ・サイクル)を基盤に発展し、労働力としてアフリカから膨大な数の奴隷が連行され南米大陸における大西洋奴隷貿易の一大受け入れ先となったが、18世紀にはミナスジェライスでの金・ダイヤモンド発見により経済の重心が内陸部・南部へ移動した。', significance:'ブラジルは大西洋奴隷貿易史上最大の奴隷受け入れ国となり、この人口構成の歴史的経緯は現在のブラジル社会の人種構成・文化(アフロブラジル文化)に決定的な影響を残している。', debate:'ブラジルが西半球で最後まで奴隷制を維持した(1888年まで)ことの理由を、経済的依存度の高さに求めるか、政治的・社会的な保守性に求めるかで、奴隷制廃止の遅れをめぐる比較史的議論がある。'} },
+  { id:"gold_rush_minas_gerais", name:"ミナスジェライスの金鉱発見(ゴールドラッシュ)", category:"event", lat:-20.32, lng:-43.93, start:1693, end:1750, region:"ブラジル(オウロ・プレット、ミナスジェライス州)", desc:{background:'サトウキビ経済が北東部沿岸に偏っていた植民地構造の中、内陸部の未開発地帯における新たな資源発見が、経済の地理的重心を大きく揺るがす契機となった。', process:'ブラジル内陸部ミナスジェライスで発見された豊富な金・ダイヤモンド鉱床をめぐりポルトガル本国や他地域から大量の移民・奴隷が流入し、この開発によりブラジル植民地経済の中心はサトウキビ産地の北東部から南東部の内陸鉱山地帯へと移行した。', significance:'リオデジャネイロが積出港として発展し、後の首都移転(バイーアからリオへ)の伏線となった点で、ブラジルの地域間経済構造を根本的に組み替えた画期的な資源ブームであった。', debate:'この金採掘ブームが結果的にブラジル国内での産業多角化(工業化)を阻害し、一次産品輸出依存の経済構造を固定化したのではないかという「資源の呪い」的な視点からの批判的検討がある。'} },
+  { id:"portuguese_court_transfer", name:"ポルトガル王室のブラジル遷都", category:"event", lat:-22.91, lng:-43.17, start:1808, end:1808, region:"ブラジル(リオデジャネイロ)", desc:{background:'ナポレオン軍によるポルトガル侵攻という本国の危機的状況が、王室自身の海外植民地への避難という前代未聞の決断を迫った。', process:'摂政王子ジョアン(後のジョアン6世)を含む王室・宮廷全体がイギリス海軍の護衛のもと大西洋を渡ってリオデジャネイロに移り、港の開放や行政機構の整備が進んだ。', significance:'植民地でありながら本国の王室を迎え入れたブラジルは事実上ポルトガル帝国の中心地となり、これが独立への地ならしとなった、植民地と本国の関係が逆転する世界史上稀有な事例である。', debate:'この遷都を「ナポレオン戦争がもたらした偶然の産物」とみるか、ブラジルが他のラテンアメリカ諸国と異なり比較的平和裏に独立を達成できた構造的要因とみるかで、比較植民地史上の重要性が論じられる。'} },
+  { id:"brazilian_independence", name:"ブラジル独立(イピランガの叫び)", category:"event", lat:-23.58, lng:-46.6, start:1822, end:1822, region:"ブラジル(サンパウロ・イピランガ)", relatedIds:["pedro_i"], desc:{background:'ポルトガル本国議会がブラジルを再び従属的な植民地に戻そうとする動きが、王室滞在によりすでに事実上の自治を享受していたブラジルの反発を招いた。', process:'摂政皇太子ペドロがイピランガ川のほとりで「独立か死か」と叫んで独立を宣言し、中南米の多くの国が長期の武力闘争を経て独立したのに対しブラジルは王室主導のもと比較的平和裏に独立を達成し、そのまま帝政国家として出発した。', significance:'スペイン語圏の隣国群が共和政国家として独立したのとは対照的に、ブラジルは唯一君主政国家として出発しており、この違いはポルトガルとスペインの植民地統治方式の相違を反映する重要な比較史的事例である。', debate:'「平和的独立」という評価に対し、実際には各地方(バイーアなど)で王党派との武力衝突が続いていたことを重視し、ブラジル独立の「無血」神話を相対化する研究もある。'} },
+  { id:"pedro_i", name:"ペドロ1世", category:"person", parentId:"empire_of_brazil", lat:-22.91, lng:-43.17, start:1798, end:1834, region:"ブラジル帝国", desc:{background:'ポルトガル王ジョアン6世の子として、ブラジル滞在中に育った現地世論の独立志向と本国からの圧力との間で困難な立場に置かれたことが、独立宣言という決断の背景となった。', process:'独立を宣言しブラジル帝国の初代皇帝に即位し立憲君主政のもとで統治したが、ポルトガル王位継承問題への関与や議会との対立から統治は不安定化し、1831年に幼い息子(後のペドロ2世)に譲位してポルトガルに帰国した。', significance:'ブラジルとポルトガル両国の王位に関わる複雑な立場は、旧宗主国と新独立国の君主が同一人物であるという特異な状況を生み、両国関係の緊密さと緊張の双方を象徴する事例となった。', debate:'ポルトガル王位への未練がブラジル統治への集中を妨げたとする見方は、彼の早期退位・帰国の動機分析における重要な論点である。'} },
+  { id:"empire_of_brazil", name:"ブラジル帝国", category:"dynasty", lat:-22.91, lng:-43.17, start:1822, end:1889, region:"ブラジル(リオデジャネイロ)", relatedIds:["pedro_ii","paraguayan_war","abolition_of_slavery_brazil"], desc:{background:'王室主導による平和的独立という経緯が、他のラテンアメリカ諸国とは異なる君主政という国家形態の選択と、比較的安定した領土的一体性の維持を可能にした。', process:'ラテンアメリカの他国が独立後にたびたび内戦・分裂を経験したのに対し比較的安定した統治のもとで広大な国土の一体性を保ち続けたが、パラグアイ戦争での軍部の発言力増大や奴隷制廃止に伴う地主層の離反により求心力を失い、1889年の軍事クーデターで共和政に移行し滅亡した。', significance:'南米で唯一君主政を維持した国家として、広大な国土(スペイン語圏諸国のような分裂を経験しなかった)を統一的に保った点で、ラテンアメリカ国家形成史上の特異な成功例と評価される。', debate:'スペイン語圏諸国が独立後に分裂を繰り返したのに対しブラジルが統一を保てた要因を、君主政という求心力に求めるか、単一言語・単一宗主国という植民地統治構造の違いに求めるかで比較史的議論がある。'} },
+  { id:"pedro_ii", name:"ペドロ2世", category:"person", parentId:"empire_of_brazil", lat:-22.91, lng:-43.17, start:1825, end:1891, region:"ブラジル帝国", desc:{background:'5歳での即位という異例の若さと、それに伴う長期の摂政期間が、彼の統治スタイル(学術・芸術振興を重視する啓蒙的君主像)の形成に影響を与えた。', process:'58年にわたり統治し学術・芸術を篤く保護し立憲君主として比較的穏健な統治を行い国際的にも高い評価を得たが、パラグアイ戦争での軍部の台頭、1888年の奴隷制廃止によるプランテーション地主層の離反が重なり、1889年の軍事クーデターにより退位を余儀なくされポルトガルへ亡命した。', significance:'国際的に「文明化された君主」として高く評価されたにもかかわらず国内の構造的な政治変動(軍部台頭・地主離反)には抗しきれなかった事例として、君主個人の資質と国家体制の存続可能性との関係を考える上で示唆に富む。', debate:'奴隷制廃止(黄金法)への皇帝の関与が退位の直接的引き金になったという通説は、皇帝を「進歩的改革者」として描く一方、実際には皇帝自身より摂政イザベル王女の主導であったとする史料解釈上の相違もある。'} },
+  { id:"paraguayan_war", name:"パラグアイ戦争(三国同盟戦争)", category:"war", lat:-25.28, lng:-57.63, start:1864, end:1870, region:"パラグアイ・ブラジル・アルゼンチン・ウルグアイ", desc:{background:'パラグアイの指導者ロペスが、地域における影響力拡大を狙い周辺国の内政・国境問題に介入する拡張政策をとったことが、開戦の直接的契機となった。', process:'ブラジル・アルゼンチン・ウルグアイの三国同盟とパラグアイとの間で南米史上最大規模の戦争が戦われ、人口の大半を占めていたパラグアイの成人男性の大半が死亡したとも推計される凄惨な結果に終わった。', significance:'パラグアイは領土の一部も失って長期にわたる荒廃を経験し、この戦争は南米における国家間戦争の中でも最も破壊的な事例として、パラグアイの人口動態・国力に長期的な傷跡を残した。', debate:'パラグアイの人的損害の規模(成人男性のほぼ全滅という極端な推計)については史料的検証に議論があり、また開戦の責任(ロペスの拡張主義かブラジル・アルゼンチンの介入主義か)をめぐる評価も対立している。'} },
+  { id:"abolition_of_slavery_brazil", name:"奴隷制廃止(黄金法)", category:"event", lat:-22.91, lng:-43.17, start:1888, end:1888, region:"ブラジル(リオデジャネイロ)", desc:{background:'国際的な奴隷制廃止の潮流(イギリスなどの圧力)と、国内における奴隷制への道義的批判の高まりが、廃止への機運を醸成していた。', process:'摂政イザベル王女の署名により即時無償の奴隷解放を定めた「黄金法」が制定され、ブラジルは西半球で最後に奴隷制を廃止した国となった。', significance:'補償を受けられなかった大土地所有者(ファゼンデイロ)層の皇室への不満が高まり、翌年の共和政クーデターの一因となった点で、奴隷制廃止という「進歩」が皮肉にも君主政の崩壊を招いた逆説的事例となっている。', debate:'「無償解放」という措置が、旧奴隷所有者への補償を伴った他国(イギリスなど)の廃止方式と比べどちらが公正であったかは、奴隷制廃止の経済的・倫理的側面を論じる比較史研究上の論点である。'} },
+
+  // ===================== ブラジル(共和国〜現代) =====================
+  { id:"proclamation_brazilian_republic", name:"ブラジル共和国宣言", category:"event", lat:-22.91, lng:-43.17, start:1889, end:1889, region:"ブラジル(リオデジャネイロ)", desc:{background:'奴隷制廃止に不満を持つ地主層の皇室への離反と、実証主義・共和主義思想の影響を受けた軍将校らの台頭という二つの潮流が、帝政打倒への機運を醸成した。', process:'デオドロ・ダ・フォンセカ元帥率いる軍部がクーデターを起こしペドロ2世を退位・国外追放して共和政を樹立し、帝政は大きな抵抗もなく崩壊し「ブラジル合衆国」が発足した。', significance:'皇帝個人が高い国際的評価を得ていたにもかかわらず、国内の構造的な政治的離反により抵抗なく体制が転換したことは、正統性の源泉が国際的評価だけでは維持できないことを示す事例である。', debate:'この共和政移行を「進歩的な近代化」の達成とみるか、旧地主エリート層による自らの利益(奴隷制廃止への反発)を守るための保守的なクーデターとみるかで評価が分かれる。'} },
+  { id:"vargas_era", name:"ヴァルガス時代(新国家体制)", category:"nation", lat:-22.91, lng:-43.17, start:1930, end:1945, region:"ブラジル(リオデジャネイロ)", relatedIds:["getulio_vargas"], desc:{background:'世界恐慌によるコーヒー価格暴落が既存の寡頭的な政治構造(コーヒー生産州の交代統治=「カフェ・コン・レイテ」体制)を揺るがし、新興勢力台頭の機会を生んだ。', process:'ジェトゥリオ・ヴァルガスが1937年に憲法を停止して樹立した権威主義的な「新国家(エスタード・ノヴォ)」体制のもと、輸入代替工業化政策により製鉄・石油など基幹産業の国有化・育成を進めたが、報道・言論の統制や反対派弾圧も強く、第二次大戦後の民主化要求の高まりの中で1945年に軍部により退陣させられた。', significance:'以後のブラジルの経済発展の基礎を築いた工業化政策の出発点として評価され、彼が確立した労働法制・国家主導型工業化モデルは以後数十年のブラジル経済政策の基本枠組みとなった。', debate:'ヴァルガス体制を「権威主義的近代化」の成功例とみるか「ファシズム的統制の一形態」とみるかで評価が分かれ、彼のポピュリズム的な労働者保護政策が権威主義とどう両立したかという「ヴァルガス主義」の性格づけが議論される。'} },
+  { id:"getulio_vargas", name:"ジェトゥリオ・ヴァルガス", category:"person", parentId:"vargas_era", lat:-22.91, lng:-43.17, start:1882, end:1954, region:"ブラジル(リオデジャネイロ)", desc:{background:'1930年革命という政変を機に権力を握った経緯が、以後の彼の統治スタイル(議会主義を軽視した実利的権力運用)の原型となった。', process:'「新国家」体制下では独裁的な統治とポピュリズム的な労働者保護政策(最低賃金制など)を組み合わせた「ヴァルガス主義」を確立し工業化を強力に推進したが、1954年軍部の圧力の中で自ら命を絶った。', significance:'断続的に約20年にわたりブラジルを統治した指導者として、その死(自死)は「国民への遺書」を残すという劇的な形で、ポピュリスト指導者の悲劇的最期の代表例として記憶されている。', debate:'彼の自死を、軍部の圧力への抗議を通じた最後の政治的アピール(実際に死後、彼の支持は急上昇した)とみるか、単なる政治的行き詰まりの結果とみるかで、その政治的計算の有無が議論される。'} },
+  { id:"brazilian_military_dictatorship", name:"ブラジル軍事政権", category:"nation", lat:-15.79, lng:-47.88, start:1964, end:1985, region:"ブラジル(ブラジリア)", relatedIds:["brazil_redemocratization"], desc:{background:'冷戦下での左派的とみなされたグラール政権の土地改革・国有化路線への警戒感が、軍部・保守層・アメリカの支持を集める形でクーデターを正当化する背景となった。', process:'軍部がクーデターで打倒し樹立した21年に及ぶ軍事独裁体制のもと「奇跡の経済成長」と称される高度経済成長を実現する一方、反体制派への拷問・強制失踪など苛烈な人権侵害も横行し、1980年代の民主化運動(「今すぐ直接選挙を」運動)の高まりを受け1985年に民政移管が実現した。', significance:'「開発独裁」による高度経済成長と深刻な人権侵害という二面性を併せ持つ事例として、南米における冷戦期軍事政権の典型例と評価される。', debate:'「奇跡の経済成長」の実態を評価する際、その恩恵が国民全体に及んだか一部エリート層に偏ったか(所得格差拡大の指摘)をめぐり経済史的な議論があり、成長と人権侵害の「トレードオフ」をどう総括すべきかも問われている。'} },
+  { id:"brazil_redemocratization", name:"ブラジル民政移管と新憲法", category:"event", lat:-15.79, lng:-47.88, start:1985, end:1988, region:"ブラジル(ブラジリア)", desc:{background:'「奇跡の経済成長」の終焉と1970年代末からの経済停滞・インフレの深刻化が、軍事政権への国民的不満を決定的に高めたことが民主化の背景となった。', process:'軍事政権から文民統治への移行を経て、1988年に基本的人権の保障を大幅に拡充した新憲法(「市民憲法」)が制定された。', significance:'以後ブラジルは定期的な大統領選挙による民主的な政権交代を重ね、2000年代以降はBRICSの一角として国際的な存在感を高める地域大国へと発展を続けている。', debate:'軍事政権関係者への恩赦(1979年恩赦法)を維持したまま民主化が進んだことは、移行期正義(過去の人権侵害の処罰)が不徹底に終わった事例として、アルゼンチン・チリなど他の南米諸国との比較で論じられる。'} },
+
+  // ===================== リオ・デ・ラ・プラタ地域(アルゼンチン・ウルグアイ・パラグアイ) =====================
+  { id:"viceroyalty_rio_de_la_plata", name:"リオ・デ・ラ・プラタ副王領", category:"nation", lat:-34.6, lng:-58.38, start:1776, end:1810, region:"アルゼンチン・ウルグアイ・パラグアイ・ボリビア(ブエノスアイレス)", relatedIds:["may_revolution"], desc:{background:'ブラジル(ポルトガル)との国境地帯における領土紛争と、増大する密貿易の取り締まりの必要性が、この新副王領設置の直接的動機となった。', process:'大西洋交易の拠点として台頭したブエノスアイレスを首都にスペインが1776年に新設したが、自由貿易を求めるブエノスアイレスの商人層の発言力を高める結果ともなり、19世紀初頭のイギリス軍侵攻の撃退で自信を深めた現地エリート層が独立志向を強めていく土壌となった。', significance:'この副王領の設置がかえって独立を求めるブエノスアイレスの商人・軍事エリート層の自立心を育てたという逆説は、植民地統治政策の意図せざる結果を示す興味深い事例である。', debate:'1806-07年のイギリス軍侵攻を、スペイン本国の支援なしに現地民兵が独力で撃退した経験が、独立への自信をどこまで直接的に与えたかについては、独立運動の起源をめぐる議論の一つの焦点である。'} },
+  { id:"may_revolution", name:"五月革命", category:"revolution", lat:-34.6, lng:-58.38, start:1810, end:1810, region:"アルゼンチン(ブエノスアイレス)", relatedIds:["argentine_declaration_of_independence"], desc:{background:'ナポレオンによるスペイン国王廃位という本国の権力空白が、植民地エリート層に自治政府樹立の正当化根拠(国王不在時の主権回帰論)を提供した。', process:'ブエノスアイレスの市民が副王を退けて自治政府(フンタ)を樹立し、直ちに完全独立を宣言したわけではなかったが、事実上の自治開始としてアルゼンチンでは独立運動の出発点とされている。', significance:'5月25日は今日も「五月革命記念日」として祝われており、「独立宣言」ではなく「自治政府樹立」が独立運動の象徴的起点とされる点は、ラテンアメリカ独立運動の多くに共通する「段階的独立」の性格を示している。', debate:'この革命を当初から独立を志向したものとみるか、あくまでスペイン国王への忠誠を前提とした一時的な自治(国王不在時の主権代行)にすぎなかったとみるかで、その本質的性格をめぐる歴史学的議論がある。'} },
+  { id:"argentine_declaration_of_independence", name:"アルゼンチン独立宣言(トゥクマン議会)", category:"event", lat:-26.82, lng:-65.22, start:1816, end:1816, region:"アルゼンチン(トゥクマン)", desc:{background:'五月革命以来の事実上の自治状態が続く中、国際的な承認と国内の政治的求心力確保のため、正式な独立宣言の必要性が高まっていた。', process:'各地の代表がトゥクマンに集いスペイン王政からの正式な独立を宣言し、この宣言を受けサン・マルティンはアンデス越え遠征を敢行してチリ・ペルーの解放へと向かった。', significance:'この宣言は南米南部における独立戦争を新たな段階へと進める画期となり、単なる一地域の独立にとどまらず南米大陸南部全体の解放戦争を牽引する起点となった。', debate:'独立宣言(1816年)と実質的な自治開始(五月革命、1810年)のどちらをアルゼンチン建国の起点とすべきかは、国民的記念日の選定(実際には5月革命の方が国家的祝日として重視される)にも表れる解釈の相違である。'} },
+  { id:"argentine_confederation", name:"アルゼンチン連合(建国期の内戦時代)", category:"nation", lat:-34.6, lng:-58.38, start:1831, end:1861, region:"アルゼンチン", relatedIds:["juan_manuel_de_rosas"], desc:{background:'独立達成後、中央集権を志向するブエノスアイレスの商業エリートと、各州の自治を重んじる内陸諸州のカウディーリョ層との間の根本的な利害対立が、長期内戦の構造的背景となった。', process:'内戦が続いた不安定な建国期を経て、ロサスの独裁を経て1853年憲法が制定され連邦共和国としての体制が整えられたが、ブエノスアイレス州との統合が完了しアルゼンチン共和国として安定するのは1861年以降のことであった。', significance:'独立から真の国家統合までに半世紀近い年月を要したこの過程は、ラテンアメリカ諸国における「独立」と「国家建設」が別個の長期的課題であったことを示す代表的事例である。', debate:'中央集権派(ブエノスアイレス)と連邦派(内陸諸州)の対立を、単なる権力闘争とみるか、実質的な経済的利害(輸出関税収入の配分)をめぐる構造的対立とみるかで経済史的な議論がある。'} },
+  { id:"juan_manuel_de_rosas", name:"フアン・マヌエル・デ・ロサス", category:"person", parentId:"argentine_confederation", lat:-34.6, lng:-58.38, start:1793, end:1877, region:"アルゼンチン連合(ブエノスアイレス)", desc:{background:'独立後の内戦状態というアルゼンチンの政治的混乱が、強力な軍事的基盤を持つ地方指導者(カウディーリョ)による事実上の独裁を可能にする条件を作った。', process:'ブエノスアイレス州知事として20年近くにわたり事実上の独裁的権力を握り、連邦派を率いて中央集権派と抗争を繰り広げ強権的な統治で知られたが、1852年に対立勢力との戦いに敗れウルグアイへ亡命した。', significance:'「カウディーリョ(地方軍事指導者)」という統治形態の代表的事例として、ラテンアメリカ政治史における非制度的な人格支配の典型を示し、後の独裁者研究の重要な参照点となっている。', debate:'ロサスを「秩序をもたらした強力な指導者」と再評価する近年の一部の見方に対し、伝統的な自由主義史観は彼を「野蛮な独裁者」として否定的に描いており、アルゼンチン国内でも記念碑設置などをめぐり評価は今も分かれている。'} },
+  { id:"peronism_first_era", name:"ペロン主義(第一次ペロン政権)", category:"nation", lat:-34.6, lng:-58.38, start:1946, end:1955, region:"アルゼンチン(ブエノスアイレス)", relatedIds:["juan_peron","eva_peron"], desc:{background:'工業化の進展に伴い都市労働者層が急増する一方、既存の寡頭的政党政治がその利益を十分に代表していなかったことが、ペロンのポピュリズム的動員を可能にした社会的基盤となった。', process:'フアン・ペロンが労働者層を基盤に築いたポピュリズム的な政治運動・体制のもと、労働者の権利拡大や社会福祉の充実を進め「正義主義(フスティシアリスモ)」を掲げて熱狂的な大衆的支持を集めたが、経済政策の行き詰まりと教会・軍部との対立から1955年のクーデターで失脚した。', significance:'以後もペロン主義はアルゼンチン政治に長期にわたり大きな影響を持ち続けており、ラテンアメリカにおける労働者基盤型ポピュリズムの最も代表的かつ持続的な事例となっている。', debate:'ペロン主義を「労働者の権利を実質化した進歩的運動」とみるか「経済合理性を犠牲にしたバラマキ的ポピュリズム」とみるかは、アルゼンチンの度重なる経済危機の原因分析とも結びつく現在進行形の政治的論争である。'} },
+  { id:"juan_peron", name:"フアン・ペロン", category:"person", parentId:"peronism_first_era", lat:-34.6, lng:-58.38, start:1895, end:1974, region:"アルゼンチン", desc:{background:'軍人としての経歴と労働大臣としての実務経験が、労働者層の要求を的確に汲み取り組織化する政治的手腕の形成につながった。', process:'軍人から労働大臣を経て大統領となり労働者の権利拡大を軸としたポピュリズム的統治「ペロン主義」を確立し、1955年のクーデターで亡命したが1973年に再び大統領に返り咲くなど20世紀アルゼンチン政治の中心的存在であり続けた。', significance:'その死後も彼の名を冠した政治運動は今日まで大きな影響力を保っており、一人の指導者の理念・名前が半世紀以上にわたり一国の政治の基本軸であり続けるという稀有な事例となっている。', debate:'1973年の帰国・再選出馬を、国民和解を目指した現実的判断とみるか、老いてなお権力に固執した結果、党内左右両派の対立(ペロン派内右派と左派ゲリラの抗争)を激化させた判断ミスとみるかで評価が分かれる。'} },
+  { id:"eva_peron", name:"エバ・ペロン(エビータ)", category:"person", parentId:"peronism_first_era", lat:-34.6, lng:-58.38, start:1919, end:1952, region:"アルゼンチン", desc:{background:'貧しい非嫡出子としての生い立ちという個人的背景が、貧困層への深い共感とポピュリズム的な大衆動員の説得力を生んだ。', process:'慈善財団を通じた社会福祉事業や女性参政権の実現に尽力し庶民の守護者的イメージを確立したが、1952年に33歳の若さでがんのため死去した。', significance:'その死は国民的な喪失として記憶され、ミュージカル『エビータ』などを通じて世界的にも知られる20世紀ラテンアメリカ政治史上最も象徴的な女性指導者の一人となった。', debate:'エビータの慈善事業を「純粋な貧困層支援」とみるか「ペロン政権への個人崇拝を強化する政治的道具」とみるかで、その歴史的評価は今も分かれ続けている。'} },
+  { id:"dirty_war_argentina", name:"汚い戦争(軍事政権による国家テロ)", category:"event", lat:-34.6, lng:-58.38, start:1976, end:1983, region:"アルゼンチン全土", relatedIds:["falklands_war"], desc:{background:'1970年代の左翼ゲリラ(モントネロスなど)の活動激化と社会的混乱が、軍部による「秩序回復」を名目とした権力掌握とその後の徹底弾圧を正当化する口実となった。', process:'軍事クーデターで政権を握った軍事政権が左翼ゲリラ掃討を名目に反体制派とみなした市民を裁判なしに拉致・拷問・殺害し、行方不明者(デサパレシード)は推定3万人にのぼるとされる。', significance:'「五月広場の母たち」による粘り強い真相究明運動は今日も続いており、1983年の民政移管後、関与した軍人の一部は人道に対する罪で有罪判決を受けるなど、移行期正義の代表的成功事例ともなっている。', debate:'アルゼンチンが軍事政権関係者を実際に処罰した(チリなど恩赦を維持した国とは対照的)ことの要因を、フォークランド紛争敗北による軍の権威失墜という特殊事情に求めるか、市民社会の粘り強い運動の成果とみるかで議論がある。'} },
+  { id:"falklands_war", name:"フォークランド紛争(マルビナス戦争)", category:"war", lat:-51.7, lng:-59.5, start:1982, end:1982, region:"南大西洋(フォークランド諸島=マルビナス諸島)", desc:{background:'経済危機と国内不満をそらす狙いもあったとされるアルゼンチン軍事政権が、実効支配していたイギリスから同諸島(マルビナス諸島)を奪還しようと試みたことが開戦の直接的動機となった。', process:'アルゼンチン軍政が侵攻したが、イギリスは大規模な機動部隊を派遣して奪還に成功した。', significance:'この敗北によりアルゼンチンでは軍事政権への信頼が完全に失墜し、翌年の民政移管を早める直接の契機となった、対外戦争の失敗が国内の権威主義体制崩壊を招いた代表的事例である。', debate:'この紛争を植民地主義の残滓(イギリスの遠隔地領有)への正当な異議申し立てとみるか、軍事政権による国内問題からの目くらまし的な対外冒険主義とみるかで、アルゼンチン国内外の評価が分かれる。'} },
+
+  // ===================== チリ =====================
+  { id:"spanish_conquest_chile", name:"スペインによるチリ征服とマプチェ族の抵抗", category:"war", lat:-33.45, lng:-70.67, start:1541, end:1598, region:"チリ(サンティアゴ・アラウカニア地方)", desc:{background:'ペルー征服後、さらなる富と栄誉を求めるスペイン人の南下志向が、地理的に遠隔なチリへの征服事業を動機づけた。', process:'ペドロ・デ・バルディビアが率いるスペイン人がサンティアゴを建設して征服を開始したが、中南部のマプチェ族(アラウコ人)は組織的な抵抗を続けバルディビア自身も1553年の戦闘で戦死するなど、南部の征服は難航した。', significance:'ビオビオ川以南はその後も長期にわたり事実上独立を保ち続け(マプチェ族の完全な制圧は19世紀末までずれ込んだ)、南北アメリカにおいて先住民が最も長期にわたり独立を維持した稀有な事例となった。', debate:'マプチェ族の長期抵抗の成功要因を、ゲリラ戦術の巧みさに求めるか、征服者側の関心がより豊かな鉱産資源を持つペルー・メキシコに集中しチリ南部への投資が手薄だったことに求めるかで議論がある。'} },
+  { id:"chilean_war_of_independence", name:"チリ独立戦争", category:"war", lat:-33.45, lng:-70.67, start:1810, end:1818, region:"チリ(サンティアゴ)", relatedIds:["bernardo_ohiggins","crossing_of_the_andes"], desc:{background:'ブエノスアイレスでの自治政府樹立という周辺地域の動きが波及し、サンティアゴでも同様の自治志向が高まったことが独立運動の端緒となった。', process:'サンティアゴでの自治政府樹立(1810年)に始まり、一時はスペイン王党派の反撃で挫折(「災厄の時代」)を経験しながらも、アルゼンチンから遠征してきたサン・マルティン軍とベルナルド・オイギンス率いるチリ軍の連合により1817年のチャカブコの戦いで勝利し、翌年独立が正式に宣言された。', significance:'アルゼンチンとの緊密な軍事協力による独立達成は、南米独立戦争における国境を越えた連携の重要性を示す代表的事例であり、両国の歴史的な結びつきの原点ともなっている。', debate:'「災厄の時代」という一時的挫折からの回復要因を、外部支援(サン・マルティン軍)に求めるか、チリ国内の抵抗勢力の粘り強さに求めるかで力点が分かれる。'} },
+  { id:"bernardo_ohiggins", name:"ベルナルド・オイギンス", category:"person", parentId:"chilean_war_of_independence", lat:-33.45, lng:-70.67, start:1778, end:1842, region:"チリ", desc:{background:'アイルランド系の父を持つという出自と、ヨーロッパでの教育を通じて得た啓蒙思想への共鳴が、独立運動への献身を促した。', process:'サン・マルティンと共にチャカブコ・マイプーの戦いに勝利してチリの独立を確定させ初代最高指導者(スプレモ・ディレクトール)に就任したが、教会財産の没収など急進的な改革が保守層の反発を招き1823年に退陣を余儀なくされた。', significance:'今日「チリ建国の父」として国民的に敬愛されており、独立の英雄でありながら国内改革では保守層の抵抗に敗れて失脚するという、多くのラテンアメリカ独立指導者に共通するパターンを体現している。', debate:'彼の急進的改革(貴族制廃止・教会財産没収)の挫折を、時期尚早な理想主義の失敗とみるか、保守的なチリ社会の構造的抵抗力の強さを示す証左とみるかで評価が分かれる。'} },
+  { id:"chilean_republic_19c", name:"チリ共和国(19世紀の政治的安定)", category:"nation", lat:-33.45, lng:-70.67, start:1830, end:1930, region:"チリ(サンティアゴ)", relatedIds:["war_of_the_pacific"], desc:{background:'独立直後の混乱を経験したチリのエリート層が、強力な中央集権的秩序の確立を最優先課題と認識したことが、保守的憲法制定の背景となった。', process:'ポルタレスの主導する保守的な1833年憲法のもとで19世紀の南米諸国の中では比較的早くに政治的安定を実現し、太平洋戦争(硝石戦争)での勝利により北部の硝石地帯を獲得して経済的繁栄を享受したが、20世紀に入ると硝石価格の下落や社会格差をめぐる政治的緊張が高まっていった。', significance:'19世紀のラテンアメリカで最も政治的に安定した共和国の一つとして評価され、この「例外的安定」がなぜチリで実現したかは比較政治学上の重要な検討課題となっている。', debate:'この安定を「賢明な保守的制度設計(ポルタレス体制)」の成果とみるか、単に鉱業ブーム(硝石)による経済的余裕が政治対立を緩和していたに過ぎないとみるかで評価が分かれる。'} },
+  { id:"salvador_allende", name:"サルバドール・アジェンデ", category:"person", parentId:"pinochet_coup", lat:-33.45, lng:-70.67, start:1908, end:1973, region:"チリ(サンティアゴ)", desc:{background:'チリにおける長年の左翼政治運動の蓄積と、1970年選挙での左派連合(人民連合)の結成が、彼の当選という歴史的成果を可能にした。', process:'銅山国有化など社会主義的改革(「チリ流社会主義への道」)を推進したが、経済混乱と国内対立の激化、そしてアメリカの介入も背景に1973年9月11日の軍事クーデターの最中、大統領官邸ラ・モネダ宮殿で死去した(自死とされる)。', significance:'選挙により合法的に成立した世界初のマルクス主義政権として、議会制民主主義を通じた社会主義への移行が可能かという冷戦期の重要な政治的実験の事例となった。', debate:'アジェンデ政権崩壊の主因を、経済政策の失敗(インフレ・物資不足)という内部要因に求めるか、アメリカCIAによる経済的圧迫・クーデター支援という外部要因に求めるかは、機密解除文書の公開が進む中でも評価が分かれ続けている。'} },
+  { id:"pinochet_coup", name:"ピノチェト軍事クーデター", category:"event", lat:-33.45, lng:-70.67, start:1973, end:1973, region:"チリ(サンティアゴ)", relatedIds:["pinochet_dictatorship"], desc:{background:'アジェンデ政権下の経済混乱と社会的分極化に対する中間層・軍部の危機感、そしてこれに乗じるアメリカの積極的な関与工作が、クーデター実行の条件を整えた。', process:'陸軍総司令官アウグスト・ピノチェトが率いる軍部がアジェンデ社会主義政権を武力で打倒し、大統領官邸への空爆・砲撃という劇的な展開でアジェンデ政権は崩壊した。', significance:'以後17年に及ぶ軍事独裁体制がチリを支配することとなり、選挙で選ばれた社会主義政権が軍事力によって暴力的に打倒された冷戦期の象徴的事件として世界的に記憶されている。', debate:'アメリカ(ニクソン政権・キッシンジャー国務長官)がこのクーデターにどこまで直接的に関与したかは機密解除文書により徐々に明らかになりつつあるが、その全容と道義的責任については現在も国際的な議論が続いている。'} },
+  { id:"pinochet_dictatorship", name:"ピノチェト軍事独裁政権", category:"nation", lat:-33.45, lng:-70.67, start:1973, end:1990, region:"チリ(サンティアゴ)", relatedIds:["chile_return_to_democracy"], desc:{background:'アジェンデ政権打倒という「使命」を果たした軍部が、共産主義の再台頭を防ぐという名目のもとで長期の権力保持を正当化したことが背景にある。', process:'新自由主義的な経済改革(「シカゴ・ボーイズ」による市場開放政策)を断行し高い経済成長を実現する一方、反体制派数千人が殺害・失踪・拷問される深刻な人権侵害を伴った。', significance:'その評価は今日も国内外で大きく分かれており、新自由主義経済改革の実験場としての「チリの奇跡」と、深刻な人権侵害という二面性を併せ持つ事例として国際的に研究され続けている。', debate:'「シカゴ・ボーイズ」による経済改革を、後のチリの経済的成功(南米で最も安定した経済)の基礎を築いたと肯定的に評価するか、人権侵害という犠牲の上に築かれた成長にすぎないと否定的に評価するかで、経済政策論と人権論が絡み合う複雑な論争が続いている。'} },
+  { id:"chile_return_to_democracy", name:"チリの民政復帰(国民投票「ノー」の勝利)", category:"event", lat:-33.45, lng:-70.67, start:1988, end:1990, region:"チリ(サンティアゴ)", desc:{background:'国際的な人権批判の高まりと、ピノチェト自身が制定した憲法規定(信任投票の実施義務)が、皮肉にも彼自身の退陣への道筋を用意していた。', process:'ピノチェトが自らの続投の是非を問うた1988年の国民投票で反対派が「ノー」キャンペーンに勝利したことを機に実現し、1990年にパトリシオ・アイルウィンが大統領に就任した。', significance:'以後チリは南米の中でも政治的に安定した民主主義国家として発展を続けており、独裁者自身が設計した制度的手続きを通じて平和的に独裁が終焉した稀有な事例として高く評価される。', debate:'民政移管後もピノチェトが軍総司令官として権力の一部を保持し続けた「協定による移行(トランジション・パクテアーダ)」の性質は、民主化の「完全性」をめぐる政治学的議論の重要な事例となっている。'} },
+
+  // ===================== ハイチ =====================
+  { id:"haitian_revolution", name:"ハイチ革命", category:"revolution", lat:18.59, lng:-72.31, start:1791, end:1804, region:"ハイチ(サン=ドマング)", relatedIds:["republic_of_haiti"], desc:{background:'フランス革命の「自由・平等」理念が、サン=ドマングの奴隷たちに自らの解放を求める思想的正当性を与えたことが、大規模蜂起の背景となった。', process:'トゥーサン・ルーヴェルチュールらが指導した奴隷たちの大規模な蜂起に始まり、ナポレオンが派遣した鎮圧軍を撃退して1804年に世界初の黒人共和国として独立を達成した。', significance:'史上唯一成功した大規模な奴隷反乱として世界史上特筆され、この革命はフランスにルイジアナ売却を決断させる一因ともなり、また周辺の奴隷制社会に大きな衝撃と警戒を与えた。', debate:'この革命が「自由・平等」を掲げたフランス革命自身の理念の帰結であったにもかかわらず、フランス(および他の奴隷制国家)がハイチを長期にわたり国際的に孤立させ賠償金を強いた経緯は、西洋の「普遍的理念」の適用における人種的二重基準を示す事例として批判的に論じられる。'} },
+  { id:"republic_of_haiti", name:"ハイチ共和国", category:"nation", lat:18.59, lng:-72.31, start:1804, end:2030, region:"ハイチ(ポルトープランス)", desc:{background:'奴隷反乱という前例のない手段による建国であったことが、他の奴隷制国家からの強い警戒と国際的孤立を招く構造的背景となった。', process:'独立の代償としてフランスへ「独立賠償金」の支払いを長期にわたり強いられ(2000年代まで実質的な負担が続いたとされる)、これが慢性的な財政難と低開発の一因になったと指摘されている。20世紀にはアメリカによる占領(1915-34年)やデュヴァリエ父子の独裁を経験し、たびたびの政変・自然災害(2010年大地震など)にも見舞われた。', significance:'世界初の黒人共和国という歴史的偉業にもかかわらず西半球最貧国の一つとされる困難な国家運営が続いており、独立時の「代償」がその後の発展にどう影響したかを考える上で重要な事例となっている。', debate:'「独立賠償金」がハイチの慢性的貧困の主因であるとする近年の有力な見方(2022年のニューヨーク・タイムズ紙による大規模調査報道なども)に対し、フランスは公式な謝罪や返還にはまだ応じておらず、植民地清算・賠償責任論の重要な現在進行形の論点となっている。'} },
+
+  // ===================== キューバ =====================
+  { id:"spanish_colonial_cuba", name:"スペイン領キューバ", category:"nation", lat:23.13, lng:-82.38, start:1511, end:1898, region:"キューバ(ハバナ)", relatedIds:["spanish_american_war_cuba"], desc:{background:'カリブ海の他のスペイン植民地が次々と独立する19世紀初頭においても、キューバがスペインにとって重要な砂糖生産植民地であり続けたことが、長期の植民地支配継続の背景となった。', process:'ハバナを拠点にスペインが約400年にわたり統治し、サトウキビ・プランテーションと奴隷労働に依存する経済構造を持ったが、19世紀後半には独立を求める十年戦争(1868-78年)やホセ・マルティらが率いた独立戦争(1895年-)が続き、1898年の米西戦争でアメリカが介入しスペインの支配は終焉した。', significance:'ラテンアメリカ大陸諸国が1820年代までに独立を達成した後も、キューバはスペイン最後の主要植民地として約半世紀遅れて独立を迎えており、この「遅れた独立」の背景要因は比較植民地史上の重要な検討対象である。', debate:'キューバの独立が遅れた要因を、砂糖経済における奴隷制依存の強さ(独立が奴隷解放と直結することへの地主層の恐れ)に求めるか、スペインにとっての「最後の海外領土」としての執着に求めるかで議論がある。'} },
+  { id:"spanish_american_war_cuba", name:"米西戦争(キューバ)", category:"war", lat:20.02, lng:-75.83, start:1898, end:1898, region:"キューバ(サンティアゴ・デ・クーバ)", desc:{background:'キューバ独立戦争へのアメリカ世論の同情の高まりと、戦艦メイン号爆沈事件という直接的な引き金が、アメリカの参戦を後押しした。', process:'アメリカがスペインと開戦し、サンティアゴ湾の海戦でスペイン艦隊が壊滅し短期間でアメリカが勝利、パリ条約によりスペインはキューバの独立を承認した。', significance:'実際にはアメリカがプラット修正条項により内政・外交に強い介入権を留保し、キューバは事実上の保護国として出発することとなった、独立戦争の成果が第三国の介入により変質した典型例である。', debate:'この戦争を「キューバ解放のための人道的介入」とみるか「アメリカによるカリブ海覇権確立のための帝国主義的機会主義」とみるかで、アメリカの対外政策史における評価が分かれる。'} },
+  { id:"cuban_republic_1902", name:"キューバ共和国(革命前)", category:"nation", lat:23.13, lng:-82.38, start:1902, end:1959, region:"キューバ(ハバナ)", relatedIds:["batista_dictatorship"], desc:{background:'米西戦争後のパリ条約によりスペイン支配は終焉したものの、アメリカが憲法にプラット修正条項を組み込ませたことが、名目的独立と実質的従属の二重構造を生んだ。', process:'アメリカの軍事介入権(グアンタナモ基地の租借を含む)を認めさせられるなど経済・政治両面でアメリカへの強い従属が続き、砂糖モノカルチャー経済のもとで観光・娯楽産業も発展したが、政治腐敗と貧富の格差が深刻化し1959年のキューバ革命により体制は終焉した。', significance:'「独立国家でありながら実質的にはアメリカの保護領」という状況は、20世紀の「新植民地主義」概念を体現する代表的事例として、ラテンアメリカにおける対米従属論の重要な参照点となっている。', debate:'プラット修正条項の存在が、後のキューバ革命における強い反米ナショナリズムの歴史的土壌をどこまで形成したかは、革命の起源を理解する上での重要な論点である。'} },
+  { id:"batista_dictatorship", name:"バティスタ独裁政権", category:"nation", lat:23.13, lng:-82.38, start:1952, end:1959, region:"キューバ(ハバナ)", relatedIds:["cuban_revolution"], desc:{background:'アメリカ資本・マフィアとの緊密な結びつきが、バティスタ政権の経済的基盤を支えると同時に、国民の反発を招く汚職・格差構造を固定化させたことが背景にある。', process:'軍人フルヘンシオ・バティスタが1952年のクーデターで再び政権を奪取して独裁体制を敷き、アメリカ資本とマフィアが結びついた観光・賭博産業が繁栄する一方、汚職と反対派弾圧が横行し国民の不満は増大、フィデル・カストロら革命勢力の武装闘争を招いた。', significance:'1959年元日にバティスタは国外へ逃亡し、この政権の腐敗と対米従属的性格は、以後のキューバ革命政権の強い反米路線を正当化する歴史的文脈を提供した。', debate:'バティスタ政権下の経済発展(一定の工業化・都市化)と社会的格差拡大のどちらを重視するかで、革命前キューバ社会の実態評価が分かれる。'} },
+  { id:"cuban_revolution", name:"キューバ革命", category:"revolution", lat:23.13, lng:-82.38, start:1953, end:1959, region:"キューバ全土(シエラ・マエストラ山脈)", relatedIds:["fidel_castro","che_guevara","socialist_cuba"], desc:{background:'バティスタ独裁への広範な国民的不満と、キューバにおける度重なる対米従属の歴史的記憶が、急進的な革命運動への支持を集める土壌となった。', process:'フィデル・カストロら若手革命家がモンカダ兵営襲撃(1953年)の失敗を経てメキシコに亡命、その後ヨットグランマ号でキューバに上陸しシエラ・マエストラ山中でゲリラ戦を展開し、チェ・ゲバラらも加わり農民の支持を広げながら勢力を拡大し1959年元日にバティスタ独裁政権を打倒した。', significance:'以後キューバは社会主義体制へと転換し、ラテンアメリカにおける社会主義革命の最も成功した事例として、以後半世紀以上にわたる中南米左翼運動の理念的模範となった。', debate:'革命当初のカストロの政治的立場(民主的改革者かマルクス主義者か)については、革命後の急速な社会主義化がどの時点から意図されていたかをめぐり歴史家の間で見解が分かれている。'} },
+  { id:"fidel_castro", name:"フィデル・カストロ", category:"person", parentId:"socialist_cuba", lat:23.13, lng:-82.38, start:1926, end:2016, region:"キューバ(ハバナ)", desc:{background:'法律家としての教育を受けながらバティスタ独裁への強い反発を抱いたことが、モンカダ兵営襲撃という無謀ともいえる武装蜂起への参加を促した。', process:'キューバ革命を指導し以後半世紀近くにわたりキューバの最高指導者であり続け、革命後は土地改革・産業国有化を進めて社会主義体制へと舵を切り、ソ連との緊密な関係のもとでアメリカとの対立(経済封鎖・ピッグス湾侵攻・キューバ危機など)を経験しながらも政権を維持した。', significance:'中南米左翼運動の象徴的存在であり続け、2008年に病気を理由に弟ラウルへ権限を委譲するまで半世紀近くにわたり一国の最高指導者であり続けた、20世紀世界史上最も長期に権力を保持した指導者の一人である。', debate:'カストロ政権を「反帝国主義・社会福祉の実現者」とみるか「一党独裁と言論統制の抑圧者」とみるかで、国際的評価は今も鋭く対立し続けている。'} },
+  { id:"socialist_cuba", name:"社会主義キューバ", category:"nation", lat:23.13, lng:-82.38, start:1959, end:2030, region:"キューバ(ハバナ)", relatedIds:["bay_of_pigs_invasion","cuban_missile_crisis"], desc:{background:'アメリカとの断交・経済封鎖という孤立状況が、代替の後ろ盾としてソ連陣営への急速な接近を不可避にしたことが背景にある。', process:'アメリカとの対立からソ連陣営に接近し経済的にも深く依存したが、1991年のソ連崩壊後は「特別期間」と呼ばれる深刻な経済危機に直面し、アメリカによる長期の経済封鎖が続く中でも無償の医療・教育制度など独自の社会主義的成果を国際的にアピールし続けた。', significance:'2015年にはアメリカとの国交正常化交渉も進んだが、その後も両国関係は緊張と緩和を繰り返しており、冷戦終結後も存続し続ける数少ない社会主義国家として国際政治上特異な位置を占め続けている。', debate:'アメリカの経済封鎖(禁輸措置)がキューバの経済的困難の主因か、それとも社会主義計画経済自体の非効率性が主因かは、キューバ経済の停滞要因をめぐる長年の政治的・経済学的論争である。'} },
+  { id:"bay_of_pigs_invasion", name:"ピッグス湾侵攻", category:"war", lat:22.13, lng:-81.13, start:1961, end:1961, region:"キューバ(ピッグス湾)", desc:{background:'革命直後のキューバの社会主義化路線を警戒したアメリカが、カストロ政権打倒のための秘密工作を計画したことが、この作戦の直接的背景となった。', process:'アメリカ中央情報局(CIA)の支援・訓練を受けたキューバ亡命者部隊がキューバ南岸に上陸したが、事前の空爆計画が縮小されるなど作戦の不備もありキューバ軍によりわずか3日で撃退される完全な失敗に終わった。', significance:'この事件はケネディ政権の外交的失点となる一方、カストロ政権にとってはソ連への接近と社会主義体制強化を正当化する契機ともなり、翌年のキューバ危機へとつながる緊張の重要な前段階となった。', debate:'この作戦失敗の責任を、ケネディ大統領の土壇場での空爆支援縮小の決断に求めるか、CIAの計画自体の杜撰さに求めるかで、アメリカの対外諜報工作史における教訓的検証が続けられている。'} },
+  { id:"cuban_missile_crisis", name:"キューバ危機", category:"event", lat:23.13, lng:-82.38, start:1962, end:1962, region:"キューバ・アメリカ・ソ連", desc:{background:'ピッグス湾侵攻という直接的な軍事的脅威を受けたキューバが、自国防衛のためソ連の核ミサイル配備提案を受け入れたことが、この危機の直接的背景となった。', process:'ソ連がキューバに核ミサイルを配備しようとしていることが発覚し、アメリカが海上封鎖で対抗、米ソが全面核戦争の瀬戸際まで対峙したが、ケネディとフルシチョフの水面下の交渉によりソ連のミサイル撤去とアメリカのトルコからのミサイル撤去・キューバ不可侵の約束という妥協が成立し、13日間の緊張は回避された。', significance:'この危機を機に米ソ間にホットラインが設置されるなど、以後の緊張緩和(デタント)への転機ともなった、冷戦史上最も核戦争に近づいた瞬間として世界史的に極めて重要な事件である。', debate:'この危機の「解決」を米国の勝利(ソ連の譲歩)と単純化する従来の見方に対し、アメリカ側もトルコのミサイル撤去という相応の譲歩を行っていたことを重視する近年の研究(機密解除文書に基づく)は、危機の「勝者」をめぐる歴史認識を修正しつつある。'} },
+  { id:"che_guevara", name:"チェ・ゲバラ", category:"person", parentId:"cuban_revolution", lat:23.13, lng:-82.38, start:1928, end:1967, region:"アルゼンチン・キューバ・ボリビア", relatedIds:["che_guevara_death_bolivia"], desc:{background:'アルゼンチン出身の医師でありながら中南米を旅した経験(モーターサイクル・ダイアリーズに描かれる)を通じ、地域全体の貧困と抑圧の現実を目の当たりにしたことが、革命思想への傾倒を促した。', process:'カストロと共にキューバ革命を戦った後、革命後は国立銀行総裁・工業相などを歴任したが、世界革命の理想を追ってキューバを離れ、コンゴでの活動を経てボリビアで新たなゲリラ戦を指導するも、1967年に政府軍に捕らえられ処刑された。', significance:'国際的なゲリラ指導者として、その理想主義的な生涯は死後、世界中の若者文化・革命運動の象徴(その肖像は最も複製された政治的イメージの一つ)となった。', debate:'ゲバラを「純粋な理想主義的国際主義者」とみるか「非現実的な革命輸出論者(フォコ理論の失敗)」とみるかで、彼の軍事的・政治的評価は今も分かれ続けている。'} },
+  { id:"che_guevara_death_bolivia", name:"ゲバラのボリビアでのゲリラ活動と死", category:"event", lat:-18.33, lng:-63.95, start:1966, end:1967, region:"ボリビア(バジェグランデ・ラ・イゲラ)", desc:{background:'キューバでの成功体験に基づく「フォコ理論」(少数の献身的なゲリラが農民蜂起を誘発できるとする戦略)を他国でも再現しようとする信念が、ボリビア潜入の理論的動機となった。', process:'ボリビアの山岳地帯に潜入し少数のゲリラ部隊を率いて武装闘争を展開したが、現地農民の支持を得られず、アメリカの支援を受けたボリビア軍の掃討作戦により部隊は追い詰められ、1967年10月にゲバラは捕らえられ処刑された。', significance:'この死は皮肉にも彼を中南米左翼運動における不滅の殉教者的象徴へと押し上げることとなり、革命運動における「英雄的死」がその政治的遺産をどう増幅させるかを示す象徴的事例となった。', debate:'ボリビアでの失敗の要因を、現地の言語・文化的隔たり(ケチュア語圏でのスペイン語による組織化の困難)に求めるか、フォコ理論そのものの理論的欠陥(農民の自発的支持を過大評価した点)に求めるかで、ゲリラ戦略史上の重要な教訓として議論される。'} },
+
+  // ===================== エクアドル =====================
+  { id:"real_audiencia_quito", name:"キト大統領庁(スペイン植民地時代)", category:"nation", lat:-0.18, lng:-78.47, start:1563, end:1822, region:"エクアドル(キト)", desc:{background:'アンデス山脈中央部という地理的条件が、ペルー副王領・ヌエバグラナダ副王領いずれの中心地からも隔たった独自の行政単位設置を必要とさせたことが背景にある。', process:'キト(現エクアドル)を中心に高等司法行政機関として設置され、時期によりペルー副王領・ヌエバグラナダ副王領の管轄下を移りながらも独自の地域的一体性を保持し続けた。', significance:'この行政単位としての一体性が、後の大コロンビアからのエクアドル分離独立(1830年)における領域的根拠となり、現在のエクアドルの国境線の歴史的起源を形作った。', debate:'植民地期の行政区分(アウディエンシア)がどこまで後の独立国家の国境線を規定したかは、ラテンアメリカにおける「植民地の遺産」としての国境形成論の重要な検討事例である。'} },
+  { id:"ecuador_republic", name:"エクアドル共和国", category:"nation", lat:-0.18, lng:-78.47, start:1830, end:2030, region:"エクアドル(キト)", relatedIds:["ecuador_peru_border_conflict"], desc:{background:'大コロンビアの解体という広域国家の分裂が、独自の国民的アイデンティティの形成途上にあったエクアドルの分離独立を可能にした。', process:'1830年に大コロンビアから分離独立して以降、保守派(教会の権威重視)と自由派(世俗主義)の激しい対立、沿岸部(グアヤキル)と高地(キト)の地域対立が続く不安定な政治史をたどったが、20世紀後半には石油収入を軸とする経済発展も進んだ。', significance:'地域間対立(高地対沿岸部)という国内構造は現在に至るまでエクアドル政治の重要な争点であり続けており、この地域対立の構図はラテンアメリカの多くの国に共通する国民統合の課題を象徴する事例となっている。', debate:'エクアドルの政治的不安定さ(20世紀だけで多数の大統領が任期途中で交代)の要因を、地域対立の根深さに求めるか、石油収入をめぐる分配政治の失敗に求めるかで議論がある。'} },
+  { id:"ecuador_peru_border_conflict", name:"エクアドル・ペルー国境紛争", category:"war", lat:-3.5, lng:-80.27, start:1941, end:1998, region:"エクアドル・ペルー国境地帯(アマゾン上流域)", relatedIds:["rio_protocol_1942"], desc:{background:'アマゾン川上流域の境界が植民地期のアウディエンシア境界の曖昧さに起因して未確定であったことが、独立後長期にわたる両国間の領土紛争の根本的背景となった。', process:'19世紀の独立以来断続的に武力衝突を繰り返し(1941年・1981年・1995年の紛争を含む)、特に1941年の戦争でエクアドルはアマゾン地域の広大な領土を喪失した。', significance:'この紛争は南米で最も長期化した国境紛争の一つとして知られ、その最終的解決(1998年)は南米における平和的な国境紛争解決の重要な事例となった。', debate:'1941年の敗戦・領土喪失を「不当な力による割譲」とするエクアドル側の歴史認識と、条約に基づく正当な国境画定とするペルー側の認識との相違は、両国関係における歴史認識問題として長く尾を引いた。'} },
+  { id:"rio_protocol_1942", name:"リオ議定書", category:"treaty", lat:-22.91, lng:-43.17, start:1942, end:1942, region:"ブラジル(リオデジャネイロ)", desc:{background:'第二次世界大戦下で米州の団結を重視するアメリカの外交的仲介が、1941年の武力紛争を早期に終結させる国際的圧力として作用した。', process:'アメリカ・ブラジル・アルゼンチン・チリの保証国のもとでエクアドルとペルーの国境が画定されたが、エクアドル側はこの合意を不当な圧力下での押し付けとみなし、後年その正当性を再三問題視した。', significance:'この議定書はその後半世紀以上にわたり両国関係の火種として残り続け、1995年にも再び武力衝突(セネパ紛争)が発生するなど、国境画定条約の実効性の限界を示す事例となった。', debate:'大国(米・ブラジル等)の保証のもとで結ばれた国境条約が、当事国の一方(エクアドル)の不満を長期間解消できなかったことは、国際的仲介による紛争解決の持続可能性を問う事例として国際関係論上の検討対象となっている。'} },
+
+  // ===================== ウルグアイ =====================
+  { id:"jose_gervasio_artigas", name:"ホセ・ヘルバシオ・アルティガス", category:"person", parentId:"uruguayan_republic", lat:-34.9, lng:-56.16, start:1764, end:1850, region:"ウルグアイ(バンダ・オリエンタル)", desc:{background:'ブエノスアイレスを中心とする中央集権的な独立運動の方針に対し、東方州(現ウルグアイ)における連邦主義的な自治要求が高まっていたことが、彼の指導的地位確立の背景となった。', process:'スペインからの独立と東方州の自治を求めて戦い、ブエノスアイレスの中央集権主義とも対立を深めたが、後にブラジル(ポルトガル)軍の侵攻を受け敗れて亡命を余儀なくされた。', significance:'今日「ウルグアイ建国の父」として国民的に敬愛されており、彼が唱えた連邦主義・地方自治の理念は、ウルグアイが最終的にアルゼンチン・ブラジルいずれにも属さない独立国家として成立する思想的原点となった。', debate:'アルティガスの連邦主義構想を、単なるウルグアイのナショナリズムの起源とみるか、より広く南米南部(ラプラタ地域全体)における反中央集権的な地域主義の理念的先駆者とみるかで、その歴史的射程の評価が分かれる。'} },
+  { id:"cisplatine_war", name:"シスプラティーナ戦争", category:"war", lat:-34.9, lng:-56.16, start:1825, end:1828, region:"ウルグアイ・アルゼンチン・ブラジル(バンダ・オリエンタル)", relatedIds:["uruguay_independence"], desc:{background:'ブラジル帝国による東方州(シスプラティーナ州として)併合に対し、アルゼンチン(ラプラタ連合州)がこれに反発したことが開戦の直接的背景となった。', process:'ブラジルとアルゼンチンとの間で戦われたが、いずれも決定的勝利を収められず、両国の緩衝国として独立したウルグアイを樹立するというイギリスの仲介案を受け入れる形で終結した。', significance:'この結果、ウルグアイはブラジル・アルゼンチンという二大国の間の緩衝国として独立を果たすこととなり、大国間の勢力均衡の産物として国家が誕生する典型的事例となった。', debate:'ウルグアイの独立を、住民自身の自決権の発露とみるか、英・ブラジル・アルゼンチンという外部勢力の勢力均衡上の都合による人為的な緩衝国家創出とみるかで、国家形成の主体性をめぐる議論がある。'} },
+  { id:"uruguay_independence", name:"ウルグアイ独立(モンテビデオ予備条約)", category:"event", lat:-34.9, lng:-56.16, start:1828, end:1828, region:"ウルグアイ(モンテビデオ)", desc:{background:'ブラジル・アルゼンチン両国が互いに東方州の単独領有を認められない膠着状態にあったことが、第三の選択肢としての独立国家樹立を可能にした。', process:'イギリスの仲介による1828年のモンテビデオ条約により、ブラジル・アルゼンチンいずれの領土ともならない緩衝独立国家として建国された。', significance:'南米における「緩衝国家」の代表例として、大国間の勢力均衡がいかに新興国家の誕生を規定するかを示す国際関係論上重要な事例となっている。', debate:'この独立の主たる推進力を現地住民(アルティガス以来の自治要求)の主体的意思に求めるか、英国の対外政策上の利害(ラプラタ川河口の自由航行確保)に求めるかで評価が分かれる。'} },
+  { id:"uruguayan_republic", name:"ウルグアイ東方共和国", category:"nation", lat:-34.9, lng:-56.16, start:1830, end:2030, region:"ウルグアイ(モンテビデオ)", relatedIds:["batlle_reforms"], desc:{background:'緩衝国家として独立したがゆえに国内基盤が脆弱であったことが、独立後長期にわたる政党間内戦(コロラド党対ブランコ党)の構造的背景となった。', process:'19世紀を通じ二大政党(コロラド党・ブランコ党)間の内戦が頻発する不安定な時代を経たが、20世紀初頭のバッジェ大統領による改革(バッジェ改革)により南米で最も進んだ社会福祉国家の一つへと発展した。', significance:'「南米のスイス」と称されるほどの安定した民主主義と社会保障制度を確立した事例として、ラテンアメリカにおける小国の安定的発展モデルとしてしばしば参照される。', debate:'19世紀の党派対立の激しさと20世紀の急速な安定化との落差の要因を、バッジェ個人の改革手腕に求めるか、より構造的な条件(小国ゆえの統治の容易さ)に求めるかで議論がある。'} },
+  { id:"batlle_reforms", name:"バジェ・イ・オルドニェスの社会改革", category:"event", lat:-34.9, lng:-56.16, start:1903, end:1929, region:"ウルグアイ(モンテビデオ)", desc:{background:'19世紀を通じた党派対立の疲弊とウルグアイ社会における世俗主義・進歩主義思想の浸透が、抜本的な社会改革への機運を高めていた。', process:'ホセ・バッジェ・イ・オルドニェス大統領が主導し、労働時間規制・年金制度・国営企業設立・政教分離・離婚制度導入など広範な社会民主主義的改革を断行した。', significance:'20世紀初頭としては世界的にも先進的な社会福祉国家の枠組みを確立し、以後長くウルグアイが「南米の福祉国家モデル」と呼ばれる基礎を築いた画期的な改革であった。', debate:'この改革がウルグアイの狭小な国土・人口という特殊条件(統治の容易さ)に依存した成功であり、他のラテンアメリカ大国にそのまま応用できるモデルかどうかは比較政治学上議論がある。'} },
+
+  // ===================== パラグアイ =====================
+  { id:"paraguay_francia_dictatorship", name:"パラグアイ独立とフランシア博士の独裁", category:"nation", lat:-25.28, lng:-57.63, start:1811, end:1840, region:"パラグアイ(アスンシオン)", desc:{background:'独立直後のラプラタ地域における政治的混乱の中、パラグアイが近隣諸国からの干渉を強く警戒したことが、極端な鎖国政策の背景となった。', process:'ホセ・ガスパル・ロドリゲス・デ・フランシアが「エル・スプレモ(至高の存在)」と称して26年にわたり国境を閉ざす鎖国的な独裁体制を敷き、外国貿易をほぼ完全に統制した。', significance:'他のラテンアメリカ諸国とは対照的な極端な自給自足・孤立主義路線を追求した稀有な事例として、小国の独立維持戦略の一つの極端な形態を示している。', debate:'この鎖国政策を、外国資本による搾取・従属を回避した先見的な経済的自立戦略と評価する見方と、単なる個人独裁による国家の停滞とみる見方とが対立している。'} },
+  { id:"chaco_war", name:"チャコ戦争", category:"war", lat:-22.0, lng:-60.0, start:1932, end:1935, region:"パラグアイ・ボリビア国境(グラン・チャコ)", desc:{background:'太平洋戦争(硝石戦争)で海への出口を失ったボリビアが、グランチャコ地域での石油資源発見(実際には過大評価であった)を機に新たな出口を求めたことが、開戦の背景となった。', process:'ボリビアとパラグアイとの間でグランチャコ地方の領有をめぐり戦われ、当初優勢と目されたボリビア軍が地理・補給の不利から苦戦し、最終的にパラグアイが係争地の大半を確保する形で終結した。', significance:'20世紀の南米における最も凄惨な国家間戦争の一つとして、両国に深刻な人的損失をもたらし、皮肉にも戦後の調査でチャコ地域には当初期待されたほどの石油資源が存在しないことが判明した。', debate:'開戦の背景とされた石油資源の存在について、当時の外国石油会社(スタンダード・オイルとシェル)の利権争いがどこまで開戦を煽ったかは、資源をめぐる国家間戦争と多国籍企業の関係を考える上での重要な論点である。'} },
+  { id:"stroessner_dictatorship", name:"ストロエスネル独裁政権", category:"nation", lat:-25.28, lng:-57.63, start:1954, end:1989, region:"パラグアイ(アスンシオン)", desc:{background:'チャコ戦争後のパラグアイの政治的混乱と内戦が、軍部出身の強力な指導者による長期安定統治への希求を生んでいた。', process:'アルフレド・ストロエスネルが1954年のクーデターで政権を握り、35年に及ぶ長期の権威主義体制のもとで反対派を徹底的に弾圧し、後の「コンドル作戦」にも積極的に関与した。', significance:'ラテンアメリカにおける最長不倒の軍事独裁政権の一つとして、冷戦下の反共主義を名目とした人権侵害の集積地としての性格を強く帯びた事例である。', debate:'ストロエスネル政権を「共産主義の脅威から国を守った安定政権」とみるか「南米における人権侵害の温床(コンドル作戦の中心的拠点)」とみるかで、パラグアイ国内の評価は今も分裂している。'} },
+
+  // ===================== ボリビア(20世紀) =====================
+  { id:"bolivian_national_revolution_1952", name:"1952年ボリビア革命", category:"revolution", lat:-16.5, lng:-68.15, start:1952, end:1952, region:"ボリビア(ラパス)", desc:{background:'チャコ戦争敗北による軍・エリート層への信頼失墜と、鉱山労働者・先住民農民の窮乏化が、革命勢力(民族革命運動=MNR)台頭の社会的基盤となった。', process:'民族革命運動(MNR)が武装蜂起して政権を樹立し、錫鉱山の国有化・土地改革・先住民への参政権拡大(普通選挙制導入)など急進的な社会改革を断行した。', significance:'ラテンアメリカにおいて先住民人口の多い国での数少ない包括的社会革命の成功例として、先住民の政治参加拡大という点で1990年代以降の先住民運動再興の歴史的先駆けとなった。', debate:'この革命の社会的成果(土地改革・参政権拡大)がその後の軍事クーデター(1964年)によりどこまで後退させられたかについては、改革の持続可能性をめぐる評価が分かれる。'} },
+  { id:"evo_morales_era", name:"エボ・モラレス政権(先住民初の大統領)", category:"event", lat:-16.5, lng:-68.15, start:2006, end:2019, region:"ボリビア(ラパス)", desc:{background:'1952年革命以来の先住民の政治的疎外の継続と、新自由主義的な資源(天然ガス)民営化政策への国民的不満が、初の先住民出身大統領誕生の背景となった。', process:'先住民出身のエボ・モラレスが2006年に大統領に就任し天然ガス産業の国有化や新憲法制定を通じた先住民の権利拡大を進め、資源収入を財源とする貧困削減で高い支持を得たが、2019年の選挙不正疑惑を機に混乱が生じ辞任・亡命を余儀なくされた(後に帰国)。', significance:'ボリビア史上初の先住民出身大統領として、長年抑圧されてきた先住民の政治的復権を象徴する存在となり、21世紀ラテンアメリカの「ピンクの潮流」における重要な事例となった。', debate:'2019年の退陣を「不正選挙への当然の民主的是正(事実上のクーデター説を否定する立場)」とみるか「軍部関与を伴う実質的なクーデター」とみるかで、国内外の評価が大きく対立している。'} },
+
+  // ===================== 中米諸国(国家史) =====================
+  { id:"guatemala_republic", name:"グアテマラ共和国", category:"nation", lat:14.63, lng:-90.51, start:1847, end:2030, region:"グアテマラ(グアテマラシティ)", relatedIds:["guatemalan_civil_war"], desc:{background:'中米連邦解体後の独自の国家形成の中、少数の大地主・軍部エリートによる支配構造が早期から固定化されたことが、その後の政治的特質を規定した。', process:'コーヒー・バナナのプランテーション経済を基盤に少数エリート支配が続き、1944年の「10月革命」による民主化の試みも1954年のアメリカ支援クーデターで頓挫し、以後長期の軍事政権と内戦(1960-96年)を経験した。', significance:'アメリカの介入(ユナイテッド・フルーツ社の権益保護)による民主的改革の頓挫という経緯は、中米における「バナナ共和国」型の対米従属構造の代表的事例として国際的に知られている。', debate:'1954年クーデターにおけるアメリカ企業(ユナイテッド・フルーツ社)の利害とCIAの冷戦戦略のどちらがより決定的な動機であったかは、アメリカの中米政策研究における中心的論点である。'} },
+  { id:"el_salvador_republic", name:"エルサルバドル共和国", category:"nation", lat:13.69, lng:-89.19, start:1841, end:2030, region:"エルサルバドル(サンサルバドル)", relatedIds:["el_salvador_civil_war","football_war"], desc:{background:'中米で最も人口密度が高く土地が希少な国土条件のもと、少数の大地主家系(「14家族」)によるコーヒー経済の独占が早くから確立されたことが、その後の社会構造を規定した。', process:'コーヒー経済に依存する寡頭支配体制が長く続き、1932年には共産主義者蜂起とされる農民反乱への軍による大量虐殺(「ラ・マタンサ」、推定数万人が犠牲)が発生するなど、格差と抑圧の構造が深刻化し、これが後の内戦(1980-92年)の遠因となった。', significance:'1932年の虐殺は以後長くエルサルバドル社会に暗い記憶として残り、20世紀後半の内戦とその後の和平プロセスに至る同国の政治構造を理解する上での重要な歴史的起点となっている。', debate:'1932年の虐殺の対象が実際に共産主義運動の参加者に限定されていたか、先住民系農民全般への無差別的弾圧であったかについては、歴史人口学的な検証を含め議論が続いている。'} },
+  { id:"honduras_republic", name:"ホンジュラス共和国(バナナ共和国)", category:"nation", lat:14.1, lng:-87.22, start:1838, end:2030, region:"ホンジュラス(テグシガルパ)", relatedIds:["football_war"], desc:{background:'中米連邦解体後、比較的小規模な国内エリート層のもとで農業(特にバナナ)輸出経済への依存が急速に強まったことが、対米従属構造の背景となった。', process:'アメリカ資本(ユナイテッド・フルーツ社など)によるバナナ・プランテーション経営が国内経済・政治に強い影響力を持ち「バナナ共和国」の典型例とされたが、20世紀後半は比較的穏健な政軍関係のもとで推移し、周辺国のような大規模内戦は経験しなかった。', significance:'「バナナ共和国」という呼称そのものの発祥地とされ、外国企業が一国の経済・政治を左右する新植民地主義的構造の典型例として国際的に広く言及される事例となっている。', debate:'ホンジュラスが周辺国(グアテマラ・エルサルバドル・ニカラグア)のような大規模内戦を免れた要因を、統治の安定性に求めるか、逆に政治的無関心・変革の欠如(現状維持)の結果とみるかで評価が分かれる。'} },
+  { id:"nicaragua_republic", name:"ニカラグア共和国", category:"nation", lat:12.11, lng:-86.24, start:1838, end:2030, region:"ニカラグア(マナグア)", relatedIds:["somoza_dynasty","sandinista_revolution"], desc:{background:'中米連邦解体後の保守派・自由派の党派対立に加え、大西洋・太平洋を結ぶ運河建設候補地としての地政学的重要性が、外国(特にアメリカ)の介入を招く構造的背景となった。', process:'19世紀半ばのアメリカ人冒険家ウィリアム・ウォーカーによる一時占領事件や度重なるアメリカ海兵隊の軍事介入・占領(1912-33年)を経験し、これに対する抵抗運動を率いたアウグスト・サンディーノの名は後のサンディニスタ革命運動に引き継がれた。', significance:'アメリカによる度重なる直接軍事介入の対象となった事例として、中米における「棍棒外交」「ドル外交」の典型例であり、この歴史的記憶は20世紀後半のサンディニスタ革命の反米ナショナリズムの土壌となった。', debate:'アメリカの度重なる軍事介入を「地域の安定化・秩序維持」とみる当時の公式説明に対し、運河建設候補地・投資保護という経済的利害こそが真の動機であったとする批判的見解が現在の主流である。'} },
+  { id:"somoza_dynasty", name:"ソモサ一族の独裁(ニカラグア)", category:"dynasty", lat:12.11, lng:-86.24, start:1936, end:1979, region:"ニカラグア(マナグア)", relatedIds:["sandinista_revolution"], desc:{background:'アメリカ海兵隊撤退に際して組織された国家警備隊の指揮権を握ったソモサ・ガルシアが、サンディーノ暗殺という強硬手段により政敵を排除したことが、王朝的独裁確立の直接的契機となった。', process:'ソモサ一族が3代・約43年にわたりニカラグアを支配し、国家警備隊を私兵化して反対派を弾圧する一方、国富と土地の多くを一族の所有に帰す縁故的な蓄財を行ったが、1979年サンディニスタ革命により打倒された。', significance:'アメリカが「彼は確かに悪党だが、我々の悪党だ」(フランクリン・ルーズベルトの発言とされる)と評したと伝えられるように、冷戦下でアメリカが反共の見返りに独裁を黙認した典型的事例として国際政治学上頻繁に引用される。', debate:'アメリカによるソモサ政権への長期支持が、結果的により急進的な反米左翼革命(サンディニスタ)を招いたという「安定優先政策の逆説」は、冷戦期の対外政策の是非を考える上で重要な教訓的事例とされる。'} },
+  { id:"costa_rica_republic", name:"コスタリカ共和国", category:"nation", lat:9.93, lng:-84.08, start:1848, end:2030, region:"コスタリカ(サンホセ)", relatedIds:["costa_rican_civil_war_1948","costa_rica_army_abolition"], desc:{background:'植民地時代から比較的小規模な自作農中心の社会構造(大農園制が発達しにくい地勢)であったことが、周辺国とは異なる比較的平等な社会の形成を促した。', process:'中米連邦解体後、比較的穏健な政治的発展をたどり、1948年の内戦を経て軍隊を廃止するという中米では例外的な道を歩み、以後は教育・医療への手厚い投資により「中米の楽園」とも称される安定した民主主義国家として発展した。', significance:'軍事費を教育・福祉に振り向けることができたことが、周辺の中米諸国とは対照的な政治的安定と高い人間開発指数を実現する重要な要因になったと評価されている。', debate:'コスタリカの「例外的」安定の要因を、植民地期からの社会構造(大地主層の不在)という歴史的与件に求めるか、1948年内戦後の軍隊廃止という制度的選択に求めるかで、比較政治学上の議論がある。'} },
+  { id:"costa_rican_civil_war_1948", name:"コスタリカ内戦", category:"war", lat:9.93, lng:-84.08, start:1948, end:1948, region:"コスタリカ(サンホセ)", relatedIds:["costa_rica_army_abolition"], desc:{background:'1948年大統領選挙結果をめぐる不正疑惑と、それに対する改革派の反発が、短期間ながら激しい内戦へと発展する直接的引き金となった。', process:'ホセ・フィゲーレスが率いる反乱軍が政府軍を破り、勝利したフィゲーレスは暫定政権を率いて軍隊の廃止という歴史的決断を下し、社会保障制度の拡充など進歩的な改革も断行した。', significance:'この内戦を最後にコスタリカは中米で唯一恒久的な軍隊を持たない国家となり、以後の政治的安定と民主主義の定着に決定的な役割を果たした画期的な転換点となった。', debate:'フィゲーレスが内戦の勝者でありながら独裁化せず民主的な体制へ権力を移譲したことは、中米の他のカウディーリョ的指導者と一線を画す事例として、その動機(理念か戦略的計算か)が論じられる。'} },
+  { id:"costa_rica_army_abolition", name:"常備軍の廃止", category:"event", lat:9.93, lng:-84.08, start:1949, end:1949, region:"コスタリカ(サンホセ)", desc:{background:'1948年内戦を勝ち抜いたフィゲーレスが、軍部のクーデターの脅威を将来にわたり排除したいという政治的意図を持っていたことが、この歴史的決断の直接的背景となった。', process:'暫定政権を率いたフィゲーレスが憲法により常備軍を廃止し、以後の国防予算は教育・医療・福祉分野へと振り向けられた。', significance:'軍事クーデターが頻発した中米地域において「軍隊を持たない国」という稀有な道を選択したことで、以後70年以上にわたり中米で唯一のクーデターのない安定した民主主義を実現する制度的基盤となった。', debate:'軍隊廃止という選択が中米の他の小国にも応用可能な普遍的モデルとなり得るか、コスタリカ特有の歴史的条件(社会的平等・地政学的位置)に依存した特殊な成功例に過ぎないかは、比較政治学上の重要な検討課題である。'} },
+  { id:"football_war", name:"サッカー戦争(百時間戦争)", category:"war", lat:13.9, lng:-88.0, start:1969, end:1969, region:"エルサルバドル・ホンジュラス国境", desc:{background:'土地不足に悩むエルサルバドルからホンジュラスへの大量の不法移民流入をめぐる緊張が、両国関係を悪化させていた根本的背景としてあった。', process:'サッカーのワールドカップ予選をめぐる両国サポーター間の衝突が引き金となり、既存の緊張が一気に爆発してわずか100時間ほどの短期間の武力紛争に発展した。', significance:'スポーツイベントが引き金となった稀有な国家間戦争として国際的に有名になったが、実際の根本原因は移民・土地問題という社会経済的対立であったことを示す、表層的要因と構造的要因の関係を考える上での好例である。', debate:'この戦争を文字通り「サッカーが原因の戦争」とする通俗的理解に対し、歴史学的にはあくまで移民・経済格差問題が真因でサッカーの衝突は単なる引き金(きっかけ)に過ぎなかったとする見方が学術的には定説となっている。'} },
+  { id:"esquipulas_peace_accords", name:"エスキプラス合意(中米和平プロセス)", category:"treaty", lat:14.57, lng:-89.35, start:1987, end:1987, region:"グアテマラ(エスキプラス)", desc:{background:'1980年代の中米諸国(ニカラグア・エルサルバドル・グアテマラ)における内戦の泥沼化と、それに対するアメリカの軍事的関与への地域内からの懸念が、独自の和平イニシアティブを求める機運を高めた。', process:'コスタリカ大統領オスカル・アリアスが主導し中米5か国首脳がグアテマラのエスキプラスで合意した和平の枠組みで、外部大国(アメリカ)の介入によらない中米諸国自身による地域内対話・和平プロセスの推進を掲げた。', significance:'この功績によりアリアス大統領は同年のノーベル平和賞を受賞し、以後のニカラグア・エルサルバドル・グアテマラでの和平プロセスの土台となった、地域主導の紛争解決の先駆的モデルとなった。', debate:'この協定を中米諸国の自律的な地域外交の成功例と評価する見方に対し、実際の和平実現にはアメリカの政策転換(冷戦終結に伴う中米介入コストの見直し)も大きく作用したとする、内発的要因と外部環境変化のどちらを重視するかの議論がある。'} },
+
+  // ===================== コロンビア(19世紀) =====================
+  { id:"thousand_days_war", name:"千日戦争", category:"war", lat:4.71, lng:-74.07, start:1899, end:1902, region:"コロンビア全土", relatedIds:["panama_independence_from_colombia"], desc:{background:'コロンビアにおける保守党・自由党間の長年のイデオロギー対立(中央集権対連邦主義、教会の役割など)が、19世紀末に極度に先鋭化したことが開戦の背景となった。', process:'保守党政権と自由党反乱勢力との間で戦われた凄惨な内戦で推定10万人以上が犠牲になったとされ、国土の疲弊はアメリカによるパナマ地峡分離独立の支援を招く隙をも生んだ。', significance:'この内戦による国力の著しい消耗は、直後のパナマ独立という国土分割を許す一因となり、コロンビア近代史における最大級の内的危機として記憶されている。', debate:'この内戦がパナマ分離独立を「招いた」ことについて、内戦による中央政府の弱体化を主因とみるか、アメリカの運河建設をめぐる思惑がいずれにせよ分離を後押ししたはずだとみるかで因果関係の評価が分かれる。'} },
+
+  // ===================== 汎地域的な出来事(冷戦期〜現代) =====================
+  { id:"alliance_for_progress", name:"進歩のための同盟", category:"treaty", lat:-34.9, lng:-56.16, start:1961, end:1961, region:"ウルグアイ(プンタ・デル・エステ)", desc:{background:'キューバ革命の成功がラテンアメリカ全域への共産主義波及の脅威と認識されたことが、アメリカによる大規模な対抗策構想の直接的動機となった。', process:'ケネディ政権が提唱し、経済援助と社会改革(土地改革・教育拡充など)を通じてラテンアメリカ諸国の経済発展を支援し共産主義への防波堤とすることを目指したが、実際の援助の多くは軍事政権の強化に流用されるなど当初の理念通りには機能しなかった。', significance:'冷戦下のアメリカによる大規模な地域援助構想の代表例として、開発援助と安全保障政策が結びつく「開発の政治学」の重要な事例研究対象となっている。', debate:'この構想の実際の成果(貧困削減・民主化)は乏しかったとする評価が支配的であり、理念(社会改革支援)と実際の資金配分(反共軍事政権への支援優先)との乖離が、援助政策の実効性を問う重要な論点となっている。'} },
+  { id:"operation_condor", name:"コンドル作戦", category:"event", lat:-33.45, lng:-70.67, start:1975, end:1983, region:"チリ・アルゼンチン・ブラジル・パラグアイ・ウルグアイ・ボリビア", desc:{background:'1970年代の南米各国における左翼ゲリラ・反体制運動の国境を越えた連携への警戒が、軍事政権間の情報・弾圧協力体制構築の動機となった。', process:'チリ・アルゼンチン・ボリビア・ブラジル・パラグアイ・ウルグアイなど南米諸国の軍事政権が連携し、国境を越えて反体制派の暗殺・拉致・引き渡しを行う秘密工作網を構築し、アメリカのCIAも情報面で関与したとされる。', significance:'国家間の公式な同盟としてではなく秘密工作として国境を越えた弾圧が組織的に行われた事例として、国家によるテロリズム・国際的人権侵害協力の代表的な悪名高い事例となっている。', debate:'アメリカ政府(CIA・国務省)がどこまでこの作戦を主導・黙認したかについては機密解除文書の公開が徐々に進んでいるが完全な解明には至っておらず、超大国の関与責任をめぐる議論が続いている。'} },
+  { id:"latin_american_debt_crisis", name:"ラテンアメリカ債務危機(失われた10年)", category:"event", lat:19.43, lng:-99.13, start:1982, end:1990, region:"メキシコ・ブラジル・アルゼンチンほかラテンアメリカ全域", desc:{background:'1970年代のオイルショックによる石油収入国からの過剰なオイルマネー還流と、それを積極的に借り入れたラテンアメリカ諸国の開発独裁型経済政策が、過剰債務の構造的背景となった。', process:'1982年のメキシコの債務不履行宣言を機に危機は地域全体に連鎖し、IMF・世界銀行主導の構造調整プログラム(緊縮財政・民営化・貿易自由化)の受け入れを多くの国が強いられ、「失われた10年」と呼ばれる長期の経済停滞を経験した。', significance:'この危機は以後の新自由主義的経済改革(ワシントン・コンセンサス)がラテンアメリカ全域に広がる契機となり、グローバルな金融システムの脆弱性と途上国経済の対外依存の危険性を示す教訓的事例となった。', debate:'構造調整プログラムを危機克服のための必要な処方箋とみるか、貧困層への負担を強いた新自由主義的緊縮策の押し付けとみるかで、国際金融機関の政策効果をめぐる評価は今も対立している。'} },
+  { id:"pink_tide", name:"ピンクの潮流(左派政権の連鎖的登場)", category:"event", lat:10.48, lng:-66.9, start:1998, end:2015, region:"ベネズエラ・ブラジル・アルゼンチン・ボリビアほかラテンアメリカ全域", desc:{background:'1980-90年代の新自由主義的構造調整政策がもたらした格差拡大と社会的不満の蓄積が、21世紀初頭の左派政権誕生ラッシュの共通の社会的背景となった。', process:'ベネズエラのチャベス・ブラジルのルーラ・アルゼンチンのキルチネル夫妻・ボリビアのモラレスなど、資源収入(石油・天然ガスなど)を活用した社会福祉拡充を掲げる左派政権が相次いで誕生し地域的な連携も強めたが、2010年代半ば以降は資源価格下落や汚職スキャンダルの発覚により多くが退潮した。', significance:'新自由主義への地域的な政治的反動として世界的に注目され、以後の資源価格変動に伴う退潮(「保守回帰」)と再度の左派復調(2020年代の「新ピンクの潮流」)というラテンアメリカ政治の周期的振り子を理解する重要な起点となっている。', debate:'「ピンクの潮流」諸国を一括りに評価すべきでないという指摘があり、チリ・ブラジルの穏健な社会民主主義路線とベネズエラの急進的な社会主義路線との間には統治スタイル・経済政策上の大きな相違があることが強調される。'} },
+
+  // ===================== ブラジル(補足) =====================
+  { id:"brasilia_capital_transfer", name:"ブラジリアへの首都移転", category:"event", lat:-15.79, lng:-47.88, start:1960, end:1960, region:"ブラジル(ブラジリア)", desc:{background:'沿岸部(リオデジャネイロ)に人口・経済が偏在するブラジルの国土構造を是正し、広大な内陸部の開発を促進したいという長年の国家的構想が、新首都建設の背景にあった。', process:'大統領ジュセリーノ・クビチェックの主導のもとわずか数年という短期間で、モダニズム建築の巨匠オスカー・ニーマイヤーらの設計による全く新しい計画都市が内陸の高原に建設され1960年に遷都された。', significance:'20世紀における最も野心的な計画都市・首都移転事業の一つとして、その未来的な都市計画・建築様式は世界遺産にも登録され、内陸開発を通じた国土均衡発展のモデル事例として国際的に参照される。', debate:'この首都移転が実際に狙い通りの内陸開発・地域格差是正効果をもたらしたかについては、ブラジルの南北格差が今なお根強く残っていることから、その実効性を疑問視する声もある。'} },
+  { id:"lula_era", name:"ルーラ政権(労働者党政権)", category:"nation", lat:-15.79, lng:-47.88, start:2003, end:2030, region:"ブラジル(ブラジリア)", desc:{background:'労働者出身という異例の経歴を持つルーラが、長年の労働運動・野党活動を経て国民的な支持基盤を築いていたことが、大統領就任を可能にした背景となった。', process:'労働党(PT)出身のルイス・イナシオ・ルーラ・ダ・シルバが2003年に大統領就任し資源輸出ブームを背景とした高成長のもと貧困削減プログラム(ボルサ・ファミリア)を推進して数千万人を貧困から脱却させたが、2010年代には大規模な汚職スキャンダル(ラヴァ・ジャト事件)により後継のルセフ大統領の弾劾やルーラ自身の収監も経験し(後に無罪判決を受け政界復帰)、2023年に大統領に返り咲いた。', significance:'労働者階級出身者が国家元首となり大きな社会的成果を上げた事例として国際的に高く評価される一方、その後の汚職スキャンダルによる政治的混乱は、ラテンアメリカにおける制度的腐敗の根深さを示す事例ともなった。', debate:'ラヴァ・ジャト事件におけるルーラ自身への有罪判決とその後の無効化(手続き上の問題による)の経緯は、司法の政治利用(いわゆる「ロウファーレ」=法律戦争)の疑いをめぐり、ブラジル国内で今も激しい論争を呼んでいる。'} },
+
+  // ===================== アルゼンチン(補足) =====================
+  { id:"argentina_2001_crisis", name:"2001年アルゼンチン経済危機", category:"event", lat:-34.6, lng:-58.38, start:2001, end:2002, region:"アルゼンチン(ブエノスアイレス)", desc:{background:'1990年代のドルペッグ制(兌換制)による為替の実勢からの乖離と、それを維持するための緊縮財政・対外債務の累積が、危機発生の構造的背景となった。', process:'対外債務の返済不能に陥りペッグ制が崩壊、預金封鎖(コラリート)への抗議で暴動が発生し大統領が辞任、わずか2週間で大統領が5人交代する異例の政治的混乱を経験した。', significance:'史上最大級の対外債務不履行(デフォルト)として国際金融史に記録され、この危機は新興国における為替制度(固定相場制)の脆弱性を示す重要な事例研究対象となった。', debate:'この危機の主因を、無謀な対外借入を続けたアルゼンチン政府の財政運営に求めるか、IMFが長年推奨してきたドルペッグ制と緊縮政策の処方箋自体に求めるかで、国際金融機関の政策責任をめぐる論争が続いている。'} },
+
+  // ===================== ガイアナ・スリナム =====================
+  { id:"guyana_independence", name:"ガイアナ独立(旧英領ギアナ)", category:"nation", lat:6.8, lng:-58.16, start:1966, end:2030, region:"ガイアナ(ジョージタウン)", desc:{background:'イギリスによる植民地統治撤退の流れの中、インド系・アフリカ系という二大民族集団間の政治的対立が、独立に向けた統一的な国民運動の形成を困難にしていたことが背景にある。', process:'イギリスから独立を達成したが、独立前後を通じインド系政党(進歩人民党)とアフリカ系政党(人民国民会議)との間の民族的・政治的対立が続き、この対立は現在に至るまでガイアナ政治の基本構造であり続けている。', significance:'南米大陸に位置しながら英語を公用語としカリブ海諸国共同体(カリコム)に加盟するなど、文化的にはカリブ海地域に属するという地理と文化のずれを示す特異な国家として位置づけられる。', debate:'独立前後のイギリス・アメリカによる政治介入(特に社会主義志向のジャガン政権への警戒からの選挙工作疑惑)が、その後の民族対立型政治構造の固定化にどう影響したかは、冷戦期の小国政治への大国介入の事例として論じられる。'} },
+  { id:"suriname_independence", name:"スリナム独立(旧オランダ領ギアナ)", category:"nation", lat:5.87, lng:-55.17, start:1975, end:2030, region:"スリナム(パラマリボ)", desc:{background:'オランダによる植民地統治撤退の方針の中、多様な民族構成(インド系・ジャワ系・アフリカ系マルーンなど)を抱える社会がどう国民統合を図るかが、独立に向けた大きな課題であった。', process:'オランダから独立を達成したが、独立に際して多くの住民(特にインド系)がオランダへ移住する現象が起こり、独立後まもなく1980年の軍事クーデターにより不安定な政治状況に陥った。', significance:'南米大陸で唯一オランダ語を公用語とする国家として、また多民族構成(6つの主要民族集団が並存)という点で、南米における文化的多様性の極端な事例として人類学的にも注目される。', debate:'独立時の大規模な国外移住(頭脳流出)が、その後のスリナムの経済的発展の停滞にどこまで影響したかについては、脱植民地化に伴う人口移動の経済的帰結として比較研究の対象となっている。'} },
+];
+
+/* =========================================================================
+   カテゴリ設定
+   ========================================================================= */
+const CATEGORY_CONFIG = {
+  person:     { label:'人物',       color:'#c0554a' },
+  nation:     { label:'国家',       color:'#3f7ea6' },
+  dynasty:    { label:'王朝',       color:'#8259ac' },
+  event:      { label:'事件・出来事', color:'#c99a4a' },
+  war:        { label:'戦争・戦い',  color:'#8a3a3a' },
+  revolution: { label:'革命',       color:'#3f8f74' },
+  treaty:     { label:'条約',       color:'#7a6a52' },
+};
+
+/* =========================================================================
+   年号の表示フォーマット
+   ========================================================================= */
+function formatYear(y){
+  y = Math.round(y);
+  if(y < 0) return `紀元前${Math.abs(y)}年`;
+  if(y === 0) return `紀元1年`;
+  return `西暦${y}年`;
+}
+function formatYearShort(y){
+  y = Math.round(y);
+  if(y < 0) return `前${Math.abs(y)}`;
+  return `${y}`;
+}
+
+/* =========================================================================
+   地図の初期化
+   ========================================================================= */
+const map = L.map('map', {
+  center:[-8, -68],
+  zoom:3,
+  minZoom:2,
+  maxZoom:12,
+  worldCopyJump:true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19,
+}).addTo(map);
+
+const markerLayer = L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 11,
+  iconCreateFunction: function(cluster){
+    return L.divIcon({
+      html: `<div class="cluster-badge">${cluster.getChildCount()}</div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: L.point(32, 32),
+    });
+  },
+}).addTo(map);
+const markerById = {}; // id -> {marker, entry}
+
+/* =========================================================================
+   フィルタ状態
+   ========================================================================= */
+const activeCategories = new Set(Object.keys(CATEGORY_CONFIG));
+let searchTerm = '';
+
+/* =========================================================================
+   サイドバー: フィルタリスト生成
+   ========================================================================= */
+const filterListEl = document.getElementById('filterList');
+Object.entries(CATEGORY_CONFIG).forEach(([key, cfg])=>{
+  const count = historicalData.filter(d=>d.category===key).length;
+  const row = document.createElement('label');
+  row.className = 'filter-row';
+  row.innerHTML = `
+    <input type="checkbox" data-cat="${key}" checked>
+    <span class="swatch" style="background:${cfg.color}"></span>
+    <span class="fname">${cfg.label}</span>
+    <span class="fcount">${count}</span>
+  `;
+  filterListEl.appendChild(row);
+});
+filterListEl.addEventListener('change', (e)=>{
+  const cb = e.target;
+  if(cb.type !== 'checkbox') return;
+  const cat = cb.dataset.cat;
+  if(cb.checked) activeCategories.add(cat);
+  else activeCategories.delete(cat);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = true;
+    activeCategories.add(cb.dataset.cat);
+  });
+  updateMap();
+});
+document.getElementById('selectNoneBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+  });
+  activeCategories.clear();
+  updateMap();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  updateMap();
+});
+
+/* =========================================================================
+   詳細パネル
+   ========================================================================= */
+const detailPanel = document.getElementById('detailPanel');
+const detailContent = document.getElementById('detailContent');
+
+let currentDetailEntry = null;
+
+function getCurrentYear(){
+  return parseInt(document.getElementById('yearSlider').value, 10);
+}
+
+// entry(国家・王朝・事件など)に紐づく人物、および entry.relatedIds で明示的に
+// リンクされた国家・王朝(同盟/敵対関係)・事件・戦争・革命・条約などを、
+// 年代に関わらず全て取得(古い順)。表示中のジャンルでフィルタする。
+function getRelatedItems(entry){
+  if(activeCategories.size === 0) return null;
+
+  const byParent = historicalData.filter(p => p.category === 'person' && p.parentId === entry.id);
+
+  const explicitIds = entry.relatedIds || [];
+  const byExplicit = explicitIds
+    .map(id => historicalData.find(d => d.id === id))
+    .filter(Boolean);
+
+  const merged = [...byParent];
+  for(const item of byExplicit){
+    if(item.id !== entry.id && !merged.some(m => m.id === item.id)) merged.push(item);
+  }
+
+  return merged
+    .filter(d => activeCategories.has(d.category))
+    .sort((a,b)=> a.start - b.start);
+}
+
+function showDetail(entry, parentEntry){
+  currentDetailEntry = entry;
+  const cfg = CATEGORY_CONFIG[entry.category];
+
+  const backHtml = parentEntry
+    ? `<button class="back-btn" data-back-id="${parentEntry.id}">← ${parentEntry.name} に戻る</button>`
+    : '';
+
+  let relatedHtml = '';
+  {
+    const related = getRelatedItems(entry);
+    if(related !== null){
+      if(related.length > 0){
+        const items = related.map(p => {
+          const pCfg = CATEGORY_CONFIG[p.category];
+          return `
+          <li class="person-list-item" data-person-id="${p.id}">
+            <span class="person-name"><span class="related-cat-badge" style="background:${pCfg.color}">${pCfg.label}</span>${p.name}</span>
+            <span class="person-years">${formatYear(p.start)} 〜 ${formatYear(p.end)}</span>
+          </li>`;
+        }).join('');
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語(${related.length}件・古い順)</h4>
+            <ul>${items}</ul>
+          </div>`;
+      } else {
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語</h4>
+            <div class="related-persons-empty">関連する用語データはありません。</div>
+          </div>`;
+      }
+    }
+  }
+
+  const metaLabel = entry.category === 'person' ? '活躍した年代(生没年)' : '時期';
+
+  detailContent.innerHTML = `
+    ${backHtml}
+    <span class="detail-badge" style="background:${cfg.color}">${cfg.label}</span>
+    <h3>${entry.name}</h3>
+    <div class="detail-meta">
+      <div>${metaLabel}: ${formatYear(entry.start)} 〜 ${formatYear(entry.end)}</div>
+      <div>地域: ${entry.region || '—'}</div>
+    </div>
+    ${renderDesc(entry.desc)}
+    ${relatedHtml}
+  `;
+  detailPanel.classList.remove('hidden');
+}
+
+const DESC_SECTION_CONFIG = [
+  { key:'background',    label:'背景(なぜ起きたか)',           cls:'sec-background' },
+  { key:'process',       label:'経過(何が決定的だったか)',       cls:'sec-process' },
+  { key:'significance',  label:'意義・影響(何を変えたか)',       cls:'sec-significance' },
+  { key:'debate',        label:'論点・史学上の論争',             cls:'sec-debate' },
+];
+
+function renderDesc(desc){
+  if(!desc) return '';
+  // 後方互換: 万一プレーン文字列のdescが残っていた場合はそのまま1段落で表示
+  if(typeof desc === 'string'){
+    return `<p>${desc}</p>`;
+  }
+  const sections = DESC_SECTION_CONFIG
+    .filter(sec => desc[sec.key])
+    .map(sec => `
+      <div class="desc-section ${sec.cls}">
+        <span class="desc-label">${sec.label}</span>
+        <p class="desc-text">${desc[sec.key]}</p>
+      </div>`)
+    .join('');
+  return `<div class="desc-sections">${sections}</div>`;
+}
+
+// 動的に生成される「戻る」ボタン・人物リスト項目のクリックをイベント委譲で処理
+detailContent.addEventListener('click', (e)=>{
+  const personItem = e.target.closest('.person-list-item');
+  if(personItem){
+    const person = historicalData.find(d => d.id === personItem.dataset.personId);
+    if(person) showDetail(person, currentDetailEntry);
+    return;
+  }
+  const backBtn = e.target.closest('.back-btn');
+  if(backBtn){
+    const parent = historicalData.find(d => d.id === backBtn.dataset.backId);
+    if(parent) showDetail(parent);
+    return;
+  }
+});
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailPanel.classList.add('hidden');
+});
+
+/* =========================================================================
+   マーカー描画・年代フィルタリング
+   ========================================================================= */
+function createMarker(entry){
+  const cfg = CATEGORY_CONFIG[entry.category];
+  const marker = L.circleMarker([entry.lat, entry.lng], {
+    radius:7,
+    weight:2,
+    color:'#f3ecdc',
+    fillColor:cfg.color,
+    fillOpacity:0.92,
+  });
+  marker.bindTooltip(entry.name, {
+    permanent:true,
+    direction:'right',
+    offset:[9,0],
+    className:'entry-label',
+  });
+  marker.on('click', ()=> showDetail(entry));
+  return marker;
+}
+
+function updateMap(){
+  const year = parseInt(document.getElementById('yearSlider').value, 10);
+  document.getElementById('yearDisplay').textContent = formatYear(year);
+
+  markerLayer.clearLayers();
+  let visibleCount = 0;
+  const term = searchTerm.toLowerCase();
+
+  historicalData.forEach(entry=>{
+    if(!activeCategories.has(entry.category)) return;
+    if(year < entry.start || year > entry.end) return;
+    if(term && !entry.name.toLowerCase().includes(term)) return;
+    // 国家・王朝に紐づく人物は、そのピンをクリックした先の一覧からのみ表示する
+    if(entry.category === 'person' && entry.parentId) return;
+    const marker = createMarker(entry);
+    markerLayer.addLayer(marker);
+    visibleCount++;
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+/* =========================================================================
+   年表(タイムライン)スライダー
+   ========================================================================= */
+const yearSlider = document.getElementById('yearSlider');
+yearSlider.addEventListener('input', updateMap);
+
+// 目盛り(500年刻み)を生成
+const ticksEl = document.getElementById('ticks');
+const MIN_YEAR = -3000, MAX_YEAR = 2030;
+for(let y = MIN_YEAR; y <= MAX_YEAR; y += 500){
+  const pct = (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+  const tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = pct + '%';
+  tick.textContent = formatYearShort(y);
+  ticksEl.appendChild(tick);
+}
+
+/* =========================================================================
+   再生(自動再生)機能
+   ========================================================================= */
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+let playing = false;
+let playTimer = null;
+
+function startPlaying(){
+  playing = true;
+  playBtn.textContent = '⏸ 停止';
+  playTimer = setInterval(()=>{
+    const step = parseInt(speedSelect.value, 10);
+    let v = parseInt(yearSlider.value, 10) + step;
+    if(v > MAX_YEAR){ v = MIN_YEAR; }
+    yearSlider.value = v;
+    updateMap();
+  }, 180);
+}
+function stopPlaying(){
+  playing = false;
+  playBtn.textContent = '▶ 再生';
+  clearInterval(playTimer);
+}
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlaying();
+  else startPlaying();
+});
+
+/* =========================================================================
+   初期描画
+   ========================================================================= */
+updateMap();
+
+</script>
+</body>
+</html>

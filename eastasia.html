@@ -1,280 +1,1281 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>準備中 | 地図で学ぶ世界史探究</title>
-    <!-- Google Fonts: モダンかつ歴史の品位を感じるフォント -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-dark: #0b132b;
-            --accent-gold: #e0a96d;
-            --accent-cyan: #48cae4;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --text-main: #f0f3f8;
-            --text-sub: #a0aec0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東アジア史地図 — 世界史探究</title>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'Noto Serif JP', serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
 
-        /* --- 背景の流動的・動的グラデーションオーブ --- */
-        .background-globe {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: float 18s ease-in-out infinite alternate;
-            z-index: 1;
-        }
+<style>
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
 
-        .globe-1 {
-            width: 450px;
-            height: 450px;
-            background: linear-gradient(135deg, #1c2541, #3a506b);
-            top: -10%;
-            left: -10%;
-        }
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
 
-        .globe-2 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, var(--accent-gold), #8c5383);
-            bottom: -10%;
-            right: -5%;
-            animation-delay: -5s;
-        }
+    --header-h:68px;
+    --footer-h:104px;
+  }
 
-        .globe-3 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #0077b6, var(--accent-cyan));
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -10s;
-        }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
 
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            50% { transform: translate(30px, -50px) scale(1.1) rotate(180deg); }
-            100% { transform: translate(-30px, 30px) scale(0.9) rotate(360deg); }
-        }
+  a{color:var(--gold-strong);}
 
-        /* --- 地図の緯度経度・グリッド線を模した線画 --- */
-        .map-grid {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 50% 50%, transparent 60%, rgba(11, 19, 43, 0.8) 100%),
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 80px 80px, 80px 80px;
-            z-index: 2;
-            pointer-events: none;
-        }
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
 
-        /* --- ガラスモーフィズム カード --- */
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 560px;
-            padding: 3rem 2.5rem;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            text-align: center;
-        }
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
 
-        /* --- アイコンモチーフ（流動的な羅針盤） --- */
-        .compass-wrapper {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-        }
+  /* ---------- Header ---------- */
+  #app-header{
+    height:var(--header-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
 
-        .compass-ring {
-            position: absolute;
-            inset: 0;
-            border: 2px dashed var(--accent-gold);
-            border-radius: 50%;
-            animation: spin 20s linear infinite;
-            opacity: 0.7;
-        }
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
 
-        .compass-core {
-            position: absolute;
-            inset: 15px;
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
-            border-radius: 50%;
-            opacity: 0.8;
-            filter: blur(4px);
-            animation: pulse 3s ease-in-out infinite alternate;
-        }
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
 
-        .compass-icon {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #fff;
-        }
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
 
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
 
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 0.9; }
-        }
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
 
-        /* --- タイトル・テキスト --- */
-        .app-title {
-            font-family: 'Cinzel', 'Noto Serif JP', serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: var(--accent-gold);
-            margin-bottom: 0.5rem;
-        }
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+  }
+  .entry-label::before{ display:none; }
 
-        .main-heading {
-            font-size: 1.75rem;
-            font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
 
-        .description {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: var(--text-sub);
-            margin-bottom: 2rem;
-            font-weight: 400;
-        }
+  /* Detail panel */
+  #detailPanel{
+    width:340px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-340px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .desc-sections{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .desc-section{
+    padding-left:12px;
+    border-left:3px solid var(--line-parchment);
+  }
+  .desc-section.sec-background{ border-left-color:#3f7ea6; }
+  .desc-section.sec-process{ border-left-color:#c99a4a; }
+  .desc-section.sec-significance{ border-left-color:#3f8f74; }
+  .desc-section.sec-debate{ border-left-color:#8a3a3a; }
+  .desc-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .desc-section.sec-background .desc-label{ color:#3f7ea6; }
+  .desc-section.sec-process .desc-label{ color:#a67c2e; }
+  .desc-section.sec-significance .desc-label{ color:#2f7358; }
+  .desc-section.sec-debate .desc-label{ color:#8a3a3a; }
+  .desc-text{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    margin:0;
+  }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
 
-        /* --- プログレスインジケーター --- */
-        .status-container {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 30px;
-        }
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
 
-        .dot-wave {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: wave 1.4s infinite ease-in-out;
-        }
+  /* Footer timeline */
+  #timeline{
+    height:var(--footer-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
 
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
 
-        @keyframes wave {
-            0%, 100% { transform: translateY(0); opacity: 0.3; }
-            50% { transform: translateY(-4px); opacity: 1; }
-        }
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
 
-        .status-text {
-            font-size: 0.85rem;
-            color: var(--text-main);
-            letter-spacing: 0.05em;
-        }
-
-        /* --- レスポンシブ対応 --- */
-        @media (max-width: 480px) {
-            .container {
-                padding: 2.5rem 1.5rem;
-            }
-            .main-heading {
-                font-size: 1.4rem;
-            }
-            .description {
-                font-size: 0.85rem;
-            }
-        }
-    </style>
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- 流動的グラデーション背景 -->
-    <div class="background-globe globe-1"></div>
-    <div class="background-globe globe-2"></div>
-    <div class="background-globe globe-3"></div>
+<div id="app">
 
-    <!-- 地図を模したグリッド背景 -->
-    <div class="map-grid"></div>
+  <header id="app-header">
+    <div>
+      <h1>東アジア史 地図で学ぶ世界史</h1>
+      <p class="subtitle">紀元前2100年 〜 西暦2030年 ・ 高校世界史探究 学習用(中国・モンゴル・朝鮮・日本)</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">紀元前500年</span>
+    </div>
+  </header>
 
-    <!-- メインコンテンツ（ガラスモーフィズム） -->
-    <main class="container">
-        <!-- 羅針盤・地図モチーフ -->
-        <div class="compass-wrapper">
-            <div class="compass-ring"></div>
-            <div class="compass-core"></div>
-            <div class="compass-icon">✦</div>
-        </div>
+  <div id="main">
 
-        <p class="app-title">World History Map</p>
-        <h1 class="main-heading">新時代の地図を編纂中</h1>
-        
-        <p class="description">
-            ただいま、歴史の航路を広げる新しいページを準備しています。<br>
-            時代を超えた探究の旅が始まるまで、もうしばらくお待ちください。
-        </p>
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
 
-        <!-- ステータス表示 -->
-        <div class="status-container">
-            <div class="dot-wave">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <span class="status-text">PAGE UNDER CONSTRUCTION</span>
-        </div>
-    </main>
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
 
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: ナポレオン、フランス革命">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-2100" max="2030" step="1" value="600">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   東アジア史 地図アプリ — データ本体
+   -------------------------------------------------------------------------
+   ジャンル(category)は以下の7種:
+     person     人物
+     nation     国家
+     dynasty    王朝
+     event      事件・出来事
+     war        戦争・戦い
+     revolution 革命
+     treaty     条約
+
+   各エントリの形式:
+   {
+     id:       一意の文字列ID
+     name:     表示名(日本語)
+     category: 上記7種のいずれか
+     lat, lng: 地図上の座標(代表都市・場所)
+     start:    存在/在位/発生開始年(西暦。紀元前はマイナスで表現。例: 紀元前500年 = -500)
+     end:      終了年(単発の出来事は start と同じか、数年程度の幅を持たせる)
+     region:   地域・国名の補助タグ
+     desc:     詳細説明文
+   }
+
+   ★ データは今後、国・地域ごとに分割して追加していきます。
+     新しいブロックを追加する際は、この配列に要素を push する形で
+     どんどん拡張できます(下記はコメントで地域ごとに区切り済み)。
+   ========================================================================= */
+
+const historicalData = [
+
+
+  // ===================== 古代中国(夏・殷・周) =====================
+  { id:"xia_dynasty", name:"夏王朝", category:"dynasty", lat:34.71, lng:112.69, start:-2070, end:-1600, region:"中国・中原(河南)", desc:{background:'黄河中流域における農業共同体の発展と、治水事業を組織する必要性が、世襲的な王権を持つ最初期の国家形成を促したとされる。', process:'禹が治水事業の功績により舜から禅譲を受けて建国したと伝えられ、以後王位が世襲されるようになったが、その実在を直接示す文字史料は発見されておらず、二里頭遺跡がこれに対応するとの説が有力視されている。', significance:'伝説上は中国最初の王朝として、禅譲から世襲への転換という中国的王権理念の起点に位置づけられ、後世の史書(『史記』夏本紀)における正統な王朝系譜の出発点となった。', debate:'夏王朝の実在性そのものが考古学的に確証されておらず、二里頭遺跡を夏に比定する説と、これを否定し夏を後世の神話的構築物とみる説との間で、中国古代史学上の根本的な論争が続いている。'} },
+  { id:"shang_dynasty", name:"殷(商)王朝", category:"dynasty", lat:36.1, lng:114.32, start:-1600, end:-1046, region:"中国・中原(河南)", desc:{background:'黄河下流域における青銅器鋳造技術の発達と、祖先祭祀を中心とする宗教的権威が、王権の正統性を支える基盤となった。', process:'甲骨文字による占卜記録を残し、精緻な青銅器(祭器)の鋳造技術で高度な文明を築いたが、紂王の暴虐な統治への反発から周の武王による牧野の戦いでの敗北を機に滅亡した。', significance:'甲骨文字は現存する最古の体系的な漢字であり、その解読により実在が考古学的に確証された中国最初の王朝として、殷墟の発掘は20世紀中国考古学最大の成果の一つとされる。', debate:'紂王の「暴虐」を伝える記述の多くは周による征服を正当化する後世の歴史叙述である可能性が高く、実際の紂王の統治実態と伝承上のイメージとの乖離が史料批判上の重要な論点となっている。'} },
+  { id:"zhou_dynasty", name:"周王朝", category:"dynasty", lat:34.27, lng:108.95, start:-1046, end:-256, region:"中国・関中(陝西)〜中原", relatedIds:["confucius", "spring_autumn", "warring_states", "laozi"], desc:{background:'殷(商)の紂王の暴政への諸侯の不満が高まる中、西方の諸侯であった周の文王・武王が勢力を蓄えたことが建国の背景となった。', process:'武王が牧野の戦いで殷を滅ぼし「天命」思想に基づく統治の正統性を確立、封建制により一族・功臣を各地に分封したが、前771年の犬戎の侵入により都を東方の洛邑へ移す(東遷)と王権は急速に形骸化し、以後春秋・戦国という約550年に及ぶ分裂・抗争の時代に入った。', significance:'「天命」思想(徳を失った王朝は天命を失い交代する)は以後の中国王朝交代の正統性理論(易姓革命)の原型となり、この思想は現在に至るまで中国政治思想の根底に位置づけられている。', debate:'封建制がなぜ長期的には中央権力の弱体化を招いたのか、その制度的な限界(諸侯の自立化を防ぐ仕組みの欠如)が、後の郡県制導入との対比で論じられる。'} },
+  { id:"confucius", name:"孔子", category:"person", parentId:"zhou_dynasty", lat:35.6, lng:116.99, start:-551, end:-479, region:"魯(山東)", desc:{background:'春秋時代の礼制崩壊(下克上の風潮)と社会秩序の混乱への危機感が、彼の思想形成の背景となった。', process:'各国を遊説して自らの政治理念(仁・礼による徳治)の実現を訴えたが生前に重用されることはなく、晩年は弟子の教育と古典の整理に専念し、その言行は死後に弟子たちにより『論語』としてまとめられた。', significance:'その思想(儒教)は前漢の武帝による国教化以降2000年以上にわたり中国のみならず東アジア全域(朝鮮・日本・ベトナム)の政治・社会・倫理思想の根幹をなし続けている。', debate:'儒教を「封建的身分秩序を正当化する保守的思想」とみるか「普遍的な仁愛と徳治を説く進歩的な政治哲学」とみるかで、近代以降(特に五四運動期の「孔子打倒」)から現在まで評価が大きく揺れ動いている。'} },
+  { id:"laozi", name:"老子", category:"person", parentId:"zhou_dynasty", lat:33.63, lng:111.68, start:-600, end:-470, region:"中国", desc:{background:'春秋時代の社会的混乱と、儒教的な礼制中心の秩序観への懐疑が、無為自然を説く彼の思想形成の背景にあるとされる。', process:'『老子(道徳経)』において万物の根源である「道」への回帰と、作為を排する「無為自然」の統治理念を説いたと伝えられるが、その実在自体を疑う説もある。', significance:'儒教と並ぶ中国思想の二大潮流である道教・道家思想の始祖として位置づけられ、その自然回帰の思想は後の中国美術・文学(山水画・隠遁思想)にも大きな影響を与えた。', debate:'老子という人物の実在性、および『老子』というテキストの成立時期(戦国時代に複数の著者により編纂されたとする説が有力)について、文献学上の論争が続いている。'} },
+  { id:"mengzi", name:"孟子", category:"person", parentId:"zhou_dynasty", lat:35.4, lng:117.0, start:-372, end:-289, region:"鄒(山東)", desc:{background:'戦国時代の激しい富国強兵競争と諸子百家の思想的対立の中、孔子の思想を継承・発展させる必要が彼の活動の背景となった。', process:'性善説(人間の本性は本来善であるとする説)を唱え、民衆の福祉を重視する「王道政治」を諸国の君主に説いて回ったが、その理想主義的な主張は当時の実利的な富国強兵路線とは相容れず、直接的な政治的実現には至らなかった。', significance:'「民を貴しと為し、社稷之に次ぎ、君を軽しと為す」という民本思想は、後世の儒教政治思想における為政者への道徳的制約の理論的根拠となり、朱子学における四書の一つとして尊重された。', debate:'彼の性善説と荀子の性悪説という対照的な人間観は、儒教内部における人間性理解の根本的な対立軸として、統治のあり方(徳治か法治か)をめぐる議論にも影響を与え続けている。'} },
+  { id:"xunzi", name:"荀子", category:"person", parentId:"zhou_dynasty", lat:35.0, lng:118.0, start:-313, end:-238, region:"趙・楚(蘭陵)", desc:{background:'戦国末期の複数の思想潮流(儒家・法家・道家)が交錯する稷下の学における学術的交流が、彼の思想形成の背景となった。', process:'人間の本性は生来利己的で悪であるとする「性悪説」を唱え、後天的な礼による教化・矯正の必要性を強調し、その弟子である韓非子・李斯はそれぞれ法家思想を大成しのちの秦の統治理念に大きな影響を与えた。', significance:'儒家でありながら法家の理論的源流ともなったその思想は、儒教の枠内に礼と法という統治手法の両面を架橋する独自の位置を占め、後の中国統治思想における「外儒内法」的性格の理論的先駆けとなった。', debate:'儒家の枠内に位置づけられる荀子から、儒教を厳しく否定する法家の韓非子・李斯が輩出されたという思想史上の逆説的な系譜が、儒家思想内部の多様性・振れ幅の大きさを示す事例として論じられる。'} },
+  { id:"mozi", name:"墨子", category:"person", parentId:"zhou_dynasty", lat:35.6, lng:116.99, start:-470, end:-391, region:"魯・宋", desc:{background:'儒教の礼制重視や身分に応じた差等的な愛(親疎の別)への批判的立場が、彼独自の思想形成の背景となった。', process:'身分の別なく全ての人を平等に愛する「兼愛」と、戦争による社会的損失を否定する「非攻」を説き、儀礼の簡素化(節葬・節用)を求める実利的・平等主義的な思想を展開し、一時は儒家と並ぶ有力な学派(墨家)を形成した。', significance:'身分を超えた平等な博愛主義と反戦思想は諸子百家の中でも際立って先進的であり、また墨家は独自の論理学・幾何学・防御戦術の研究でも知られる技術者集団としての性格も持っていた。', debate:'これほど先進的な思想を持ちながら秦漢統一以降急速に衰退し歴史の表舞台からほぼ姿を消した墨家の運命について、その組織的性格(準軍事的結社)が統一帝国の統治にとって危険視された結果ではないかという説が論じられる。'} },
+  { id:"han_feizi", name:"韓非子", category:"person", parentId:"zhou_dynasty", lat:34.0, lng:113.0, start:-280, end:-233, region:"韓", desc:{background:'荀子に学びつつ、儒教的な徳治の理想論では戦国時代の弱肉強食の現実に対応できないという現実主義的な問題意識が、彼の法家思想確立の背景となった。', process:'法(明文化された規範)・術(君主による臣下の統制術)・勢(君主の権力基盤)を統合する法家思想を体系化し、この理論は同門の李斯を通じて秦の始皇帝の統治実践に直接的な影響を与えた。', significance:'その現実主義的な統治理論は、儒教的な理想主義とは対照的に法による厳格な統治(信賞必罰)を重視する中国政治思想のもう一つの重要な源流となり、秦の中央集権的統一国家建設の理論的基盤を提供した。', debate:'同門であった李斯の讒言により獄死したとされるその最期は、法家思想自体が内包する冷徹な権力闘争の論理を皮肉にも体現する事件として、法家思想の実践がもたらす人間関係の苛烈さを象徴する事例とされる。'} },
+  { id:"spring_autumn", name:"春秋時代", category:"event", lat:34.62, lng:112.45, start:-770, end:-403, region:"中国・中原諸国", desc:{background:'周王朝の東遷(前770年)により王権の実質的権威が失われたことが、諸侯が覇権を競う分裂時代到来の背景となった。', process:'斉の桓公・晋の文公など有力諸侯が「尊王攘夷」を掲げて覇者(覇権を握る諸侯)となる体制が続いたが、名目上は周王の権威を認めつつも実質的には各国が自立的な行動をとる緩やかな秩序が長期化した。', significance:'この時代に諸子百家(儒家・道家・法家・墨家など)の思想的活動が花開き、中国思想史上最も創造的な時代の一つとなった、後の戦国時代へと続く長期分裂の前半期である。', debate:'「尊王攘夷」という建前と実際の権力政治との乖離をどう理解すべきか、この時代の国際秩序(緩やかな覇権体制)の性格づけが論じられる。'} },
+  { id:"warring_states", name:"戦国時代", category:"event", lat:34.75, lng:113.6, start:-403, end:-221, region:"中国・七雄諸国", desc:{background:'春秋時代を通じた諸侯間の淘汰と有力な卿大夫による国家乗っ取り(晋の三分割=韓・魏・趙の成立など)が、この時代の本格的な分裂・抗争激化の背景となった。', process:'秦・楚・斉・燕・韓・魏・趙の「戦国七雄」が周王の権威をもはや顧みず互いに全面戦争(富国強兵競争)を繰り広げ、鉄製農具の普及による生産力向上と各国の変法(商鞅の変法など)による中央集権化が進んだ。', significance:'この時代の生存競争の中で法家・儒家・道家など諸子百家の思想が実践的に試され、最終的に最も徹底した中央集権改革(商鞅の変法)を行った秦が他の六国を次々と滅ぼして中国を統一した。', debate:'秦の統一を可能にした要因を、商鞅の変法による徹底した国家動員体制の確立に求めるか、地理的優位(関中の要害)に求めるかで議論がある。'} },
+  { id:"shang_yang", name:"商鞅", category:"person", parentId:"warring_states", lat:34.33, lng:108.72, start:-390, end:-338, region:"秦(咸陽)", desc:{background:'秦が当時の東方諸国に比べ後進的とみなされていた状況の中、孝公が国力強化のための抜本的改革を求めたことが、彼の登用の背景となった。', process:'法家思想に基づき身分によらない信賞必罰の徹底(軍功による爵位付与)、連座制による相互監視、郡県制の導入など徹底した中央集権的改革(変法)を断行し秦の国力を飛躍的に強化したが、後ろ盾であった孝公の死後、恨みを買っていた貴族層により車裂きの刑に処された。', significance:'彼の改革は秦の富国強兵を実現し後の中国統一の基盤を築いたが、その徹底した法治主義は同時に厳しい弾圧・統制も伴い、後世「秦の苛政」への批判の一因ともなった。', debate:'改革者自身が自らの作った法(連座制)によって処刑されたという逸話は、急進的な制度改革がもたらす政治的リスクを象徴する事例として、その歴史的教訓性が論じられる。'} },
+
+  // ===================== 秦・漢 =====================
+  { id:"qin_dynasty", name:"秦王朝", category:"dynasty", lat:34.33, lng:108.72, start:-221, end:-206, region:"中国・咸陽", relatedIds:["qin_shi_huang"], desc:{background:'商鞅の変法以来の徹底した中央集権改革により蓄積された秦の国力が、戦国七雄の中で他国を圧倒する軍事的優位をもたらしたことが統一の背景となった。', process:'始皇帝が六国を次々と滅ぼして中国史上初の統一帝国を樹立し、郡県制・文字・度量衡・車軌の統一など徹底した中央集権化政策を進めたが、過酷な労役(万里の長城・阿房宮建設)と厳格な法治への民衆の不満が高まり、始皇帝死後わずか数年で陳勝・呉広の乱を機に急速に崩壊した。', significance:'中国史上初の統一帝国として、その中央集権的な統治制度(郡県制・皇帝制度)は以後2000年以上続く中国帝政の基本的な統治モデルを確立した画期的な意義を持つ。', debate:'「暴虐な短命王朝」という伝統的な評価に対し、近年は郡県制・文字統一などの制度的達成を積極的に再評価する見方が強まっており、「苛政」の実態と統一事業の歴史的意義のバランスをどうとるべきかが論じられる。'} },
+  { id:"qin_shi_huang", name:"始皇帝", category:"person", parentId:"qin_dynasty", lat:34.33, lng:108.72, start:-259, end:-210, region:"秦", desc:{background:'13歳での即位から丞相呂不韋・李斯らの補佐を受けつつ実権を確立し、六国統一という祖先以来の悲願実現を目指したことが治世の背景となった。', process:'六国を次々と征服して中国史上初の統一を達成すると自ら「皇帝」の称号を創始し、郡県制・文字・度量衡の統一、万里の長城建設、焚書坑儒による思想統制を断行する一方、不老不死を求め巨大な兵馬俑を伴う陵墓を築かせた。', significance:'「皇帝」という称号と中央集権的統治制度を創始した中国史上最も影響力の大きい統治者の一人であり、その統一事業の物理的規模(兵馬俑・長城)は今日も世界的な考古学的関心を集めている。', debate:'「暴君」としての伝統的評価(焚書坑儒・過酷な労役)と、中国統一という不朽の歴史的偉業を成し遂げた「創業者」としての評価との間で、時代や政治状況によって評価が大きく振れ続けてきた人物である。'} },
+  { id:"chen_sheng_uprising", name:"陳勝・呉広の乱", category:"war", lat:33.97, lng:115.62, start:-209, end:-208, region:"秦(大澤郷)", desc:{background:'秦の過酷な労役・法制度(遅刻すら死罪とする連座的な厳罰主義)への民衆の蓄積した不満が、この反乱の社会的背景となった。', process:'陳勝・呉広ら徴発された農民が、悪天候により徴発地への到着期限に間に合わないことを悟り、どのみち死罪ならばと蜂起に踏み切り、この蜂起は瞬く間に各地に波及して秦帝国の統治基盤を大きく揺るがした。', significance:'「王侯将相いずくんぞ種あらんや(王侯や将軍・宰相に生まれながらの血筋などない)」という言葉に象徴される、中国史上最初の大規模な農民反乱として、以後の中国史における「易姓革命」思想の実践的先例となった。', debate:'この反乱自体は短期間で鎮圧されたが、これが引き金となって秦帝国全体が崩壊に向かったことから、巨大な中央集権帝国の脆弱性(局地的な反乱が全体の崩壊を招く連鎖反応)についての教訓的事例として論じられる。'} },
+  { id:"xihan_dynasty", name:"前漢(西漢)", category:"dynasty", lat:34.27, lng:108.95, start:-202, end:8, region:"中国・長安", relatedIds:["liu_bang", "emperor_wu_han", "silk_road_han"], desc:{background:'秦崩壊後の楚漢戦争を勝ち抜いた劉邦が、秦の急進的な中央集権化への反省から、より穏健な統治体制の構築を志向したことが建国の背景となった。', process:'郡県制と封建制を併用する郡国制を採用し、武帝の代に中央集権化を完成させ儒教を国教として採用、シルクロード交易や積極的な対外政策(匈奴討伐)で最盛期を築いたが、外戚・宦官の専横により後期には政治が混乱し、外戚王莽による簒奪(新の建国)で一時中断した。', significance:'儒教の国教化により以後2000年の中国統治理念の基本枠組みを確立し、「漢民族」「漢字」「漢語」という呼称にその名を残すなど、中国文明のアイデンティティの根幹を形成する王朝となった。', debate:'秦の急進的な法家統治から前漢の「外儒内法(表向きは儒教、実質は法家的統治)」への転換が、中国統治理念のどのような本質的な連続性・断絶性を示しているかが論じられる。'} },
+  { id:"liu_bang", name:"劉邦(高祖)", category:"person", parentId:"xihan_dynasty", lat:34.27, lng:108.95, start:-256, end:-195, region:"前漢", desc:{background:'農民出身という低い身分から身を起こし、秦末の反乱の混乱の中で頭角を現したことが、彼の台頭の背景となった。', process:'秦滅亡後、宿敵項羽との楚漢戦争を勝ち抜いて中国を再統一し、秦の急進的な法家統治への反省から法を簡素化する一方(法三章)、功臣・一族への分封も行う郡国制を採用して統治基盤を固めた。', significance:'農民出身者が皇帝にまで上り詰めた中国史上最初の事例として、「布衣より天子に至る」という下克上の可能性を体現し、以後の中国史における王朝交代の一つの理念型を提供した。', debate:'彼の統治手法(粗野だが実利的な人材登用術)と、建国後の功臣粛清(韓信ら)という酷薄な側面をどう統合的に評価すべきか、建国者に共通する権力の非情さの問題として論じられる。'} },
+  { id:"emperor_wu_han", name:"武帝", category:"person", parentId:"xihan_dynasty", lat:34.27, lng:108.95, start:-156, end:-87, region:"前漢", desc:{background:'文帝・景帝の代に蓄積された国力と、匈奴への対抗という対外的な安全保障上の必要性が、彼の積極的な対外政策の背景となった。', process:'儒教を国教として採用し中央集権を強化する一方、匈奴討伐・西域経営(張騫の西域派遣)を積極的に進めてシルクロード交易の基盤を確立したが、度重なる対外遠征と大規模建設事業により国庫は著しく疲弊した。', significance:'前漢の最盛期を築いた皇帝として、儒教の国教化は以後2000年の中国統治理念を決定づけ、シルクロード開通は東西交易・文化交流の礎を築いた世界史的意義を持つ。', debate:'積極的な対外拡張政策とその財政的代償(重税・専売制導入)のどちらに重きを置いて評価すべきか、「輝かしい版図拡大」と「民衆への負担」のバランスが論じられる。'} },
+  { id:"dong_zhongshu", name:"董仲舒", category:"person", parentId:"xihan_dynasty", lat:34.27, lng:108.95, start:-179, end:-104, region:"前漢(長安)", desc:{background:'武帝が中央集権化のための統一的な統治イデオロギーを求めていたことが、彼の儒教国教化建言の背景となった。', process:'陰陽五行説と儒教を融合させた独自の宇宙論的な政治思想(天人相関説)を展開し、武帝に対し儒教を国家の唯一の正統思想として採用し他の諸学派を退けるよう建言した(「罷黜百家、独尊儒術」)。', significance:'この建言により儒教は以後2000年にわたり中国の事実上の国教としての地位を確立し、科挙制度を通じた官僚登用の基本理念としても機能し続けることとなった。', debate:'彼が確立した天人相関説(天災は為政者の失政への天の警告とする思想)が、皇帝権力を正当化すると同時に一定の道徳的制約も課すという二面性を持っていたことが、中国政治思想史上の重要な論点である。'} },
+  { id:"sima_qian", name:"司馬遷", category:"person", parentId:"xihan_dynasty", lat:34.27, lng:108.95, start:-145, end:-86, region:"前漢(長安)", desc:{background:'太史令という官職を父から継承し、歴史記録編纂の使命感を強く抱いていたことが、彼の大著述事業の背景となった。', process:'匈奴に投降した将軍李陵を弁護したことで武帝の怒りを買い宮刑(去勢刑)に処されるという屈辱を受けながらも、この逆境の中で中国最初の紀伝体通史『史記』を完成させた。', significance:'『史記』は伝説上の黄帝から前漢武帝期に至る通史として、以後の中国正史(二十四史)の範型となる紀伝体という歴史叙述形式を確立した、中国史学史上最も重要な著作である。', debate:'宮刑という屈辱を受けながらも著述を完成させた彼の動機(「究天人之際、通古今之変」という彼自身の言葉)をどう理解すべきか、逆境が歴史家としての使命感をどう研ぎ澄ませたかが論じられる。'} },
+  { id:"silk_road_han", name:"シルクロード(絹の道)の開通", category:"event", lat:43.79, lng:87.6, start:-139, end:100, region:"中央アジア〜中国", desc:{background:'匈奴挟撃のための同盟を求めた武帝が張騫を西域へ派遣したことが、この交易路開通の直接的な契機となった。', process:'張騫は当初の外交目的(大月氏との同盟)は果たせなかったものの、西域諸国に関する詳細な情報を持ち帰り、これを機に中国と中央アジア・西アジア・地中海世界を結ぶ陸上交易路が本格的に開かれ、絹・香辛料・宝石などが取引された。', significance:'この交易路は単なる物品交易にとどまらず仏教の中国伝来やイラン・中央アジアの文化・技術の東方伝播を媒介し、東西文明交流史上決定的な意義を持つグローバルなネットワークの基盤となった。', debate:'この交易路の開通を軍事外交(対匈奴戦略)の副産物とみるか、当初から交易利益を見込んだ意図的な経済政策とみるかで、その歴史的性格づけが論じられる。'} },
+  { id:"wang_mang_xin", name:"新(王莽)", category:"dynasty", lat:34.27, lng:108.95, start:8, end:23, region:"中国・長安", desc:{background:'前漢後期の外戚・宦官の専横による政治的混乱と社会格差の拡大が、王莽による簒奪と急進的改革を可能にする土壌となった。', process:'外戚として実権を握った王莽が前漢を簒奪して新を建国し、周代の理想的な制度を模範とする復古的な急進改革(土地の国有化・奴婢売買の禁止・貨幣制度の頻繁な変更)を断行したが、現実離れした改革は社会の大混乱を招き、赤眉の乱などの反乱を経てわずか15年で滅亡した。', significance:'中国史上、儒教の理想(周代の井田制復活など)を字義通りに実現しようとした稀有な急進的改革の試みとして、理念先行の政策がもたらす統治の破綻の典型例と評価される。', debate:'王莽を「儒教理想主義に基づく改革者」と再評価する近代以降の一部の見方(特に社会主義的視点からの再評価)と、伝統的な「簒奪者・偽君子」という否定的評価との間で、評価が大きく分かれる。'} },
+  { id:"donghan_dynasty", name:"後漢(東漢)", category:"dynasty", lat:34.62, lng:112.45, start:25, end:220, region:"中国・洛陽", relatedIds:["guangwu_emperor", "yellow_turban_rebellion"], desc:{background:'王莽の急進改革が招いた社会的混乱と各地の反乱(赤眉の乱など)が、漢王朝復興を掲げる勢力の台頭を可能にする条件を整えた。', process:'漢皇族の血を引く劉秀(光武帝)が反乱の中から台頭し漢を復興させたが、後期には幼帝の即位が続き外戚・宦官が交互に実権を握る政治的混乱が深まり、党錮の禁による官僚知識人の弾圧、黄巾の乱を経て各地の群雄割拠状態に陥り、後の三国時代へと移行した。', significance:'漢王朝の正統性を回復させたが、その後期における外戚・宦官の専横パターンは以後の中国王朝に繰り返し現れる構造的な統治問題の先例となった。', debate:'外戚・宦官の専横という現象が、幼帝即位という偶発的要因によるものか、専制君主制という統治構造自体に内在する必然的な弱点であるかが論じられる。'} },
+  { id:"guangwu_emperor", name:"光武帝(劉秀)", category:"person", parentId:"donghan_dynasty", lat:34.62, lng:112.45, start:-5, end:57, region:"後漢", desc:{background:'王莽政権への各地の反乱の中、漢皇族の血統という正統性を掲げて勢力を糾合したことが彼の台頭の背景となった。', process:'群雄割拠の中から勝ち残り漢を復興させ、豪族勢力との融和を図りつつ戸籍整理・度量衡統一など内政再建に努め、比較的安定した治世を築いた。', significance:'「光武中興」と呼ばれる漢王朝の実質的な再建者として、その柔軟な統治手法(豪族との妥協)は新王朝樹立時の現実主義的な統治モデルの一例とされる。', debate:'豪族勢力との妥協的な統治が、短期的な安定をもたらした一方で長期的には豪族の経済的・政治的影響力を温存し、後の後漢末期の混乱の遠因となったのではないかという評価がある。'} },
+  { id:"cai_lun", name:"蔡倫", category:"person", parentId:"donghan_dynasty", lat:34.62, lng:112.45, start:50, end:121, region:"後漢(洛陽)", desc:{background:'後漢の宮廷において、既存の書写材料(竹簡・絹布)が高価・かさばるという実用上の課題が、新素材開発の動機となった。', process:'樹皮・麻くず・魚網などの安価な材料を用いた製紙法を改良・確立し、この技術は宮廷に献上され広く普及するに至った。', significance:'この製紙技術は後にイスラーム世界を経てヨーロッパへ伝わり(タラス河畔の戦いを機とする技術伝播説が有力)、印刷術と並び人類の知識伝達・保存のあり方を根本的に変えた世界史上最重要の技術革新の一つである。', debate:'彼が製紙法の「発明者」か「改良者」かについては、彼以前にも原始的な製紙技術が存在した可能性を示す考古学的発見があり、技術発展における個人の貢献と累積的な集団的知恵との関係が論じられる。'} },
+  { id:"yellow_turban_rebellion", name:"黄巾の乱", category:"war", lat:34.8, lng:114.35, start:184, end:184, region:"後漢・中国各地", desc:{background:'後漢後期の政治腐敗(外戚・宦官の専横)と度重なる天災・飢饉による民衆の困窮が、新興宗教組織を母体とする大規模反乱の社会的背景となった。', process:'太平道の教祖張角が「蒼天已死、黄天当立」を掲げて蜂起し、瞬く間に華北全域に反乱が拡大したが、政府軍と地方豪族の私兵により鎮圧され、この鎮圧過程で台頭した群雄(曹操・劉備・孫権ら)が後の三国時代の主役となっていった。', significance:'この反乱の鎮圧を通じて中央政府の統制力は決定的に弱体化し、地方軍事力を握った群雄が事実上独立する分裂状態を招いた、後漢滅亡と三国分立への直接の転換点である。', debate:'太平道という宗教組織が反乱の主体であったことは、道教の淵源となる民衆宗教運動が政治的動員力を持ち得ることを示す事例として、中国史における宗教と政治反乱の関係を考える重要な先例となっている。'} },
+
+  // ===================== 三国・晋・南北朝 =====================
+  { id:"cao_cao", name:"曹操", category:"person", parentId:"wei_kingdom", lat:36.33, lng:114.55, start:155, end:220, region:"魏(鄴)", desc:{background:'黄巾の乱鎮圧を通じて軍事力を蓄え、後漢末の混乱に乗じて華北の覇権確立を目指したことが台頭の背景となった。', process:'官渡の戦いで最大のライバル袁紹を破り華北をほぼ統一したが、赤壁の戦いで孫権・劉備連合軍に大敗し天下統一の野望は頓挫し、自らは皇帝位に就かず後漢の実権を掌握する形にとどめたが、その死後に子の曹丕が漢を廃して魏を建国した。', significance:'卓越した軍事的才能と政治的手腕により華北の再統一を成し遂げた一方、詩人としても優れた業績を残し、後世「治世の能臣、乱世の奸雄」と評される複雑な人物像で知られる。', debate:'彼を「乱世を収拾した英雄」とみるか「漢室を蔑ろにした簒奪者の元凶」とみるかは、儒教的正統史観(蜀漢正統論)と実力主義的評価との間で伝統的に大きく対立してきた論点である。'} },
+  { id:"wei_kingdom", name:"魏", category:"dynasty", lat:34.62, lng:112.45, start:220, end:265, region:"中国華北(洛陽)", desc:{background:'曹操が築いた華北の軍事的・政治的基盤の上に、子の曹丕が後漢最後の皇帝から禅譲を受けたことが建国の背景となった。', process:'華北という中国の伝統的な経済的中心地を領有する最有力国として、蜀・呉との三国鼎立状態を保ったが、内部で実権を握った司馬氏が徐々に皇帝権力を掌握し、最終的に司馬炎が魏から禅譲を受けて晋を建国した。', significance:'後漢からの「禅譲」という形式を初めて実践し、この先例は以後の中国王朝交代における正統性演出の定型的パターン(実力による簒奪を形式的な禅譲で糊塗する)を確立した。', debate:'曹丕による禅譲の受け方(後漢皇帝への圧力の実態)と、後に魏から晋への禅譲がほぼ同じパターンで行われたことは、この「禅譲」形式が歴史的にどこまで実質を伴う正統な権力移譲であったかを問い直す重要な事例である。'} },
+  { id:"liu_bei", name:"劉備", category:"person", parentId:"shu_han", lat:30.66, lng:104.07, start:161, end:223, region:"蜀漢(成都)", desc:{background:'漢皇族の遠い血筋という出自を掲げつつも、黄巾の乱鎮圧を通じて頭角を現した経歴が、後の蜀漢建国の背景となった。', process:'諸葛亮を三顧の礼で迎えて軍師とし、赤壁の戦いで孫権と同盟して曹操軍を撃退した後、益州(四川)を拠点に蜀漢を建国したが、義弟関羽の敗死への報復として起こした呉への遠征(夷陵の戦い)で大敗し、まもなく病没した。', significance:'漢室再興を掲げる正統性を主張し続けたことから、儒教的正統史観(特に朱子学以降)においては三国の中で最も道義的に正統な存在として位置づけられ、『三国志演義』を通じて理想的な仁君として広く親しまれている。', debate:'史実の劉備と、後世の文学作品(特に『三国志演義』)で理想化された「仁徳の君主」像との乖離がどの程度であるか、正史『三国志』と通俗小説との史料的性格の違いが論じられる。'} },
+  { id:"zhuge_liang", name:"諸葛亮(孔明)", category:"person", parentId:"shu_han", lat:30.66, lng:104.07, start:181, end:234, region:"蜀漢(成都)", desc:{background:'劉備の三顧の礼を受け入れ、その理想主義的な漢室再興の大義に共鳴したことが、彼の生涯にわたる献身の背景となったとされる。', process:'「天下三分の計」を献策して蜀漢建国を導き、劉備死後も幼帝劉禅を補佐しつつ北伐(中原奪還)を繰り返し試みたが、国力の差から決定的な戦果を上げられないまま五丈原の陣中で病没した。', significance:'「鞠躬尽瘁、死而後已(身を粉にして力を尽くし、死してのちやむ)」という自らの言葉に象徴される忠誠と献身の理想像として、中国・東アジア全域で「智謀と忠義の体現者」として理想化され続けている。', debate:'彼の軍事的才能(特に北伐の戦略)への評価は、『三国志演義』による誇張された知将イメージと、正史における実際の戦績(限定的な成果)との間でしばしば再検討の対象となる。'} },
+  { id:"shu_han", name:"蜀漢", category:"dynasty", lat:30.66, lng:104.07, start:221, end:263, region:"中国西南(益州・成都)", desc:{background:'劉備の漢室再興の大義と、諸葛亮の「天下三分の計」という戦略構想が、この国家建国の思想的・戦略的背景となった。', process:'益州(四川)という地形的に守りやすい地域を拠点に建国され、諸葛亮による内政整備と度重なる北伐(中原への遠征)を試みたが、国力(人口・経済規模)で魏に大きく劣り、最終的に263年に魏(後の晋)により滅ぼされた。', significance:'三国の中で最も国力が弱かったにもかかわらず、その「漢室の正統な継承者」という理念的正統性は後世の歴史叙述(特に朱子学の正統論)において高く評価され続けている。', debate:'国力で劣る蜀漢がなぜ40年以上存続し得たのか、その要因を地形的な守りやすさに求めるか、諸葛亮以下の卓越した人材登用・統治能力に求めるかで議論がある。'} },
+  { id:"sun_quan", name:"孫権", category:"person", parentId:"wu_kingdom", lat:32.06, lng:118.79, start:182, end:252, region:"呉(建業)", desc:{background:'父孫堅・兄孫策が築いた江東(長江下流域)の勢力基盤を若くして継承したことが、彼の統治の出発点となった。', process:'赤壁の戦いで劉備と同盟して曹操の南下を阻止し、その後は魏・蜀両国との関係を巧みに使い分けながら江東の支配を安定させ、晩年に呉の皇帝を称した。', significance:'長江以南の江南地域を本格的に開発・統治する政権を確立し、この地域の経済的重要性はこの時代を境に着実に増大していき、後の中国史における江南の経済的中心化の先駆けとなった。', debate:'彼の統治手法(魏・蜀との柔軟な同盟関係の使い分け)を、優れた現実主義的外交とみるか、確固たる理念を欠いた日和見主義とみるかで評価が分かれる。'} },
+  { id:"wu_kingdom", name:"呉", category:"dynasty", lat:32.06, lng:118.79, start:222, end:280, region:"中国江南(建業)", desc:{background:'孫氏一族が長江下流域(江東)で築いた地方勢力基盤を、赤壁の戦いでの勝利を機に独立した国家へと発展させたことが建国の背景となった。', process:'長江の天然の要害を活かして魏・蜀両国との抗争・同盟を繰り返しながら江南の開発を進め海上交易(東南アジア・日本方面)も行ったが、蜀漢滅亡後に魏(晋)からの圧力が強まり280年に晋により滅ぼされ三国時代は終焉した。', significance:'長江以南の本格的な開発を進めたことで、以後の中国史における経済的重心の南方への移動という長期的トレンドの出発点となった重要な政権である。', debate:'三国の中で最も長く存続した(魏・蜀滅亡後も存続)にもかかわらず、正統史観においては魏・蜀ほど重視されない傾向があることの背景(儒教的正統論争における位置づけの弱さ)が論じられる。'} },
+  { id:"battle_red_cliffs", name:"赤壁の戦い", category:"war", lat:29.72, lng:113.93, start:208, end:208, region:"長江中流(赤壁)", desc:{background:'華北を統一した曹操が南下して中国統一を目指す中、劉備・孫権という南方の二勢力が連合してこれに対抗する必要に迫られたことが背景となった。', process:'劉備・孫権連合軍が、火計を用いた奇襲により長江上の曹操軍の大船団を焼き払い、疫病にも苦しんでいた曹操軍は大敗を喫して撤退した。', significance:'この敗北により曹操による中国統一の野望は頓挫し、以後魏・蜀・呉による三国鼎立という長期の分裂状態が固定化する決定的な転換点となった。', debate:'この戦いの詳細な経過(火計の実行者が周瑜か諸葛亮かなど)は『三国志演義』による文学的脚色が色濃く、正史における実際の戦況との異同が史料批判上の重要な検討課題となっている。'} },
+  { id:"jin_western", name:"西晋", category:"dynasty", lat:34.62, lng:112.45, start:265, end:316, region:"中国(洛陽)", desc:{background:'魏の実権を徐々に掌握した司馬氏一族が、禅譲という形式を通じて権力移行を図ったことが建国の背景となった。', process:'司馬炎が魏から禅譲を受けて建国し呉を滅ぼして三国時代を終わらせ中国を再統一したが、一族への大規模な分封と、その後の帝位継承をめぐる皇族間の内乱(八王の乱)により国力を著しく消耗し、異民族(匈奴)の侵入を招いて316年に華北を失陥(永嘉の乱)、江南へ逃れて東晋として存続した。', significance:'三国時代を終わらせた統一王朝でありながらわずか数十年で崩壊し、以後中国は約270年に及ぶ南北分裂時代(魏晋南北朝)に突入することとなった。', debate:'「八王の乱」という皇族間の内紛が、なぜこれほど急速な国力消耗と異民族侵入を招いたのか、この王朝の統治構造(過度な皇族への権力分散)の構造的欠陥が論じられる。'} },
+  { id:"sixteen_kingdoms", name:"五胡十六国時代", category:"event", lat:34.27, lng:108.95, start:304, end:439, region:"中国華北", desc:{background:'西晋の八王の乱による混乱と国力消耗が、北方諸民族(匈奴・鮮卑・羯・氐・羌の「五胡」)による華北への進出・建国を招く直接的契機となった。', process:'匈奴系の劉淵による建国を皮切りに、約130年間で五胡を中心とする複数の政権が華北で興亡を繰り返し、この間漢民族の多くは戦乱を逃れて江南へ移住(永嘉の南渡)し、最終的に鮮卑系の北魏が華北を統一した。', significance:'異民族による中国統治という前例のない状況の中で、遊牧民の軍事力と漢民族の統治技術・文化を融合させる統治モデルの試行錯誤が進み、これは後の北魏における本格的な漢化政策への布石となった。', debate:'この時代の異民族政権を「中国史の一部」として扱うべきか「征服王朝」として区別すべきかという問題は、中国史における「中華」概念の境界をめぐる根本的な史学理論上の論点である。'} },
+  { id:"northern_wei", name:"北魏", category:"dynasty", lat:40.09, lng:113.3, start:386, end:534, region:"中国華北(平城・洛陽)", relatedIds:["emperor_xiaowen","yungang_longmen_grottoes"], desc:{background:'五胡十六国の混乱を経て、鮮卑族拓跋部が華北統一という軍事的達成を果たしたことが建国の背景となった。', process:'華北を統一し均田制・三長制など後の隋唐にも継承される重要な諸制度を創始し、孝文帝の代には漢化政策(服装・言語・姓のすべてを漢族風に改める)を徹底したが、この急進的な漢化への軍人層(六鎮)の反発が後の東西分裂を招く一因となった。', significance:'均田制・府兵制など隋唐帝国の根幹をなす諸制度の多くがこの王朝に起源を持ち、征服王朝でありながら中国の統治制度の発展に決定的な貢献をした点で、中国史における「征服王朝の中国化」の代表的成功例とされる。', debate:'孝文帝の急進的な漢化政策を、王朝の長期的な統治安定化のための合理的選択とみるか、鮮卑族固有の軍事的活力を損ない王朝分裂を招いた性急な改革とみるかで評価が分かれる。'} },
+  { id:"emperor_xiaowen", name:"孝文帝", category:"person", parentId:"northern_wei", lat:34.62, lng:112.45, start:467, end:499, region:"北魏", desc:{background:'祖母馮太后の摂政期に進められた漢化政策の基盤の上に、より徹底した中国化統治を志向したことが治世の背景となった。', process:'都を平城から洛陽へ遷し、鮮卑族固有の服装・言語の使用を禁じ姓を漢族風に改めさせるなど徹底した漢化政策を断行し、均田制の実効的な運用を進めた。', significance:'この漢化政策により北魏は単なる征服王朝から中国的統治理念を体現する王朝へと変貌し、その統治制度は隋唐帝国の礎として継承された。', debate:'この急進的な漢化が北方の軍事拠点(六鎮)を担っていた鮮卑軍人層の疎外感を強め、後の六鎮の乱・東西魏分裂を招く直接的要因となったのではないかという評価が有力である。'} },
+  { id:"southern_dynasties", name:"南朝(宋斉梁陳)", category:"dynasty", lat:32.06, lng:118.79, start:420, end:589, region:"中国江南(建康)", relatedIds:["houjing_rebellion"], desc:{background:'西晋滅亡後、江南へ逃れた漢民族政権(東晋)を継承する形で、宋・斉・梁・陳という4王朝が交代しながら江南を統治し続けたことが背景となった。', process:'北方の異民族政権(北朝)と対峙しながら、貴族制社会(門閥貴族による政治独占)のもとで江南の経済開発と貴族文化(六朝文化)の洗練が進んだが、軍事力では概して北朝に劣り、最終的に隋による中国再統一で北朝側に併合される形で終焉した。', significance:'この時代の江南開発は以後の中国経済の重心が南方へ移行する長期的トレンドの重要な段階をなし、六朝文化(詩文・書画)は中国文人文化の重要な源流の一つとなった。', debate:'貴族制社会における門閥貴族の政治独占が、この王朝群の軍事的脆弱性・短命さの構造的要因であったかどうかが、南北朝の比較史的観点から論じられる。'} },
+
+  // ---- 東晋・五胡十六国期の政治と文化 ----
+  { id:"dongjin_dynasty", name:"東晋", category:"dynasty", lat:32.06, lng:118.79, start:317, end:420, region:"中国江南(建康)", relatedIds:["feishui_battle"], desc:{background:'永嘉の乱による華北陥落を受け、西晋皇族の一人司馬睿が江南へ逃れて政権を再建したことが建国の背景となった。', process:'北方から移住した貴族層(僑姓貴族)と江南土着の豪族(呉姓貴族)との複雑な政治的均衡の上に成り立つ貴族制社会を築き、前秦の南下(淝水の戦い)を撃退して江南の独立を保ったが、内部の権力闘争を経て最終的に劉裕により簒奪され宋(南朝宋)に取って代わられた。', significance:'江南への漢民族の本格的な大規模移住(永嘉の南渡)を伴うこの政権樹立は、以後の中国史における経済・文化の重心の南方への移行という長期的趨勢の出発点となった。', debate:'この時代の貴族制社会(「王与馬、共天下=王氏と司馬氏が共に天下を治める」と評された貴族の強い政治的影響力)が皇帝権力にとってどこまで統治上の制約となっていたかが論じられる。'} },
+  { id:"former_qin", name:"前秦", category:"dynasty", lat:34.27, lng:108.95, start:351, end:394, region:"中国華北(長安)", relatedIds:["feishui_battle"], desc:{background:'五胡十六国の混乱の中、氐族の苻氏が卓越した統治能力を持つ苻堅のもとで急速に勢力を拡大したことが背景となった。', process:'漢人宰相王猛の補佐のもと一時は華北のほぼ全域を統一する大帝国を築いたが、江南の東晋への征服を目指した淝水の戦いでの予想外の大敗を機に急速に瓦解し、諸民族が再び自立して混乱状態に戻った。', significance:'五胡十六国時代において最も統一に近づいた政権として、その急速な崩壊は多民族国家の脆弱性(征服した諸民族の求心力の弱さ)を象徴する事例となった。', debate:'淝水の戦いでのわずか一度の敗北がなぜこれほど急速で完全な帝国崩壊を招いたのか、多民族連合政権に内在する構造的脆弱性の問題として論じられる。'} },
+  { id:"fu_jian", name:"苻堅", category:"person", parentId:"former_qin", lat:34.27, lng:108.95, start:338, end:385, region:"前秦(長安)", desc:{background:'氐族の族長家に生まれ、卓越した個人的資質と漢人宰相王猛の登用により急速に勢力を拡大したことが治世の背景となった。', process:'華北のほぼ全域を統一する大帝国を築き上げたが、江南の東晋征服を焦り、諸民族混成の大軍を率いて南下したものの淝水の戦いで壊滅的な敗北を喫し、その後まもなく部下の裏切りにより殺害された。', significance:'多民族の融和的統治(異民族出身者も含む広範な人材登用)を志向した先駆的な統治者であったが、その理想は淝水の戦いでの大敗により実現半ばで潰えた。', debate:'王猛の生前の忠告(東晋への性急な攻撃を戒める進言)を無視した判断が、彼個人の慢心によるものか、当時の政治的圧力(統一への焦り)によるものかが論じられる。'} },
+  { id:"feishui_battle", name:"淝水の戦い", category:"war", lat:32.6, lng:116.8, start:383, end:383, region:"淮河流域(淝水)", desc:{background:'華北を統一した前秦の苻堅が、残る江南の東晋を征服して中国全土の統一を目指したことが開戦の背景となった。', process:'数において圧倒的に優勢な前秦の大軍が、東晋の巧みな心理戦(偽情報による混乱誘発)と自軍の統制の乱れにより自壊的な敗北を喫し、これを機に前秦は急速に瓦解した。', significance:'中国史上最も劇的な「寡兵が大軍を破った」戦いの一つとして、これにより南北分裂状態がさらに1世紀以上継続することとなった、中国史の重要な分岐点である。', debate:'この大敗の直接的原因を、前秦軍内部の民族的結束の弱さ(多民族混成軍の指揮系統の脆弱性)に求めるか、東晋側の巧みな戦術(偽情報を利用した混乱誘発)に求めるかで軍事史上の評価が分かれる。'} },
+  { id:"wang_xizhi", name:"王羲之", category:"person", parentId:"dongjin_dynasty", lat:30.0, lng:120.6, start:303, end:361, region:"東晋(会稽)", desc:{background:'東晋の貴族社会における文人教養の重視という文化的環境が、書道という芸術ジャンルの高度な発展を促した背景となった。', process:'行書・草書における流麗で個性的な書風を確立し、代表作『蘭亭序』は文人の集いにおける即興の書として作られたとされる。', significance:'「書聖」として以後1500年以上にわたり中国・東アジア全域(日本・朝鮮を含む)の書道における絶対的な模範とされ続けている、中国芸術史上最も影響力の大きい人物の一人である。', debate:'現存する『蘭亭序』の全ての写本が後世の模写であり真跡が失われていることから(伝説では唐の太宗が自らの墓に副葬させたとされる)、その正確な筆致がどこまで再現され得ているかという書道史上の重要な検証課題がある。'} },
+  { id:"gu_kaizhi", name:"顧愷之", category:"person", parentId:"dongjin_dynasty", lat:32.06, lng:118.79, start:344, end:406, region:"東晋(建康)", desc:{background:'東晋の貴族文化における絵画への高い関心と、人物の精神性を描写しようとする美意識の高まりが、彼の芸術活動の背景となった。', process:'人物画において単なる外見の再現を超えた精神性の表現(「伝神写照」=対象の精神を伝える描写)を理論化・実践し、女性の理想的な徳目を描いた『女史箴図』などの作品を残した。', significance:'中国絵画理論における「気韻生動」概念の先駆的な実践者として、以後の中国絵画史における人物画・肖像画の美学的基準を確立した重要な画家である。', debate:'現存する『女史箴図』(大英博物館所蔵)が彼自身の真筆か、後世(唐代)の模写かについては美術史上の論争があり、この作品の史料的価値の評価に影響している。'} },
+  { id:"tao_yuanming", name:"陶淵明", category:"person", parentId:"dongjin_dynasty", lat:29.7, lng:116.0, start:365, end:427, region:"東晋〜宋(潯陽)", desc:{background:'貴族社会の権力闘争や官僚生活への幻滅が、彼の隠遁・田園生活への傾倒を促す背景となったとされる。', process:'低い官職を歴任した後、「五斗米の為に腰を折る能わず」との言葉を残して官職を辞し、田園での質素な生活を選んで詩作に専念し、理想郷を描いた『桃花源記』などの作品を残した。', significance:'官界からの隠退と田園生活を理想化するこの生き方・詩風は、以後の中国文人文化における「隠逸」の理想像を確立し、後世の詩人・画家に絶大な影響を与え続けている。', debate:'『桃花源記』に描かれる理想郷が、当時の戦乱・社会不安への逃避的な願望の表現か、より積極的な社会批評的意味合いを持つものかについて、文学史上の解釈が分かれる。'} },
+  { id:"fotudeng", name:"仏図澄", category:"person", parentId:"sixteen_kingdoms", lat:36.33, lng:114.55, start:232, end:348, region:"後趙(鄴)", desc:{background:'西域(亀茲方面)出身の仏僧として、五胡十六国期の華北における仏教布教という新たな課題に取り組んだことが背景となった。', process:'後趙の石勒・石虎という異民族政権の統治者に取り入り、その神通力(奇跡的な能力)への評判を通じて仏教への保護と布教の基盤を確立した。', significance:'異民族政権のもとでの仏教布教という先例を確立し、この時代に築かれた華北仏教の基盤は後の北魏における仏教の国家的保護(雲崗・龍門石窟造営など)へとつながる重要な布石となった。', debate:'神通力を通じた布教という手法が、仏教の教義的な浸透にどこまで実質的な貢献をしたか、それとも表面的な庇護獲得の手段にとどまったかについて、仏教伝播史上の評価が論じられる。'} },
+  { id:"kumarajiva", name:"鳩摩羅什", category:"person", parentId:"sixteen_kingdoms", lat:34.27, lng:108.95, start:344, end:413, region:"後秦(長安)", desc:{background:'中央アジアの亀茲国出身で、幼少期からインド・中央アジアの仏教学を学んだ卓越した学識が、後の大規模な漢訳事業の背景となった。', process:'前秦・後秦の招請により長安に迎えられ(捕虜としての連行を経て)、国家的な大規模翻訳事業を主導して『法華経』『阿弥陀経』『中論』など多数の仏典を漢訳した。', significance:'その流麗で分かりやすい漢訳文体は以後の中国仏教の経典理解の基礎となり、彼の翻訳した経典は東アジア仏教(日本・朝鮮を含む)における最も広く読誦される経典群として今日まで用いられ続けている。', debate:'彼の翻訳が原典の意味に忠実であることと、中国人読者に理解しやすい表現であることのどちらを優先したか、翻訳という営為における「正確性」と「受容しやすさ」の関係が翻訳論・仏教学上の重要な論点となっている。'} },
+  { id:"faxian", name:"法顕", category:"person", parentId:"dongjin_dynasty", lat:32.06, lng:118.79, start:337, end:422, region:"東晋→インド", desc:{background:'中国における仏教戒律(律蔵)の不備を痛感し、原典を求めてインドへ赴く必要性を感じたことが、彼の求法の旅の動機となった。', process:'60歳を超える高齢でインドへの陸路の旅に出発し、仏跡を巡拝しつつ多数の仏典を収集し、帰路は海路でスリランカ・東南アジアを経由して帰国、その旅の記録を『仏国記』として著した。', significance:'中国僧による最初期のインド求法旅行の記録として、5世紀初頭の中央アジア・インド・東南アジアの仏教事情を伝える貴重な一次史料となり、後の玄奘の旅にも先例を提供した。', debate:'高齢での過酷な旅程の詳細な記述がどこまで正確な記憶に基づくものか、その旅行記の史料的信頼性が仏教史・南アジア史研究上重要な検討課題となっている。'} },
+  { id:"yungang_longmen_grottoes", name:"雲崗・竜門石窟の造営", category:"event", lat:34.62, lng:112.45, start:460, end:528, region:"北魏(大同・洛陽)", desc:{background:'北魏による仏教の国家的保護政策が、大規模な石窟寺院造営という壮大な宗教事業の背景となった。', process:'雲崗石窟は平城遷都期に、龍門石窟は洛陽遷都後にそれぞれ国家的事業として造営され、インド・中央アジア(ガンダーラ)の仏教美術様式を受容しつつ独自の中国的様式へと発展させた。', significance:'この石窟群は仏教美術の中国化(インド的写実様式から中国的な精神性重視の様式への変容)の過程を視覚的に示す世界的に貴重な文化遺産として、1000年以上にわたる造営の連続性も含め東アジア仏教美術史上最重要の資料群である。', debate:'これらの石窟造営が北魏の国家的な政治的威信誇示という側面と、純粋な宗教的敬虔さのどちらをより強く反映しているかについて、美術史・宗教史上の議論がある。'} },
+  { id:"houjing_rebellion", name:"侯景の乱", category:"war", lat:32.06, lng:118.79, start:548, end:552, region:"南朝梁(建康)", desc:{background:'南朝梁の武帝が仏教への深い帰依から政治的統治への関心を失いつつあった状況の中、北方からの亡命将軍侯景の受け入れが混乱を招く伏線となった。', process:'侯景が武帝を裏切って反乱を起こし、都建康を包囲・陥落させて武帝を幽閉・餓死させる事態にまで至り、この混乱により梁の国力は決定的に衰退した。', significance:'この反乱による荒廃は南朝の国力を大きく損ない、以後の陳による南朝統治の弱体化、ひいては隋による中国再統一を許す構造的な背景の一つとなった。', debate:'武帝の過度な仏教信仰への傾倒(自ら仏門に入る「捨身」を繰り返した逸話)が、この反乱を招いた統治の弛緩にどこまで直接的に寄与したかが論じられる。'} },
+
+  // ===================== 隋・唐 =====================
+  { id:"sui_dynasty", name:"隋王朝", category:"dynasty", lat:34.27, lng:108.95, start:581, end:618, region:"中国(長安・洛陽)", relatedIds:["emperor_yang_sui", "grand_canal_china"], desc:{background:'北朝末期の混乱の中、北周の外戚として実権を握った楊堅が、南北統一という長年の悲願実現を志向したことが建国の背景となった。', process:'楊堅(文帝)が北周から禅譲を受けて建国し陳を滅ぼして南北朝時代を終わらせ約270年ぶりの中国再統一を達成、均田制・府兵制・科挙制度の整備など重要な諸制度を確立したが、次代煬帝による大運河建設・高句麗遠征の失敗という過重な負担への反発から各地で反乱が相次ぎわずか2代で滅亡した。', significance:'科挙制度の創始は以後1300年に及ぶ中国官僚登用制度の根幹となり、南北統一という達成は次代の唐による長期の繁栄の基盤を築いた点で、短命ながら中国史上決定的な意義を持つ王朝である。', debate:'秦と同様「偉大な統一事業を成し遂げながら過酷な負担により短命に終わった王朝」という共通のパターンについて、両者の類似性がどこまで歴史的必然性を持つのか(統一直後の王朝に共通する構造的リスク)が論じられる。'} },
+  { id:"emperor_yang_sui", name:"煬帝", category:"person", parentId:"sui_dynasty", lat:34.62, lng:112.45, start:569, end:618, region:"隋", desc:{background:'父文帝が達成した南北統一という基盤の上に、さらなる帝国の威信誇示と統治基盤強化を志向したことが治世の背景となった。', process:'大運河の建設や科挙制度の本格的整備を進める一方、高句麗への三度の遠征がいずれも失敗に終わり、この過重な負担(労役・軍役・重税)への民衆の不満が各地の反乱を誘発し、最終的に部下により殺害された。', significance:'その事業(大運河)は後世に長く経済的恩恵をもたらしたが、その建設・遠征の過程での過酷な収奪は「暴君」としての評価を決定づけ、この評価は秦の始皇帝としばしば比較される。', debate:'大運河建設という長期的に見れば偉大な経済的インフラ整備の功績と、それを実現した過程での民衆への過酷な負担のどちらに重きを置いて評価すべきかという、大規模国家事業一般の功罪評価に関わる典型的な論点である。'} },
+  { id:"grand_canal_china", name:"大運河の建設", category:"event", lat:34.62, lng:112.45, start:605, end:610, region:"中国(黄河〜長江)", desc:{background:'南朝の経済発展により江南が中国の穀倉地帯として重要性を増す一方、政治的中心地である華北への物資輸送手段の確保が国家的課題となっていたことが背景となった。', process:'既存の運河を接続・拡張する大規模な土木事業として、膨大な労働力を動員して江南と華北を結ぶ全長数千キロの水路網を完成させたが、この建設過程での過酷な労役は隋滅亡の一因ともなった。', significance:'以後1000年以上にわたり中国の南北を結ぶ経済的動脈として機能し続け、江南の穀物を華北の政治的中心地へ効率的に輸送することを可能にし、中国の経済的統合における最重要インフラの一つとなった。', debate:'この巨大事業の建設費用・人的犠牲(建設に動員された民衆の過酷な労役による多数の死者)と、その後の長期にわたる経済的便益とを、どのように歴史的に総合評価すべきかが論じられる。'} },
+  { id:"tang_dynasty", name:"唐王朝", category:"dynasty", lat:34.27, lng:108.95, start:618, end:907, region:"中国(長安)", relatedIds:["emperor_taizong_tang", "wu_zetian", "emperor_xuanzong_tang", "anshi_rebellion", "huangchao_rebellion", "kentoshi_missions", "liangshui_fa"], desc:{background:'隋末の混乱の中、太原の地方長官であった李淵が反乱鎮圧を名目に挙兵し、隋に代わる新王朝樹立を図ったことが建国の背景となった。', process:'李世民(太宗)の代に「貞観の治」と呼ばれる安定した統治を実現し、玄宗の代の「開元の治」で最盛期を迎えたが、安史の乱を境に急速に統治力が衰え、藩鎮(節度使)の自立化と宦官の専横が進み、黄巣の乱を経て907年に滅亡した。', significance:'シルクロード交易の隆盛と国際色豊かな文化(長安の国際都市としての繁栄)を築き、律令制度・科挙制度の整備を通じて日本・朝鮮など周辺諸国の国家建設の模範ともなった、東アジア文明の一大画期をなす王朝である。', debate:'安史の乱を境とする前期・後期の対照的な性格(国際的繁栄から内向きの分権化へ)をどう理解すべきか、この転換の構造的要因(節度使制度の制度的欠陥)が論じられる。'} },
+  { id:"emperor_taizong_tang", name:"太宗(李世民)", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:598, end:649, region:"唐", desc:{background:'父李淵の唐建国を軍事的に支えた実績と、兄弟間の後継争い(玄武門の変)を勝ち抜いたことが即位の背景となった。', process:'魏徴ら諫言する臣下を重用し法制度・科挙制度を整備する安定した統治(貞観の治)を実現し、東突厥を服属させるなど対外的な威信も高め、周辺諸民族から「天可汗」と仰がれた。', significance:'「貞観の治」は以後の中国王朝における理想的な統治の模範として繰り返し参照され、その治世は唐の長期繁栄の確固たる基盤を築いた。', debate:'兄弟を殺害して即位した経緯(玄武門の変)という道義的な瑕疵と、その後の卓越した統治実績とをどう総合的に評価すべきかという、権力獲得の手段と統治の実績との関係を考える事例である。'} },
+  { id:"wu_zetian", name:"則天武后", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:624, end:705, region:"唐(長安・洛陽)", desc:{background:'高宗の後宮に入り皇后となった後、病弱な高宗に代わり実権を掌握していく中で、自らの皇帝即位という前例のない野心を抱くに至ったことが背景となった。', process:'唐を一時中断させ自ら「周」を建国して中国史上唯一の女性皇帝となり、科挙制度の拡充による新興官僚層の登用を進めて既存の貴族勢力を抑制したが、晩年の退位後に唐が復活した。', significance:'儒教的な男性中心の統治理念が支配的な中国史において女性が皇帝に即位したという前例のない事例として、その統治実績(科挙拡充による人材登用の刷新)は近年再評価が進んでいる。', debate:'伝統的な儒教史観における「簒奪者・悪女」という否定的評価に対し、近年のフェミニズム史学・実証的研究による統治実績の再評価との間で、彼女への評価は大きく変化しつつある。'} },
+  { id:"emperor_xuanzong_tang", name:"玄宗", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:685, end:762, region:"唐", desc:{background:'則天武后期の混乱を収拾し、唐の統治基盤を再建する必要性が治世前半の背景となった。', process:'治世前半は名臣を登用し「開元の治」と呼ばれる唐の最盛期を築いたが、晩年は楊貴妃への寵愛にふけり政治への関心を失い、節度使安禄山の反乱(安史の乱)を招いて都長安を追われる屈辱を味わった。', significance:'治世の前半と後半で全く対照的な評価(名君から昏君へ)を受ける稀有な事例として、唐の繁栄の頂点と衰退の始まりの双方を一人の統治者が体現している。', debate:'この「名君から昏君へ」という劇的な転落を、彼個人の資質の変化に帰すか、長期政権に共通する権力の腐敗・慢心という構造的要因に帰すかで評価が分かれる。'} },
+  { id:"anshi_rebellion", name:"安史の乱", category:"war", lat:34.62, lng:112.45, start:755, end:763, region:"唐(河北・洛陽・長安)", desc:{background:'玄宗晩年の政治的弛緩と、辺境防衛を担う節度使(特に安禄山)への軍事力集中という制度的な構造的リスクが、この大反乱の背景となった。', process:'節度使安禄山が反乱を起こして都長安・洛陽を陥落させ玄宗は蜀へ逃れる屈辱を味わい、反乱鎮圧には8年もの歳月を要し、この過程で節度使に軍事的自立の道が開かれた。', significance:'この反乱は唐の国力を決定的に消耗させ、以後の唐は各地の節度使(藩鎮)が半独立的な軍事力を保持する分権的体制へと移行し、二度と往時の中央集権的繁栄を回復することはなかった。', debate:'この反乱を境とする唐の急速な衰退の要因を、節度使制度そのものの構造的欠陥に求めるか、玄宗個人の統治能力の劣化(楊貴妃への耽溺)に求めるかで議論がある。'} },
+  { id:"huangchao_rebellion", name:"黄巣の乱", category:"war", lat:34.27, lng:108.95, start:875, end:884, region:"唐・中国各地", desc:{background:'唐末の重税と官僚の腐敗、そして塩の専売制による民衆の困窮が、この大規模反乱の社会的背景となった。', process:'科挙に落第した塩の密売商人黄巣が反乱を起こし、一時は都長安を占領して独自の政権(斉)を樹立するまでの勢力を築いたが、最終的に鎮圧されたものの唐の統治基盤に致命的な打撃を与えた。', significance:'この反乱の鎮圧に功のあった節度使たちがさらに自立化を強め、これが唐滅亡後の五代十国という群雄割拠時代への直接的な道を開いた。', debate:'科挙制度における「落第者」が体制への深刻な反乱の指導者となったこの事例は、科挙制度が持つ社会的安全弁としての機能とその限界を考える上で重要な事例として論じられる。'} },
+  { id:"xuanzang", name:"玄奘", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:602, end:664, region:"唐(長安)", desc:{background:'中国に伝わっていた仏典の翻訳の不備・不統一に強い問題意識を抱き、原典を求めてインドへ赴く必要性を感じたことが、彼の求法の旅の動機となった。', process:'国禁を犯して密かに出国し、中央アジアの砂漠・パミール高原を越える過酷な旅を経てインドのナーランダ僧院で仏教哲学(唯識思想)を学び、多数の経典を携えて帰国、その旅の記録は『大唐西域記』として著され、後に『西遊記』の題材ともなった。', significance:'膨大な仏典の精確な漢訳事業を主導し法相宗の開祖となったほか、『大唐西域記』は7世紀の中央アジア・インドの詳細な情報を伝える歴史学・考古学上極めて重要な一次史料となっている。', debate:'国禁を犯した密出国という行為が、後に皇帝(太宗)から手厚い保護を受けるに至った経緯は、個人の学問的情熱と国家権力との複雑な関係性を示す興味深い事例として論じられる。'} },
+  { id:"yijing_monk", name:"義浄", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:635, end:713, region:"唐(長安)", desc:{background:'先達玄奘の陸路によるインド求法の成功に触発されつつ、より安全な海路でのインド往来という新たな選択肢を模索したことが背景となった。', process:'海路(南シナ海・インド洋経由)でインドへ渡りナーランダ僧院で学び、帰路にシュリーヴィジャヤ王国(スマトラ)に長期滞在して仏典の翻訳・著述に従事し、その旅の記録『南海寄帰内法伝』を残した。', significance:'海路を用いたこの旅程は当時の東南アジア海上交易網の発達を示す重要な証言であり、シュリーヴィジャヤでの長期滞在の記録は当時の東南アジア仏教の実態を知る貴重な史料となっている。', debate:'陸路の玄奘と海路の義浄という対照的な求法の経路の違いが、それぞれの時代の交通インフラ・国際情勢の違いをどう反映しているかが、東西交流史の観点から論じられる。'} },
+  { id:"li_bai", name:"李白", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:701, end:762, region:"唐", desc:{background:'道教的な超俗の精神性と、盛唐期の国際色豊かで自由な文化的雰囲気が、彼の奔放な詩風形成の背景となった。', process:'各地を放浪しながら酒と自然を愛する自由奔放な生き方を貫き、玄宗の宮廷に一時仕えたが束縛を嫌って辞し、道教的な神仙思想や豪放な想像力に満ちた詩を数多く残した。', significance:'「詩仙」として杜甫と並び称される唐詩の最高峰の一人であり、その自由奔放な詩風は以後の中国文学における浪漫主義的伝統の頂点として東アジア全域の文学に絶大な影響を与えた。', debate:'彼の生涯を彩る数々の伝説的逸話(酔って水面の月を捕らえようとして溺死したという説など)がどこまで史実か、詩人としての理想化されたイメージの形成過程が文学史上の関心事となっている。'} },
+  { id:"du_fu", name:"杜甫", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:712, end:770, region:"唐", desc:{background:'安史の乱という国家的動乱を身をもって経験し、その戦禍と民衆の苦難を目撃したことが、彼の詩風の社会的・写実的性格の背景となった。', process:'安史の乱の混乱の中で各地を放浪し貧困と病苦に苦しみながらも、社会の不条理・民衆の苦難を写実的かつ精緻な律詩の形式で詠み続けた。', significance:'「詩聖」として李白と並び称され、その社会批評的・写実的な詩風は「詩史(詩による歴史記録)」とも評され、以後の中国文学における社会派・写実主義的伝統の頂点として位置づけられる。', debate:'李白の浪漫主義的・非現実的な詩風と、杜甫の写実主義的・社会批評的な詩風という対照的な二大詩人の存在は、唐詩の多様性と中国文学における「理想」と「現実」という二つの美学的極を象徴する事例として論じられる。'} },
+  { id:"bai_juyi", name:"白居易", category:"person", parentId:"tang_dynasty", lat:34.27, lng:108.95, start:772, end:846, region:"唐", desc:{background:'科挙に合格し官僚として活躍する中、平易で分かりやすい詩を通じて社会批評を行う姿勢を確立したことが、彼の文学活動の背景となった。', process:'難解な典故を避け庶民にも理解しやすい平易な言葉で詩作を行い、玄宗と楊貴妃の悲恋を詠んだ長編叙事詩『長恨歌』や、社会の不条理を批判する「新楽府」など幅広い作品を残した。', significance:'その平易な詩風は生前から民衆に広く愛誦され、日本の平安貴族文化(『源氏物語』などにおける白居易詩の引用)にも絶大な影響を与えるなど、東アジア全域における最も広く読まれた唐代詩人の一人となった。', debate:'詩の平易さを追求したことが、文学的な洗練度を犠牲にしたのか、むしろ普遍的な訴求力を獲得する上での戦略的な美学的選択であったのかが文学史上論じられる。'} },
+  { id:"kentoshi_missions", name:"遣唐使", category:"event", lat:34.69, lng:135.8, start:630, end:894, region:"日本(奈良・平安京)〜唐(長安)", desc:{background:'日本が中国(唐)の先進的な律令制度・仏教文化・国際情勢を直接学ぶ必要性を強く認識したことが、この使節派遣の背景となった。', process:'7世紀から9世紀にかけて十数回にわたり派遣され、多くの留学生・学問僧(阿倍仲麻呂・空海・最澄など)が同行して唐の制度・文化・仏教を学び、危険な航海(遣唐使船の遭難も多発)を伴いながらも継続された。', significance:'この使節を通じて律令制度・仏教(密教など)・漢字文化・都城制(平城京・平安京の設計)など日本の古代国家形成の根幹をなす制度・文化が体系的に導入され、日本文化の基層形成に決定的な役割を果たした。', debate:'菅原道真の建言により894年に停止されたこの使節派遣が、その後の日本文化の「国風化」(仮名文字・大和絵など独自文化の発展)をどこまで直接的に促したかについて、日本文化史上の重要な論点となっている。'} },
+  { id:"liangshui_fa", name:"両税法", category:"event", lat:34.27, lng:108.95, start:780, end:780, region:"唐", desc:{background:'安史の乱後の混乱により従来の均田制・租庸調制が実効性を失い(戸籍の混乱・土地制度の崩壊)、新たな税制の必要性が生じたことが背景となった。', process:'宰相楊炎の建言により、従来の人頭税中心の制度から土地・資産に応じて夏・秋の年二回徴税する両税法へと転換し、この改革は以後の中国税制の基本モデルとなった。', significance:'人頭税から資産税への転換は、土地を離れて流動化する人口という新たな社会経済状況に対応する画期的な税制改革として、以後の中国税制史における重要な転換点となった。', debate:'この改革が地方の実情に応じた柔軟な徴税を可能にした一方、地方官による恣意的な税額決定の余地を広げ、新たな不正・搾取の温床ともなったのではないかという批判的評価がある。'} },
+
+  // ===================== 五代十国・宋 =====================
+  { id:"five_dynasties", name:"五代十国時代", category:"event", lat:34.8, lng:114.35, start:907, end:960, region:"中国全域", desc:{background:'唐末の黄巣の乱鎮圧を経て自立化した節度使たちが、唐滅亡後の中原の覇権を争ったことが、この分裂時代の背景となった。', process:'後梁・後唐・後晋・後漢・後周という5つの短命王朝が中原で交代する一方、地方には十国と呼ばれる複数の政権が並立し、この混乱の中で燕雲十六州が契丹(遼)に割譲されるなど北方の脅威も深刻化した。', significance:'この分裂と武人政治の混乱への反省が、次の宋王朝における徹底した文治主義(軍人の政治的影響力抑制)への転換を強く動機づけることとなった。', debate:'この時代の政治的混乱の根本原因を、節度使という地方軍事力を統制する中央の制度的失敗に求めるか、唐末以来の社会経済構造の変化(貴族制の崩壊)に求めるかで議論がある。'} },
+  { id:"beisong_dynasty", name:"北宋", category:"dynasty", lat:34.8, lng:114.35, start:960, end:1127, region:"中国(開封)", relatedIds:["zhao_kuangyin", "wang_anshi_reform", "jingkang_incident", "woodblock_printing_song"], desc:{background:'五代十国の混乱と武人政治への反省が、趙匡胤による新王朝樹立と文治主義への転換を強く動機づけたことが背景となった。', process:'趙匡胤(太祖)が禅譲を経て建国し「杯酒釈兵権」により有力武将から軍権を平和裏に取り上げて文治主義体制を確立し、科挙制度の拡充と経済的繁栄(貨幣経済の発達・都市の繁栄)を実現したが、軍事力の相対的軽視は北方民族(遼・西夏・金)への劣勢を招き、1127年に金の侵攻により首都開封が陥落した(靖康の変)。', significance:'文治主義による安定した官僚統治と高度な経済・文化的発展(活字印刷・火薬・羅針盤の実用化)を実現した「中国のルネサンス」とも評される時代であったが、軍事的脆弱性という代償を伴った。', debate:'文治主義への徹底した転換が経済・文化的繁栄と引き換えに深刻な軍事的脆弱性をもたらしたという評価は、「文武の均衡」という統治における普遍的課題を考える上での重要な歴史的教訓として論じられる。'} },
+  { id:"zhao_kuangyin", name:"趙匡胤(太祖)", category:"person", parentId:"beisong_dynasty", lat:34.8, lng:114.35, start:927, end:976, region:"北宋", desc:{background:'五代最後の後周に仕える将軍として軍事的信望を集めていたことが、部下たちに擁立される形での即位(陳橋の変)の背景となった。', process:'禅譲という形式で後周から帝位を譲り受け宋を建国し、地方軍閥の再来を防ぐため有力武将たちを酒宴の席で説得し穏便に軍権を返上させる「杯酒釈兵権」を実施して中央集権的な文治主義体制を確立した。', significance:'武力によらず酒宴での説得という平和的手法で軍権集中を実現したことは、中国史上稀有な穏健な権力集中の事例として高く評価され、この文治主義体制は宋約320年の統治の基本枠組みとなった。', debate:'この平和的な軍権剥奪の成功は、五代の武断政治への反省という時代の空気を反映したものか、彼個人の卓越した政治的手腕によるものかで評価が分かれる。'} },
+  { id:"wang_anshi_reform", name:"王安石の新法", category:"event", lat:34.8, lng:114.35, start:1069, end:1085, region:"北宋", desc:{background:'北宋中期における財政難(冗官・冗兵による支出増大)と、地主・大商人による富の集中への社会的不満が、抜本的な改革の必要性を生んだ背景となった。', process:'神宗の信任を得た王安石が、農民への低利融資(青苗法)・国家による物流統制(均輸法)・募兵制の見直し(保甲法)など広範な改革(新法)を断行したが、既得権益層(旧法党、司馬光ら)の激しい反発を招き、以後新法党・旧法党の党争が数十年にわたり続いて国政を混乱させた。', significance:'国家による市場介入と社会保障的な政策を組み合わせたこの改革は、前近代世界における先進的な経済政策の試みとして評価され、近代以降(特に社会主義的視点から)しばしば再評価の対象となっている。', debate:'この改革を「先進的な国家資本主義的政策」と積極的に評価するか「机上の理論に基づく現実離れした改革で党争による国政混乱を招いた」と否定的に評価するかで、中国経済史上の評価が大きく分かれ続けている。'} },
+  { id:"jingkang_incident", name:"靖康の変", category:"event", lat:34.8, lng:114.35, start:1127, end:1127, region:"北宋(開封)", desc:{background:'北宋が金と結んで遼を挟撃した(海上の盟)後、金との関係が悪化し軍事的緊張が高まったことが、この事変の背景となった。', process:'金軍が首都開封を包囲・陥落させ、上皇の徽宗・皇帝の欽宗をはじめとする皇族・官僚数千人を捕虜として北方へ連行し、北宋は事実上滅亡した。', significance:'この屈辱的な事件は「靖康の恥」として中国史上最大級の国家的屈辱の一つとして記憶され、皇族の一人趙構が南方へ逃れて南宋を樹立する直接の契機となった。', debate:'この事変を招いた金との同盟(海上の盟)という外交判断が、遼という緩衝国を自ら滅ぼしてより強大な金と直接対峙する結果を招いた戦略的失策であったかどうかが、外交史上の重要な教訓として論じられる。'} },
+  { id:"nansong_dynasty", name:"南宋", category:"dynasty", lat:30.27, lng:120.15, start:1127, end:1279, region:"中国江南(臨安=杭州)", relatedIds:["yue_fei", "maritime_trade_song"], desc:{background:'靖康の変による北宋滅亡という危機の中、皇族趙構が江南で亡命政権を樹立したことが建国の背景となった。', process:'金との抗争(岳飛らの北伐)を経て最終的に金と和議(紹興の和議)を結び淮河を国境とする南北対峙状態が続き、江南の経済発展(海上交易の拡大・稲作の集約化)が進んだが、13世紀にはモンゴル(元)の圧力が強まり1279年の崖山の戦いで完全に滅亡した。', significance:'江南の本格的な経済開発を通じて中国の経済的重心が完全に南方へ移行し、この時代に確立された経済構造・海上交易網は以後の中国経済の基本的な地理的パターンを規定した。', debate:'金との和議(主戦派の岳飛処刑を伴う)を、屈辱的な妥協とみるか、国力の現実を踏まえた合理的な生存戦略とみるかで、この和議とそれを推進した宰相秦檜への評価が今も分かれている。'} },
+  { id:"yue_fei", name:"岳飛", category:"person", parentId:"nansong_dynasty", lat:34.8, lng:114.35, start:1103, end:1142, region:"南宋", desc:{background:'靖康の変による北宋滅亡という国家的屈辱への強い義憤が、彼の対金抗戦への献身の背景となった。', process:'南宋軍を率いて金軍相手に度重なる勝利を収め北伐の機運を高めたが、和議を優先する宰相秦檜との対立から「莫須有(あろうことなきにしもあらず)」という曖昧な罪状で投獄され処刑された。', significance:'その悲劇的な最期から「忠義の武将」として後世絶大な尊崇を集め、彼を祀る岳王廟には秦檜夫妻の跪像が置かれ今日まで民衆の怒りの対象とされ続けている中国史上最も愛される英雄の一人である。', debate:'彼を処刑してまで和議を進めた秦檜の判断を、国力の実情を踏まえた現実的な政治判断とみるか、単なる保身のための売国的行為とみるかで、伝統的な忠義史観と近年の実証的再評価との間で議論が続いている。'} },
+  { id:"liao_khitan", name:"契丹(遼)", category:"dynasty", lat:44.03, lng:121.08, start:916, end:1125, region:"中国東北・モンゴル高原", desc:{background:'モンゴル高原東部の遊牧民契丹族が、唐末の混乱に乗じて勢力を拡大したことが建国の背景となった。', process:'耶律阿保機が建国し、後晋の建国を支援した見返りに燕雲十六州を獲得、北宋との抗争を経て「澶淵の盟」により宋から歳幣(貢納金)を得る形で長期の平和を築いたが、女真族の金の台頭により1125年に滅ぼされた。', significance:'遊牧的統治(北面官)と農耕地域の中国式統治(南面官)を並存させる二元的統治体制は、以後の征服王朝(金・元・清)の統治モデルの先駆けとなった。', debate:'「澶淵の盟」による宋からの歳幣獲得を、対等な二国間関係を確立した外交的成功とみるか、実質的な宋の弱体化・属国化の兆候とみるかで、宋遼関係の性格づけが論じられる。'} },
+  { id:"jin_jurchen", name:"金(女真族)", category:"dynasty", lat:39.9, lng:116.4, start:1115, end:1234, region:"中国華北・東北", desc:{background:'遼の統治下にあった女真族が、その支配への不満から完顔阿骨打のもとで自立を図ったことが建国の背景となった。', process:'遼を滅ぼした後、かつての同盟国北宋にも侵攻して靖康の変を引き起こし華北を征服したが、南宋との対峙状態が続く中、モンゴルの台頭により1234年に南宋との共同作戦もあって滅ぼされた。', significance:'遼の建国からわずか十数年で自立し急速に大帝国を築いた女真族の軍事的躍進は、後の同族(満洲族)による清朝建国のモデルケースともなった。', debate:'金が北宋を滅ぼした後、旧同盟国であった南宋との関係(和議か征服継続か)をめぐる国内の路線対立が、この王朝の対外政策の一貫性のなさにどう影響したかが論じられる。'} },
+  { id:"ouyang_xiu", name:"欧陽脩", category:"person", parentId:"beisong_dynasty", lat:34.8, lng:114.35, start:1007, end:1072, region:"北宋", desc:{background:'北宋の文治主義体制のもとで、儒学の復興と古文復興運動(唐宋八大家に代表される簡潔な文体への回帰)が広がっていたことが、彼の学術・文学活動の背景となった。', process:'科挙官僚として政治改革(慶暦の新政)にも関わりつつ、簡潔で力強い古文の文体を確立し、正史『新唐書』『新五代史』の編纂にも携わった。', significance:'唐宋八大家の一人として古文復興運動の中心的指導者となり、その簡潔明瞭な文体は以後の中国散文の規範として長く模範とされ続けた。', debate:'彼が編纂した史書(特に『新五代史』)における厳格な儒教的道徳基準による人物評価(春秋の筆法)が、歴史記述の客観性とどう両立し得るかという史学方法論上の論点が提起される。'} },
+  { id:"su_shi", name:"蘇軾(蘇東坡)", category:"person", parentId:"beisong_dynasty", lat:34.8, lng:114.35, start:1037, end:1101, region:"北宋", desc:{background:'王安石の新法をめぐる激しい党争の渦中に身を置き、地方官への左遷・流罪を繰り返し経験したことが、彼の文学・思想の深まりの背景となった。', process:'詩・詞・文・書・画のあらゆる分野で卓越した才能を発揮し、政治的挫折(黄州への左遷など)を通じてかえって達観した人生観に基づく傑作(『赤壁賦』など)を生み出した。', significance:'「万能の文人」として中国文人文化の理想像を体現し、政治的逆境の中でも創作意欲を失わなかったその生き方は、以後の中国知識人にとって精神的な模範となり続けている。', debate:'彼の政治的立場(旧法党でありながら旧法党の一部の過激な姿勢にも批判的であった中間的立場)が、党争という二項対立的な政治状況の中でどう位置づけられるべきかが論じられる。'} },
+  { id:"zhu_xi", name:"朱熹(朱子)", category:"person", parentId:"nansong_dynasty", lat:30.27, lng:120.15, start:1130, end:1200, region:"南宋", desc:{background:'北宋期に始まった儒学の哲学的再構築(道学・理学)の流れを集大成する必要性が、彼の学問体系構築の背景となった。', process:'『論語』『孟子』『大学』『中庸』の「四書」を儒学の中心的経典として重視し、「理」と「気」による宇宙論・存在論を体系化した朱子学を確立し、科挙試験の公式解釈として採用されるに至った。', significance:'朱子学は以後中国のみならず朝鮮王朝・江戸日本(林羅山ら)の官学として東アジア全域の政治・社会思想の根幹をなし続け、その影響力は現代に至るまで及んでいる。', debate:'朱子学の厳格な理気二元論的な世界観が、後の陽明学(王陽明)による「心即理」という対抗的な解釈を生み出したことは、儒学内部における合理主義と直観主義の対立軸として東アジア思想史上の重要な論点となっている。'} },
+  { id:"woodblock_printing_song", name:"木版印刷・活字印刷の発達", category:"event", lat:34.8, lng:114.35, start:1041, end:1048, region:"北宋", desc:{background:'科挙制度の普及による書籍需要の急増と、経済的繁栄による出版事業への投資余力の増大が、印刷技術発展の背景となった。', process:'木版印刷技術が高度に発達し国家事業としての大蔵経出版などが行われる一方、畢昇による活字印刷(膠泥活字)も発明されたが、漢字の膨大な文字数という制約から木版印刷ほどには普及しなかった。', significance:'この印刷技術の発達により書籍の大量生産・普及が可能となり、科挙受験者層の拡大や学術・文化の広範な普及を促進する、中国における「知識の民主化」の重要な技術的基盤となった。', debate:'活字印刷が漢字文化圏で木版印刷ほど普及しなかった理由(文字数の多さという技術的制約)は、グーテンベルクの活版印刷が西欧で急速に普及した状況との対比で、印刷技術と文字体系の関係を考える比較メディア史上の重要な論点となっている。'} },
+  { id:"maritime_trade_song", name:"市舶司と海上交易の発展", category:"event", lat:24.87, lng:118.68, start:960, end:1279, region:"泉州・広州・杭州", desc:{background:'北方の遊牧民国家(遼・金・西夏)との対峙により陸上シルクロードの利用が制約される中、代替的な交易路として海上交易の重要性が高まったことが背景となった。', process:'羅針盤(方位磁針)の実用化と大型ジャンク船の建造技術により、泉州・広州などの港市を拠点に東南アジア・インド洋方面との交易が飛躍的に拡大し、市舶司(海関)による貿易管理制度も整備された。', significance:'この海上交易の発達は「海のシルクロード」の本格的な繁栄をもたらし、中国の陶磁器・絹製品が広く東南アジア・インド洋世界に流通する契機となり、以後の中国海上交易の伝統の基盤を確立した。', debate:'陸上シルクロードから海上交易路への重心移行が、北方民族の圧力という受動的要因によるものか、羅針盤・造船技術という能動的な技術革新によるものかで、この転換の主要因についての評価が分かれる。'} },
+
+  // ===================== モンゴル帝国・元 =====================
+  { id:"mongol_empire", name:"モンゴル帝国", category:"nation", lat:47.2, lng:102.85, start:1206, end:1368, region:"モンゴル高原〜ユーラシア全域", relatedIds:["genghis_khan", "ogedei_khan", "kublai_khan"], desc:{background:'モンゴル高原における諸部族間の抗争が続く中、テムジン(チンギス=ハン)が卓越した軍事的・政治的手腕により諸部族を統一したことが建国の背景となった。', process:'十進法に基づく軍事組織と機動力に優れた騎馬軍団により西夏・金・ホラズム=シャー朝を征服し、後継者たちの代にロシア・東欧・中東・中国全土に及ぶ人類史上最大の陸上帝国を築いたが、広大すぎる版図は次第に複数のハン国に分裂していった。', significance:'「パクス=モンゴリカ」と呼ばれる広域的な平和のもとユーラシア規模の交易・文化交流(東西技術の伝播、駅伝制による情報伝達)が活発化し、世界史上初めて東西世界を一つの帝国的秩序のもとに結びつけた画期的な事例である。', debate:'モンゴルの征服・統治を「破壊と殺戮」として否定的に評価する伝統的な見方に対し、近年は「パクス=モンゴリカ」による交易・文化交流の促進という積極的側面を重視するグローバル・ヒストリー的な再評価が進んでいる。'} },
+  { id:"genghis_khan", name:"チンギス・ハン", category:"person", parentId:"mongol_empire", lat:47.2, lng:102.85, start:1162, end:1227, region:"モンゴル高原", desc:{background:'幼少期に父を毒殺され部族から見捨てられるという過酷な逆境を生き抜いた経験が、彼の卓越した統率力と実力主義的な組織運営の背景となったとされる。', process:'血縁ではなく能力・忠誠に基づく独自の軍事組織(千戸制)を確立してモンゴル高原の諸部族を統一し、西夏・金・ホラズム=シャー朝への遠征を通じて広大な版図の基礎を築いた。', significance:'血縁的な部族社会から実力主義的な軍事帝国への転換を成し遂げ、彼が確立した統治・軍事システムは子孫たちによる史上最大の陸上帝国建設の礎となった、世界史上最も影響力の大きい征服者の一人である。', debate:'彼の征服戦争における凄惨な破壊・虐殺(特にホラズム=シャー朝征服時)の規模については、当時の史料(特に被征服民側の記録)による誇張の可能性も含め史料批判上の検討が必要である。'} },
+  { id:"ogedei_khan", name:"オゴタイ・ハン", category:"person", parentId:"mongol_empire", lat:47.2, lng:102.85, start:1186, end:1241, region:"モンゴル帝国(カラコルム)", desc:{background:'父チンギス=ハンの遺言による指名という正統性を背景に、モンゴル帝国のさらなる拡大と統治体制整備が治世の課題となった。', process:'金を滅ぼして華北を征服する一方、バトゥを西方へ派遣してロシア・東欧への大規模な西征(ヨーロッパ遠征)を成功させ、都カラコルムを建設して帝国の行政基盤を整備した。', significance:'モンゴル帝国の版図を東欧にまで拡大させ、その死去がヨーロッパ遠征軍の帰還(バトゥ軍の撤退)という形でヨーロッパを「モンゴルの脅威」から救ったとされる、世界史上重要な偶然の転機を作った。', debate:'オゴデイの急死がヨーロッパ遠征軍の撤退を招いたという通説について、実際にはすでに遠征の目的(略奪・威力偵察)が一定程度達成されていたため撤退は既定路線であったとする見方もあり、この「if」の歴史的重要性の評価が分かれる。'} },
+  { id:"kublai_khan", name:"フビライ・ハン", category:"person", parentId:"yuan_dynasty", lat:39.9, lng:116.4, start:1215, end:1294, region:"元(大都)", desc:{background:'モンケ=ハン死去後の後継争いを勝ち抜き、中国全土の完全征服という祖父チンギス以来の未完の課題実現を志向したことが治世の背景となった。', process:'都を大都(現北京)に定めて中国的な統治体制を積極的に取り入れ、南宋を滅ぼして中国全土を統一し元を建国したが、日本・ベトナム・ジャワへの遠征はいずれも失敗に終わった。', significance:'遊牧民の軍事力と中国の官僚統治システムを融合させた統治モデルを確立し、マルコ=ポーロの旅行記を通じてその繁栄はヨーロッパにも伝えられ大航海時代の東方探求心を刺激する一因ともなった。', debate:'日本への二度の遠征失敗(元寇)の要因を、台風(神風)という偶発的な自然要因に求めるか、そもそも海上遠征という不慣れな作戦への準備不足という構造的要因に求めるかで議論がある。'} },
+  { id:"yuan_dynasty", name:"元王朝", category:"dynasty", lat:39.9, lng:116.4, start:1271, end:1368, region:"中国(大都)", relatedIds:["mongol_invasion_japan", "red_turban_rebellion", "yuan_drama"], desc:{background:'フビライ=ハンによる南宋征服という中国全土統一の達成が、この王朝樹立の直接的背景となった。', process:'モンゴル人第一主義に基づく身分制(モンゴル人・色目人・漢人・南人という民族的階層秩序)を敷き、科挙制度を長期間停止するなど中国の伝統的統治慣行とは一線を画す統治を行ったが、この民族的差別構造と紙幣(交鈔)の乱発による経済的混乱への不満が高まり、紅巾の乱を経て1368年に中国本土を放棄しモンゴル高原へ退いた(北元)。', significance:'史上初めて中国全土を異民族が完全に統治した征服王朝として、駅伝制による広域交易網の維持は東西文化交流(マルコ=ポーロの来訪など)を大きく促進したが、その統治期間は約90年と比較的短命に終わった。', debate:'モンゴル人第一主義的な身分制が、この王朝の比較的短命さの主要因であったとする見方に対し、紙幣経済の破綻という経済的要因を重視する見方もあり、この王朝の統治の失敗要因についての評価が分かれる。'} },
+  { id:"mongol_invasion_japan", name:"元寇(文永・弘安の役)", category:"war", lat:33.6, lng:130.42, start:1274, end:1281, region:"日本(博多湾)", desc:{background:'フビライ=ハンによる日本への朝貢要求を鎌倉幕府が拒否し続けたことが、この二度にわたる遠征の直接的契機となった。', process:'文永の役(1274年)・弘安の役(1281年)の二度にわたり元・高麗連合軍が九州北部へ来襲したが、いずれも暴風雨(「神風」)による艦隊の壊滅的損害と、日本側の集団戦術への適応もあり撃退に成功した。', significance:'この防衛成功は日本が異民族による征服を免れた重要な歴史的経験として、後世「神国思想」(神風による国土守護という信仰)の形成に決定的な影響を与えたが、恩賞不足への御家人の不満は鎌倉幕府の統治基盤を弱める一因ともなった。', debate:'「神風」という自然現象への過度な強調が、実際の日本側の防衛体制(石塁構築・集団戦術習熟)による軍事的努力を過小評価することにならないか、軍事史的な要因分析のバランスが論じられる。'} },
+  { id:"red_turban_rebellion", name:"紅巾の乱", category:"war", lat:33.2, lng:113.0, start:1351, end:1366, region:"中国華中・華南", desc:{background:'元末の紙幣濫発による経済混乱と、モンゴル人優遇の身分制への漢民族の根深い不満が、この大規模反乱の社会的背景となった。', process:'白蓮教という民間宗教結社を母体に紅巾を目印とする反乱勢力が各地で蜂起し、この混乱の中から朱元璋が頭角を現して他の反乱勢力を統合し、最終的に元を北方へ追いやって明を建国した。', significance:'宗教結社を母体とする民衆反乱が最終的に新王朝樹立にまで発展した事例として、白蓮教のような民間信仰が持つ強力な社会的動員力を示す重要な先例となった。', debate:'この反乱の宗教的性格(白蓮教の弥勒下生思想)が、単なる社会経済的不満の表明を超えてどこまで独自の政治的正統性理論を提供したかが論じられる。'} },
+  { id:"marco_polo", name:"マルコ・ポーロ", category:"person", parentId:"yuan_dynasty", lat:39.9, lng:116.4, start:1254, end:1324, region:"元(大都)", desc:{background:'ヴェネツィア商人の家系という交易への関心と、モンゴル帝国の広域的な平和(パクス=モンゴリカ)により東西交通が安全になっていたことが、彼の長期旅行を可能にした背景となった。', process:'父・叔父と共に陸路で中国へ渡りフビライ=ハンの宮廷に約17年間仕え、帰国後獄中でその見聞を口述筆記させた旅行記『東方見聞録』が広く流布した。', significance:'この旅行記に描かれた東アジアの繁栄(「黄金の国ジパング」の記述を含む)はヨーロッパ人の東方への憧れを大いに刺激し、コロンブスをはじめとする後の大航海時代の探検者たちに直接的な影響を与えた。', debate:'彼が実際に中国まで到達したのか、それとも中央アジアまでの旅行と伝聞情報を組み合わせて創作した可能性があるのかについて、近年の史料批判研究でも議論が続いている。'} },
+  { id:"yuan_drama", name:"元曲(元代演劇)の発展", category:"event", lat:39.9, lng:116.4, start:1234, end:1368, region:"元(大都・杭州)", desc:{background:'元による科挙の長期停止により、伝統的な立身出世の道を断たれた知識人層が、新たな表現の場として演劇創作に活路を見出したことが背景となった。', process:'口語(白話)を用いた台詞と歌唱を組み合わせる雑劇という新たな演劇形式が発展し、関漢卿の『竇娥冤』など社会批判的な内容を含む多くの名作が生み出された。', significance:'中国演劇史上最初の高度に発達した戯曲文学として、後の明清時代の伝奇・京劇にも大きな影響を与え、庶民層への文化的訴求力の高い新たな文学ジャンルを確立した。', debate:'科挙停止という知識人にとっての「不遇」が、かえって新たな文学ジャンル(雑劇)の開花を促したという逆説的な文化史上の現象がどう理解されるべきかが論じられる。'} },
+
+  // ===================== 明・清 =====================
+  { id:"ming_dynasty", name:"明王朝", category:"dynasty", lat:39.9, lng:116.4, start:1368, end:1644, region:"中国(南京→北京)", relatedIds:["zheng_he_voyages", "wokou_piracy", "imjin_war", "jingnan_rebellion", "tumu_crisis", "yitiao_bianfa"], desc:{background:'紅巾の乱を通じて頭角を現した朱元璋が、元朝の異民族支配を打倒し漢民族による統治回復を志向したことが建国の背景となった。', process:'朱元璋(洪武帝)が元を北方へ追いやって建国し中央集権的な皇帝独裁体制(宰相制度廃止)を確立、永楽帝の代の鄭和艦隊派遣で国威を高めたが、中期以降は宦官の専横や北方民族(モンゴル・満洲)への対応に苦慮し、内政の腐敗と農民反乱(李自成の乱)により1644年に滅亡した。', significance:'宰相制度を廃止し皇帝への権力集中を極限まで進めた統治体制は中国専制政治の頂点をなし、また万里の長城の現在の姿(煉瓦造りの大規模改修)や紫禁城の建設など、今日に伝わる中国の象徴的建造物の多くがこの時代に築かれた。', debate:'皇帝独裁体制の徹底が、初期の強力な統治を可能にした一方、中期以降の皇帝の資質低下時に統治機構全体を機能不全に陥らせる構造的リスクを内包していたのではないかという評価がある。'} },
+  { id:"zhu_yuanzhang", name:"朱元璋(洪武帝)", category:"person", parentId:"ming_dynasty", lat:32.06, lng:118.79, start:1328, end:1398, region:"明(南京)", desc:{background:'貧しい農民出身、さらには一時僧籍にも入るという極めて低い身分からの出発が、紅巾の乱という混乱期における彼の実力主義的な台頭を可能にした。', process:'紅巾軍の一勢力から頭角を現し他の群雄を次々と打倒して元を北方へ追いやり明を建国、猜疑心の強い性格から功臣を大規模に粛清する一方、宰相制度を廃止して皇帝親政体制を確立した。', significance:'劉邦と並び農民出身から皇帝に上り詰めた稀有な事例として、その建国後の徹底した中央集権化・皇帝権力強化策は明清両王朝の専制政治の基本枠組みを決定づけた。', debate:'建国の功臣たちへの大規模な粛清(胡惟庸の獄・藍玉の獄)を、皇帝権力を脅かす潜在的脅威の排除という必要な措置とみるか、過度な猜疑心による理不尽な弾圧とみるかで評価が分かれる。'} },
+  { id:"jingnan_rebellion", name:"靖難の変", category:"war", lat:32.06, lng:118.79, start:1399, end:1402, region:"明(南京・北平)", desc:{background:'洪武帝の死後、若い建文帝が有力な諸侯王である叔父たちの勢力削減(削藩)を急速に進めようとしたことが、この内乱の直接的契機となった。', process:'北方に藩王として封じられていた燕王朱棣(後の永楽帝)が「君側の奸を除く」との名目で挙兵し、数年に及ぶ内戦の末に都南京を陥落させ、建文帝は行方不明となった(生存説も伝わる)。', significance:'この内乱により永楽帝という積極的な対外政策を推進する強力な統治者が誕生し、鄭和の大航海など明初の対外的な威信誇示事業の直接的な出発点となった。', debate:'建文帝の最終的な運命(焼死説・逃亡生存説)については史料的に確定しておらず、この不確実性が永楽帝の統治の正統性を巡る後世の言説にも影響を与え続けている。'} },
+  { id:"yongle_emperor", name:"永楽帝", category:"person", parentId:"ming_dynasty", lat:39.9, lng:116.4, start:1360, end:1424, region:"明(北京)", desc:{background:'靖難の変での実力による帝位奪取という正統性の弱さを補うため、対外的な威信誇示を通じた統治の正当化を志向したことが治世の背景となった。', process:'鄭和による大艦隊派遣(南海遠征)を通じて朝貢体制を東南アジア・インド洋沿岸にまで拡大し、モンゴルへの親征や首都の北京遷都、大規模な百科事典『永楽大典』編纂などの大事業を次々と推進した。', significance:'明朝の対外的な威信と国力を頂点に押し上げた統治者として、鄭和の大航海は当時世界最大規模の海洋事業であり、この積極的な対外拡張路線は永楽帝一代限りの特異な現象として際立っている。', debate:'彼の死後、後継の皇帝たちが積極的な対外政策(大航海事業)を継続せず内向きの海禁政策へ転じた背景に、この事業の巨大な財政負担への反省があったのか、それとも単に永楽帝個人の対外拡張志向が特異であったのかが論じられる。'} },
+  { id:"zheng_he_voyages", name:"鄭和の南海大遠征", category:"event", lat:32.06, lng:118.79, start:1405, end:1433, region:"東南アジア〜インド洋・東アフリカ", desc:{background:'永楽帝が国威発揚と朝貢体制の拡大、あるいは行方不明の建文帝の捜索という複合的な目的を持って、大規模な海洋遠征を計画したことが背景となった。', process:'宦官鄭和が指揮する数百隻・数万人規模の大艦隊が7次にわたり東南アジア・インド洋を航海し、遠くアフリカ東岸にまで到達して各地の朝貢関係を拡大したが、永楽帝死後は財政負担への批判からこの事業は打ち切られ、以後明は内向きの海禁政策へ転じた。', significance:'ヴァスコ=ダ=ガマのインド到達より半世紀以上早く、規模でも遥かに凌駕するこの大航海は、当時の中国の卓越した造船・航海技術を示すが、この事業が継続されなかったことは「機会の逸失」として世界史上しばしば議論される。', debate:'この大航海が打ち切られ海禁政策へ転換したことが、その後の中国の海洋進出における立ち遅れと西欧の大航海時代による世界的優位確立とを分けた歴史の重要な分岐点であったとする「大分岐」論的な視点がしばしば提示される。'} },
+  { id:"wokou_piracy", name:"倭寇", category:"event", lat:29.87, lng:121.54, start:1350, end:1588, region:"中国・朝鮮沿岸", desc:{background:'明の海禁政策により正規の交易が制限される中、密貿易と結びついた武装集団(倭寇)が中国・朝鮮沿岸で活発化したことが背景となった。', process:'当初は日本人を中心とする海賊集団であったが、明代中期以降は中国人密貿易商人が主体となる「後期倭寇」へと性格を変え、江南沿岸で深刻な被害をもたらしたが、名将戚継光らによる軍事的鎮圧と海禁政策の緩和(隆慶開関)により終息した。', significance:'この現象は明の硬直的な海禁政策が、かえって非合法な密貿易・海賊行為を助長するという政策の意図せざる結果を示す事例であり、最終的な海禁緩和は東アジア海域における交易秩序の転換点となった。', debate:'「倭寇」の民族構成(日本人主体か中国人主体か)については時期により実態が大きく異なり、この呼称自体が実態を正確に反映しているかどうかについて、東アジア海域史研究上の重要な検討課題となっている。'} },
+  { id:"tumu_crisis", name:"土木の変", category:"war", lat:40.1, lng:115.6, start:1449, end:1449, region:"明(土木堡・河北)", desc:{background:'北方のモンゴル系オイラト部との朝貢貿易をめぐる緊張が高まる中、宦官王振の専横により不用意な親征が強行されたことが、この事変の直接的背景となった。', process:'皇帝英宗自らが親征した明軍がオイラトの也先率いる軍に土木堡で包囲され壊滅的な敗北を喫し、皇帝自身が捕虜となるという前代未聞の事態に至った。', significance:'この事変は明の軍事的優位の終焉を象徴する出来事となり、以後明は北方防衛のため万里の長城の大規模な改修・強化(現在に伝わる煉瓦造りの長城の多くはこの時期以降のもの)に注力するようになった。', debate:'この危機に際し北京で新帝(景泰帝)を擁立し抗戦を主導した于謙の決断は、皇帝の身柄を人質にとられた国家がいかに統治の継続性を保つべきかという、前近代国家における「皇帝不在時の統治」の問題を考える重要な事例となっている。'} },
+  { id:"wang_yangming", name:"王陽明(王守仁)", category:"person", parentId:"ming_dynasty", lat:30.0, lng:120.6, start:1472, end:1529, region:"明(浙江)", desc:{background:'朱子学の理気二元論的な世界観への疑問と、実際の地方統治・軍事指揮の経験を通じた実践的な知への関心が、彼の独自思想形成の背景となった。', process:'左遷先の貴州の山中での思索(「竜場の悟り」)を経て「心即理」(道理は外部の事物にではなく自らの心に内在する)と「知行合一」を核心とする陽明学を確立し、地方反乱の鎮圧でも実務家として卓越した手腕を発揮した。', significance:'朱子学の権威的な体制教学に対する内発的な批判として陽明学を確立し、この思想は後の日本の幕末志士(大塩平八郎・吉田松陰ら)にも大きな影響を与えるなど、東アジア思想史における重要な対抗的潮流となった。', debate:'陽明学の「知行合一」思想が、既存の社会秩序への従順な適応を説く朱子学に比べより行動主義的・革新的な性格を持つとされることから、この思想と後世の政治的急進主義・革命運動との親和性がしばしば論じられる。'} },
+  { id:"yitiao_bianfa", name:"一条鞭法", category:"event", lat:39.9, lng:116.4, start:1581, end:1581, region:"明", desc:{background:'明中期における税制の複雑化・不公正(郷紳層による脱税と農民への負担集中)への対応が、この税制改革の背景となった。', process:'宰相張居正の主導により、複雑化していた各種の税・労役を銀納の単一税に統合する改革を実施し、当時世界的に流通していた新大陸産の銀(メキシコ銀など)の流入とも連動して銀経済化を促進した。', significance:'この税制の簡素化・銀納化は中国経済のグローバルな銀経済への統合を促進し、以後の清代の税制(地丁銀制)にも継承される重要な財政改革であった。', debate:'この改革が新大陸銀の大量流入という当時のグローバルな銀の流れとどう連動していたか、中国経済の「銀への依存」がその後の経済的脆弱性(銀流入停止時の経済混乱)にどうつながったかが世界経済史の観点から論じられる。'} },
+  { id:"li_shizhen", name:"李時珍", category:"person", parentId:"ming_dynasty", lat:30.5, lng:113.8, start:1518, end:1593, region:"明(湖広)", desc:{background:'医師の家系に生まれ、既存の本草書(薬物書)の記述の不正確さ・不備を実地調査を通じて痛感したことが、彼の大著述事業の背景となった。', process:'各地を実地調査し薬物の効能・産地・製法を検証しながら約27年をかけて薬物学の集大成『本草綱目』を完成させ、1892種の薬物を分類体系的に記述した。', significance:'この著作は東アジアにおける本草学(薬物学)の最高到達点として、後に日本・朝鮮にも伝わり広く活用され、近代科学的な分類・実証精神の萌芽を示す前近代科学史上の重要な達成と評価される。', debate:'『本草綱目』における分類体系や実証的な検証姿勢が、西欧の同時代の博物学とどこまで類似した科学的方法論を示しているか、東西の科学史における比較研究上の関心事となっている。'} },
+  { id:"matteo_ricci", name:"マテオ・リッチ(利瑪竇)", category:"person", parentId:"ming_dynasty", lat:39.9, lng:116.4, start:1552, end:1610, region:"明(北京)", desc:{background:'イエズス会の中国布教方針(現地文化への適応=適応主義)のもと、中国知識人層への布教のためには彼らの学問的関心に応える必要があるという戦略的判断が背景となった。', process:'中国語・儒教古典を深く学び、西洋の科学知識(世界地図・天文学・数学)を紹介することで中国知識人層の信頼と関心を獲得し、徐光啓ら有力官僚との交流を通じてキリスト教布教と西洋科学の紹介を並行して進めた。', significance:'彼が作成した漢文世界地図(『坤輿万国全図』)は中国人の世界認識を大きく広げ、ユークリッド幾何学の漢訳(徐光啓との共訳)は西洋数学の本格的な中国への導入という画期的な文化交流事業となった。', debate:'彼の「適応主義」的布教戦略(祖先崇拝・孔子崇拝を偶像崇拝とみなさず容認する立場)は後にローマ教皇庁との間で「典礼問題」という深刻な神学論争を引き起こし、この対立は最終的に中国におけるキリスト教布教の大幅な制限を招く一因ともなった。'} },
+  { id:"xu_guangqi", name:"徐光啓", category:"person", parentId:"ming_dynasty", lat:31.23, lng:121.47, start:1562, end:1633, region:"明(上海)", desc:{background:'マテオ=リッチとの交流を通じて西洋科学の合理性・実用性に強い感銘を受けたことが、彼の西洋学問受容への積極的姿勢の背景となった。', process:'リッチと共同でユークリッド『幾何学原本』を漢訳し、農業技術・水利事業に関する実学的な大著『農政全書』を編纂する一方、自身もキリスト教に入信し中国人としては最高位の官職にまで昇進した。', significance:'西洋科学と中国の伝統的実学とを架橋する先駆的な知識人として、彼の翻訳・著述事業は「西学東漸」(西洋学問の東方伝来)の最初期における最も重要な達成の一つと位置づけられる。', debate:'高位官僚でありながらキリスト教に入信したという事実が、当時の中国知識人社会における思想的開放性・多様性をどこまで示しているか、あるいは彼が例外的存在であったのかが論じられる。'} },
+  { id:"qing_dynasty", name:"清王朝", category:"dynasty", lat:39.9, lng:116.4, start:1636, end:1912, region:"中国(北京)", relatedIds:["nurhaci", "kangxi_emperor", "qianlong_emperor", "opium_war", "taiping_rebellion", "second_opium_war", "sino_japanese_war", "boxer_rebellion", "xinhai_revolution", "sanfan_rebellion", "treaty_of_nerchinsk", "diding_yinzhi", "kaozhengxue", "honglou_meng", "yangwu_movement", "wuxu_reform", "tongmenghui", "abolition_of_keju"], desc:{background:'満洲族のヌルハチが女真諸部族を統一し、明の内部混乱(李自成の乱)に乗じて中国進出の機会を得たことが建国の背景となった。', process:'呉三桂の手引きにより山海関を越えて北京を制圧し中国全土を征服、満洲族独自の統治(八旗制)と中国的な官僚制度を併用する二重統治体制のもとで康熙・雍正・乾隆の三代(「康乾盛世」)に最盛期の版図と繁栄を築いたが、19世紀にはアヘン戦争を機に西欧列強の侵略を受け半植民地化が進み、1911年の辛亥革命により1912年に滅亡した。', significance:'中国史上最後の統一王朝として、現在の中国の領土的基盤(モンゴル・チベット・新疆・台湾を含む広大な版図)の多くはこの王朝の征服事業によって確立された。', debate:'満洲族という少数民族が多数派漢民族を約270年にわたり統治し得た要因を、巧みな統治政策(科挙継続・満漢併用制)に求めるか、征服直後の徹底した武力弾圧(辮髪強制・揚州虐殺)による恐怖支配に求めるかで評価が分かれる。'} },
+  { id:"nurhaci", name:"ヌルハチ", category:"person", parentId:"qing_dynasty", lat:41.8, lng:123.43, start:1559, end:1626, region:"後金(瀋陽)", desc:{background:'女真族内部の部族間抗争の中、父祖の仇討ちを名目に勢力拡大を開始したことが建国の背景となった。', process:'女真諸部族を統一して独自の軍事・行政組織(八旗制)を創設し、満洲文字を制定するなど民族的アイデンティティの制度的基盤を確立し、後金を建国して明への攻勢を開始した。', significance:'満洲族(後の清)による中国統治の基礎を築いた建国者として、彼が確立した八旗制は清朝約270年の統治の根幹的な軍事・社会組織であり続けた。', debate:'彼が確立した八旗制という軍事組織が、征服王朝としての満洲族の民族的アイデンティティ維持と中国統治の効率性という二つの目的をどこまで両立させ得たかが、清朝統治史における重要な論点である。'} },
+  { id:"kangxi_emperor", name:"康熙帝", category:"person", parentId:"qing_dynasty", lat:39.9, lng:116.4, start:1654, end:1722, region:"清", desc:{background:'幼少での即位という不安定な状況の中、三藩の乱という国内的な軍事的危機の克服が治世前半の課題となった。', process:'三藩の乱を鎮圧して国内統治を安定させ、ロシアとの間で対等な国境画定条約(ネルチンスク条約)を締結、学術振興(『康熙字典』編纂)にも尽力し60年以上に及ぶ長期の安定統治を実現した。', significance:'「康乾盛世」と呼ばれる清朝最盛期の礎を築いた統治者として、西洋の科学技術(イエズス会宣教師を通じた暦法・測量術)への高い関心を示すなど、開明的な統治姿勢でも知られる。', debate:'西洋の学問技術への積極的な関心を示しながらも、後継の雍正・乾隆期にはキリスト教布教規制が強化されていったことから、この開明性がどこまで持続的な政策として制度化されたかが論じられる。'} },
+  { id:"qianlong_emperor", name:"乾隆帝", category:"person", parentId:"qing_dynasty", lat:39.9, lng:116.4, start:1711, end:1799, region:"清", desc:{background:'祖父康熙帝・父雍正帝が築いた強固な統治基盤の上に、さらなる版図拡大と文化的威信の誇示を志向したことが治世の背景となった。', process:'ジュンガル部を征服して新疆・チベット方面まで版図を拡大し清朝最大版図を実現する一方、大規模な文化事業(『四庫全書』編纂)を推進したが、同時に反体制的とみなされた書物を弾圧する「文字の獄」も行い、晩年は寵臣和珅の専横と財政腐敗が進行した。', significance:'清朝の最盛期(版図・人口・経済規模のいずれも頂点)を体現する統治者であったが、彼の晩年からすでに始まっていた統治の弛緩・腐敗は、次代以降の急速な清朝衰退の伏線となった。', debate:'「十全老人」を自称した彼の治世を「絶頂期」と評価する伝統的な見方に対し、近年はその晩年における統治の弛緩(和珅の専横・人口爆発による社会的圧力の増大)を重視し、すでに衰退の兆候が始まっていたとする見方が有力になっている。'} },
+  { id:"sanfan_rebellion", name:"三藩の乱", category:"war", lat:25.0, lng:102.7, start:1673, end:1681, region:"清(雲南・広東・福建)", desc:{background:'清が中国征服に協力した漢人武将(呉三桂ら)に南方の広大な領地を藩王として封じていたことが、その後の中央集権化との対立を招く構造的な背景となった。', process:'康熙帝による藩の削減政策(撤藩)への反発から呉三桂ら三藩が反乱を起こし一時清朝の存続を脅かすほどの勢いを見せたが、最終的に鎮圧され清朝の中央集権的統治体制が確立された。', significance:'この反乱鎮圧により清朝の中国支配は名実ともに確定し、以後は満洲族による安定した長期統治(康乾盛世)への道が開かれた重要な転換点となった。', debate:'征服協力者への大幅な自治権付与という当初の妥協的統治方針が、なぜ長期的には深刻な内乱の火種となったのか、征服王朝における協力者への処遇のあり方をめぐる統治上の教訓が論じられる。'} },
+  { id:"treaty_of_nerchinsk", name:"ネルチンスク条約", category:"treaty", lat:51.99, lng:116.55, start:1689, end:1689, region:"清・ロシア国境(ネルチンスク)", desc:{background:'清とロシアがアムール川流域の領有をめぐり軍事的に対峙する中、双方とも他の対外的課題(清は南方、ロシアは西方)を優先したい事情があったことが背景となった。', process:'イエズス会宣教師の通訳・仲介のもとラテン語を公用語とする交渉が行われ、外興安嶺(スタノヴォイ山脈)を国境と定める条約が締結された。', significance:'中国が西洋式の国際法の概念(対等な主権国家間の条約)に基づいて締結した最初の条約として、東アジアの伝統的な冊封・朝貢体制とは異なる新たな国際関係の枠組みを示す画期的な事例である。', debate:'この条約を清がロシアと「対等」に締結し得た事例として積極的に評価する見方と、その後の清が結局伝統的な華夷秩序観から脱却できず19世紀の西欧列強との不平等条約締結を招いたこととの連続性・断絶性が論じられる。'} },
+  { id:"diding_yinzhi", name:"地丁銀制", category:"event", lat:39.9, lng:116.4, start:1712, end:1735, region:"清", desc:{background:'人口増加と土地保有の実態把握の困難さが、従来の人頭税(丁銀)徴収の非効率性・不公正さを深刻化させていたことが、この改革の背景となった。', process:'雍正帝の代に本格的に実施され、従来別々に徴収されていた人頭税(丁銀)を土地税(地銀)に組み込んで一本化し、土地を持たない貧困層の税負担を実質的に軽減した。', significance:'この改革により人頭税という前近代中国の伝統的な税制原理が事実上終焉し、以後の中国税制は資産(土地)を基準とする体系へと完全に移行する画期的な財政制度改革となった。', debate:'人頭税廃止が人口把握への行政的インセンティブを弱め、結果として正確な人口統計の作成をかえって困難にしたのではないかという、統治技術上の意図せざる副作用が指摘されることがある。'} },
+  { id:"kaozhengxue", name:"考証学の興隆", category:"event", lat:39.9, lng:116.4, start:1644, end:1800, region:"清", desc:{background:'明末清初の政治的混乱への反省から、宋明理学の観念的な思弁を批判し、より実証的・文献学的な学問へ回帰しようとする知的潮流が背景となった。', process:'経書の文献学的・音韻学的な厳密な考証を重視する学問方法論が発展し、清朝の文字の獄による思想統制も影響して、政治的に安全な文献考証・古典研究へ学者の関心が集中する傾向を強めた。', significance:'この実証的な学問手法は近代的な文献学・言語学の先駆的な達成として高く評価され、清代の学術における最も特徴的で生産的な知的営為の一つとなった。', debate:'この考証学への傾倒が、純粋な学問的発展の帰結か、それとも文字の獄という政治的抑圧下での「安全な」学問領域への逃避という側面を強く持っていたかについて、清代思想史上の評価が分かれる。'} },
+  { id:"honglou_meng", name:"紅楼夢", category:"event", lat:39.9, lng:116.4, start:1754, end:1791, region:"清(北京)", desc:{background:'清朝中期の貴族社会の繁栄と没落という作者曹雪芹自身の家系の実体験が、この作品の題材・世界観形成の背景となったとされる。', process:'賈家という貴族の大家族の日常生活・恋愛・没落を精緻な人物描写と詩情豊かな文体で描き、儒教的な建前の背後にある人間関係の機微や女性たちの繊細な内面を克明に描写した。', significance:'中国古典小説の最高峰と評される作品として、その精緻な心理描写と社会批評性は後世「紅学」と呼ばれる専門的な研究分野を生み出すほどの学術的関心を集め続けている。', debate:'未完に終わった作品の後半部分(高鶚による補作とされる)が、曹雪芹自身の本来の構想をどこまで正確に反映しているかについて、テキスト成立史上の重要な論争が今も続いている。'} },
+  { id:"opium_war", name:"アヘン戦争", category:"war", lat:23.13, lng:113.26, start:1840, end:1842, region:"清(広州)", desc:{background:'イギリスが対中貿易赤字を解消するためインド産アヘンを中国へ密輸出し、これによる中国国内のアヘン中毒蔓延と銀の国外流出が深刻な社会問題となっていたことが背景となった。', process:'欽差大臣林則徐によるアヘン没収・廃棄を機にイギリスが開戦し、近代的な軍事技術(蒸気船・近代火器)を持つイギリス軍が旧式装備の清軍を圧倒し、南京条約により香港島割譲・上海など5港の開港・多額の賠償金支払いを強いられた。', significance:'この敗北を機に清は西欧列強との一連の不平等条約体制に組み込まれ、以後100年に及ぶ中国の「半植民地化」の時代(「屈辱の世紀」)が始まる決定的な画期となった。', debate:'この戦争を「アヘン密輸という不道徳な貿易を強行するための帝国主義的侵略戦争」と評価する見方が国際的に広く共有される一方、当時のイギリス側は「自由貿易の正当な擁護」という論理で正当化しており、この評価の対立は帝国主義の道義的評価をめぐる典型的な論争となっている。'} },
+  { id:"second_opium_war", name:"アロー戦争(第二次アヘン戦争)", category:"war", lat:23.13, lng:113.26, start:1856, end:1860, region:"清(広州・北京)", desc:{background:'南京条約後もイギリスが求める貿易のさらなる自由化(内陸部への開放・アヘン貿易の合法化)が満たされないことへの不満が、この戦争の背景となった。', process:'アロー号事件を口実にイギリス・フランス連合軍が出兵し北京を占領、円明園の略奪・破壊という文化的破壊行為を行い、天津条約・北京条約により さらなる開港・キリスト教布教の自由・アヘン貿易の合法化を認めさせた。', significance:'円明園の破壊は中国近代史における最も象徴的な文化的屈辱の記憶として現在まで語り継がれ、この戦争を機に清朝内部でも洋務運動という近代化改革への機運が高まる契機ともなった。', debate:'円明園破壊という行為を、当時の交渉における人質・捕虜への虐待への報復措置として正当化する当時の英仏側の論理と、貴重な文化遺産への不当な破壊行為とみる中国側の評価との間で、この事件の道義的評価が対立している。'} },
+  { id:"taiping_rebellion", name:"太平天国の乱", category:"revolution", lat:32.06, lng:118.79, start:1851, end:1864, region:"清(南京)", relatedIds:["hong_xiuquan"], desc:{background:'アヘン戦争後の重税と社会不安、そしてキリスト教の影響を受けた洪秀全独自の宗教思想(自らをイエスの弟と称する)が、この大規模反乱の背景となった。', process:'「滅満興漢」を掲げ土地の均分など急進的な社会改革を志向する太平天国を樹立し南京を都に一時は中国南部の広範囲を制圧したが、内部の権力闘争(天京事変)による弱体化と、曾国藩・李鴻章ら漢人官僚が組織した郷勇(義勇軍)による鎮圧を受け、14年に及ぶ内戦の末1864年に鎮圧された。', significance:'推定2000万人以上ともされる犠牲者を出した19世紀最大級の内戦として清朝の統治基盤を大きく揺るがし、この鎮圧を通じて台頭した漢人官僚(曾国藩・李鴻章ら)の勢力拡大は、後の洋務運動や清朝末期の地方軍事化の重要な起点となった。', debate:'この反乱を「農民革命運動の先駆」として肯定的に評価する中国共産党史観と、キリスト教的異端思想に基づく破壊的な内乱として否定的に評価する見方との間で、政治的立場によって評価が大きく異なる。'} },
+  { id:"hong_xiuquan", name:"洪秀全", category:"person", parentId:"taiping_rebellion", lat:32.06, lng:118.79, start:1814, end:1864, region:"太平天国(南京)", desc:{background:'科挙に度重なる失敗を経験し、その挫折の中で得た宗教的啓示体験(自らをイエスの弟とする幻視)が、彼の独自の宗教思想確立の背景となった。', process:'キリスト教の教えを独自に解釈した「拝上帝会」を組織して信者を集め、土地の均分と男女平等を掲げる太平天国を樹立して天王を称したが、南京占領後は宗教的な神秘主義に耽り実務を側近に委ねる中、内部の権力闘争(天京事変)を招き、最終的な鎮圧の中で病死した。', significance:'キリスト教という外来宗教の中国的変容による独自の千年王国的運動として、その急進的な社会改革理念(男女平等・土地均分)は中国近代史における最初期の革命的社会思想の先駆けとされる。', debate:'彼の思想を「本格的なキリスト教信仰」とみるか「伝統的な中国民間宗教の千年王国思想にキリスト教の衣をまとわせただけ」とみるかについて、比較宗教学上の評価が分かれる。'} },
+  { id:"zeng_guofan", name:"曾国藩", category:"person", parentId:"qing_dynasty", lat:32.06, lng:118.79, start:1811, end:1872, region:"清(湖南・南京)", desc:{background:'太平天国の急速な拡大に対し既存の八旗・緑営という正規軍が有効に機能しなかったことが、地方官僚による独自の義勇軍組織(湘軍)結成の背景となった。', process:'郷里湖南で組織した湘軍を率いて太平天国鎮圧の中心的役割を果たし、この功績を背景に洋務運動(西洋技術導入による富国強兵)の推進者としても活動した。', significance:'清朝の正規軍に代わる地方義勇軍が国家の存亡を左右する主力となったこの経験は、以後の清末における地方軍事力の台頭(督撫の実権拡大)という構造的変化の出発点となった。', debate:'彼が率いた地方義勇軍(湘軍)の台頭が、中央政府の軍事的統制力を長期的に弱め、清朝崩壊後の軍閥割拠状況の遠因となったのではないかという、権力の地方分散化の歴史的帰結が論じられる。'} },
+  { id:"li_hongzhang", name:"李鴻章", category:"person", parentId:"qing_dynasty", lat:39.9, lng:116.4, start:1823, end:1901, region:"清(北京・天津)", desc:{background:'太平天国鎮圧における淮軍組織の実績と、曾国藩の後継者としての地位確立が、彼の洋務運動における主導的役割の背景となった。', process:'西洋式の軍需工業・海軍(北洋艦隊)建設を推進する洋務運動の中心的推進者として活動したが、日清戦争での北洋艦隊壊滅という壊滅的敗北を経験し、下関条約の交渉という屈辱的な役割も担うこととなった。', significance:'清末における最も有力な地方実力者・外交官として、その洋務運動の限界(制度改革を伴わない技術導入にとどまったこと)は日清戦争敗北という形で露呈し、より根本的な政治改革の必要性を痛感させる契機となった。', debate:'洋務運動全体を「器物のみの近代化にとどまり政治制度の改革を欠いた不徹底な近代化」と評価する見方が広く共有されているが、当時の政治的制約(保守派の抵抗)の中でどこまでの改革が現実的に可能であったかという弁護的な視点も存在する。'} },
+  { id:"yangwu_movement", name:"洋務運動", category:"event", lat:39.9, lng:116.4, start:1861, end:1895, region:"清", desc:{background:'アロー戦争・太平天国という二重の危機を経験した清朝が、西洋の軍事技術の圧倒的優位を痛感したことが、この改革運動の背景となった。', process:'「中体西用」(中国の伝統的な政治・倫理制度を維持しつつ西洋の技術のみを導入する)という理念のもと、軍需工場・造船所の設立や近代的海軍(北洋艦隊)の建設を進めたが、政治制度そのものの改革には踏み込まなかった。', significance:'この運動により一定の近代的軍事工業基盤が築かれたが、その限界は日清戦争での壊滅的敗北によって露呈し、以後より根本的な政治制度改革(変法運動)を求める機運を高める契機となった。', debate:'「中体西用」という理念自体が、技術と制度を分離できるという前提に立っていたことが、この近代化運動の根本的な限界であったとする見方が広く共有されており、日本の明治維新(制度改革も含む包括的近代化)との対比でしばしば論じられる。'} },
+  { id:"sino_japanese_war", name:"日清戦争", category:"war", lat:38.9, lng:121.6, start:1894, end:1895, region:"朝鮮・清(遼東半島)", relatedIds:["donghak_peasant_revolution"], desc:{background:'朝鮮半島における清・日両国の勢力争いと、日本の朝鮮への影響力拡大を目指す積極政策が、この戦争の背景となった。', process:'朝鮮の東学党の乱への出兵を機に開戦し、近代化改革(明治維新)を経た日本軍が洋務運動にとどまっていた清軍を陸海両面で圧倒し、下関条約により台湾・遼東半島(後に三国干渉で返還)の割譲と朝鮮の独立(清の宗主権否定)を認めさせた。', significance:'この敗北は洋務運動という技術偏重の近代化の限界を決定的に露呈させ、より根本的な政治制度改革(変法運動)への機運を一気に高めるとともに、東アジアにおける中国中心の伝統的な国際秩序(冊封体制)の実質的な終焉を意味した。', debate:'この戦争の帰趨を分けた要因を、日本の徹底した近代化改革(明治維新の包括性)に求めるか、清朝内部の政治的分裂(李鴻章の淮軍が事実上孤立して戦った)に求めるかで、比較近代化論の観点から議論される。'} },
+  { id:"boxer_rebellion", name:"義和団事件", category:"event", lat:39.9, lng:116.4, start:1899, end:1901, region:"清(北京)", desc:{background:'列強による中国分割の進展とキリスト教布教の拡大への民衆の反発、そして義和団という排外的な民間武術結社の台頭が、この事変の背景となった。', process:'「扶清滅洋」を掲げる義和団が各地で外国人・キリスト教徒を襲撃し、これを保守派官僚が支持して外国公使館を包囲する事態にまで発展したが、8か国連合軍の軍事介入により鎮圧され、北京議定書により巨額の賠償金と外国軍隊の北京駐留権を認めさせられた。', significance:'この事変とその後の巨額賠償金・列強駐留権の受諾は清朝の権威を決定的に失墜させ、以後の清朝は保守派主導ながらも新政と呼ばれる本格的な近代化改革(科挙廃止・立憲準備)へと転じざるを得なくなった。', debate:'義和団を「排外的で非合理な迷信集団」と否定的に評価する見方と「帝国主義的侵略への民衆的な抵抗運動の一形態」として再評価する見方との間で、ナショナリズム的な歴史観の変遷とともに評価が大きく変化してきた。'} },
+  { id:"imjin_war", name:"文禄・慶長の役(壬辰・丁酉倭乱)", category:"war", lat:35.18, lng:129.08, start:1592, end:1598, region:"朝鮮半島", desc:{background:'豊臣秀吉による国内統一達成後、大陸進出という新たな対外的野心が、朝鮮出兵という前代未聞の軍事行動の背景となった。', process:'日本軍が朝鮮に侵攻し当初は電撃的な進撃を見せたが、李舜臣率いる朝鮮水軍の亀甲船を用いた海上戦術と明の援軍、義兵(民間抵抗軍)の活動により戦線は膠着し、秀吉の死去を機に日本軍は撤退した。', significance:'この戦争は朝鮮半島に甚大な人的・文化的被害(景福宮焼失、多数の技術者連行)をもたらす一方、明の疲弊は後の女真族(後金・清)台頭を許す一因ともなり、東アジア国際秩序の大きな転換点となった。', debate:'この戦争を「日本の一方的な侵略」とみる朝鮮・韓国側の一貫した歴史認識と、日本国内における評価(秀吉の対外政策の一環としての位置づけ)との間の記憶の相違が、日韓関係史における重要な歴史認識問題として今も存在する。'} },
+  { id:"cixi_empress", name:"西太后", category:"person", parentId:"qing_dynasty", lat:39.9, lng:116.4, start:1835, end:1908, region:"清(北京)", desc:{background:'咸豊帝の側室として同治帝の生母となったことが、幼帝の摂政という形での実権掌握の背景となった。', process:'同治帝・光緒帝二代にわたり垂簾聴政という形で約半世紀にわたり事実上の最高権力者であり続け、洋務運動を一定程度支持しつつも光緒帝が主導した戊戌変法(急進的立憲改革)をクーデタで弾圧し、義和団を支持して8か国連合軍との戦争に至るなど保守的な政治判断を繰り返した。', significance:'清朝末期の実質的な最高権力者として半世紀にわたり君臨したが、その保守的・場当たり的な統治判断は清朝の近代化改革を遅らせ、結果的に王朝滅亡を早める一因になったとする評価が一般的である。', debate:'彼女個人の資質・判断への評価と、清朝末期という統治構造自体がすでに抱えていた構造的な限界(満漢対立・地方軍事化)のどちらをより重視して清朝滅亡の要因を分析すべきかが論じられる。'} },
+  { id:"wuxu_reform", name:"戊戌の変法", category:"event", lat:39.9, lng:116.4, start:1898, end:1898, region:"清(北京)", desc:{background:'日清戦争での壊滅的敗北が、洋務運動という技術偏重の近代化の限界を痛感させ、より根本的な政治制度改革の必要性への認識を高めたことが背景となった。', process:'光緒帝が康有為・梁啓超ら改革派知識人を登用し科挙制度改革・立憲君主制導入など急進的な改革を約100日間にわたり矢継ぎ早に実施したが、既得権益層の抵抗と西太后によるクーデタにより改革は頓挫し、光緒帝は幽閉され改革派の一部は処刑された。', significance:'「百日維新」とも呼ばれるこの改革の急進性と短命さは、日本の明治維新との対比でしばしば論じられ、その失敗は清朝内部からの近代化改革の限界を露呈させ、以後の急進的な革命運動(孫文らの革命派)への機運を高める一因となった。', debate:'この改革の失敗要因を、改革推進派の政治的基盤の脆弱さ(実権を欠く光緒帝への依存)に求めるか、既得権益層(西太后を含む保守派官僚)の抵抗の強固さに求めるかで議論がある。'} },
+  { id:"kang_youwei", name:"康有為", category:"person", parentId:"wuxu_reform", lat:39.9, lng:116.4, start:1858, end:1927, region:"清(広東・北京)", desc:{background:'伝統的な儒教経典解釈を再検討し、孔子自身を進歩的な改革者として再解釈する独自の学説(公羊学的解釈)を展開したことが、彼の改革思想の理論的背景となった。', process:'光緒帝に直接進言する機会を得て戊戌変法を主導したが、西太后のクーデタにより改革は頓挫し日本・欧米への亡命を余儀なくされ、亡命中は立憲君主制の維持を主張し続け、後の共和革命(孫文らの路線)とは一線を画す立場をとった。', significance:'儒教の枠内での漸進的な立憲君主制改革を志向した路線として、後の急進的な共和革命路線との対比において、中国近代化における改革路線の多様性を示す重要な事例となっている。', debate:'彼の立憲君主制路線と孫文らの共和革命路線という二つの近代化戦略のどちらがより現実的であったか、辛亥革命後の共和政の混迷(軍閥割拠)を踏まえて、中国近代史における「漸進改革」対「急進革命」の評価が論じられる。'} },
+  { id:"tongmenghui", name:"中国同盟会", category:"event", lat:35.68, lng:139.65, start:1905, end:1912, region:"日本(東京)", desc:{background:'清朝の度重なる改革の遅れと日清戦争・義和団事件を経た国家的屈辱への若い知識人層の危機感が、革命組織結成の背景となった。', process:'孫文を中心に日本の東京で複数の革命団体を統合して結成され、「三民主義」(民族・民権・民生)を綱領に掲げて各地で武装蜂起を繰り返し試みたが、いずれも失敗に終わりながらも革命の機運を着実に醸成した。', significance:'この組織的基盤が最終的に1911年の辛亥革命を成功に導く母体となり、後の中国国民党の直接の前身としても、中国近代革命運動史における中心的な組織的達成となった。', debate:'武漢での辛亥革命勃発自体は同盟会の直接の計画ではなく偶発的な事件(新軍内の爆発事故発覚)を契機としており、この組織の長年の活動とこの「偶然の成功」との関係をどう評価すべきかが論じられる。'} },
+  { id:"abolition_of_keju", name:"科挙の廃止", category:"event", lat:39.9, lng:116.4, start:1905, end:1905, region:"清(北京)", desc:{background:'日清戦争敗北と義和団事件を経て、伝統的な儒教経典中心の科挙制度が近代国家に必要な実務的人材育成に適さないという認識が広まったことが背景となった。', process:'西洋式の学校制度・教育課程を導入する新政改革の一環として、1300年近く続いた科挙制度が正式に廃止され、これに代わり近代的な学堂(学校)制度が整備された。', significance:'この廃止は中国の伝統的な官僚登用・社会移動のシステムを根本的に転換させる画期的な出来事であり、既存の科挙予備軍(儒者・書生)層の不満と社会的地位喪失は、皮肉にも清朝への支持基盤をさらに掘り崩す結果となった。', debate:'科挙という1300年続いた制度の廃止が、儒教的価値観そのものの権威失墜と結びつき、辛亥革命への機運をどこまで直接的に加速させたかが、制度改革と政治的正統性の関係という観点から論じられる。'} },
+
+  // ===================== 近代中国(中華民国・中華人民共和国) =====================
+  { id:"xinhai_revolution", name:"辛亥革命", category:"revolution", lat:30.58, lng:114.27, start:1911, end:1912, region:"清(武昌)", relatedIds:["sun_yat_sen"], desc:{background:'科挙廃止による伝統的正統性の動揺と、清朝の改革(新政)への期待と実際の遅々とした進展への幻滅が蓄積していたことが、この革命の背景となった。', process:'武漢の新軍内での偶発的な爆発事故発覚を機に蜂起(武昌起義)が起こり、これが予想外の速さで全国的な独立宣言の連鎖を引き起こし、清朝は袁世凱に事態収拾を委ねたが、最終的に宣統帝(溥儀)が退位して2000年以上続いた中国の帝政は終焉した。', significance:'アジアにおける最初の共和政国家樹立という世界史的意義を持つ革命であったが、革命後の実権は結局清朝の重臣であった袁世凱に渡り、その後の軍閥割拠という長期の政治的混乱を招く結果となった。', debate:'この革命の「成功」を、孫文ら革命派の長年の努力の成果とみるか、清朝内部の脆弱性(偶発的事件による予想外の連鎖崩壊)による受動的な結果とみるかで、その歴史的評価が分かれる。'} },
+  { id:"sun_yat_sen", name:"孫文(孫中山)", category:"person", parentId:"republic_of_china", lat:32.06, lng:118.79, start:1866, end:1925, region:"中華民国(南京)", desc:{background:'ハワイ・香港での西洋式教育を通じて得た近代的な政治思想と、清朝の腐敗・弱体化への強い危機感が、彼の革命運動への献身の背景となった。', process:'「三民主義」(民族独立・民権伸張・民生安定)を掲げて中国同盟会を組織し数々の武装蜂起を試みるも失敗を重ねたが、辛亥革命成功後に中華民国臨時大総統に就任、実権を袁世凱に譲った後も国民党を率いて革命の理想実現に生涯を捧げた。', significance:'「国父」として台湾・中国大陸双方で今も尊崇される、アジアにおける共和主義革命の最も重要な指導者の一人であり、その三民主義は以後の中国国民党・共産党双方の建国理念に影響を残した。', debate:'権力の実質を早々に袁世凱に譲った彼の判断を、共和政実現のための現実的な妥協とみるか、その後の軍閥混乱を招いた戦略的な誤算とみるかで評価が分かれる。'} },
+  { id:"yuan_shikai", name:"袁世凱", category:"person", parentId:"republic_of_china", lat:39.9, lng:116.4, start:1859, end:1916, region:"中華民国(北京)", desc:{background:'清朝の近代化軍(北洋軍)を掌握する軍事的実力者として、辛亥革命の混乱収拾を清朝・革命派双方から期待される立場にあったことが背景となった。', process:'清朝最後の皇帝を退位させる交渉を主導する見返りに中華民国初代大総統の地位を得たが、次第に独裁的傾向を強め国会解散・帝政復活(自ら皇帝を称する)を強行したため各地の軍事的実力者の反発(護国戦争)を招き、帝政はわずか数ヶ月で撤回され失意のうちに病死した。', significance:'彼の帝政復活の失敗と死は中国を統一的に統治し得る中央権力の不在という状況を決定的にし、以後10年以上続く軍閥割拠時代への直接的な引き金となった。', debate:'彼を「共和政を裏切った野心家」とみる評価が一般的だが、当時の中国における統一的統治の困難さを踏まえ、彼の強権的手法を秩序回復のための現実的判断として一定程度弁護する見方もある。'} },
+  { id:"republic_of_china", name:"中華民国", category:"nation", lat:32.06, lng:118.79, start:1912, end:1949, region:"中国(南京・重慶)", relatedIds:["may_fourth_movement", "chinese_civil_war", "second_sino_japanese_war", "chiang_kai_shek", "twenty_one_demands", "new_culture_movement", "ccp_founding", "first_united_front", "northern_expedition", "shanghai_massacre", "zhang_zuolin_bomb", "xian_incident", "lugouqiao_incident", "nanjing_incident", "roc_taiwan"], desc:{background:'辛亥革命による清朝滅亡が、アジア初の共和政国家樹立という新たな国家体制構築の背景となった。', process:'建国当初から袁世凱の帝政復活の企てと失敗、その死後の軍閥割拠という深刻な政治的分裂を経験し、国民党による北伐で一時的な統一を達成したものの日中戦争・国共内戦を経て1949年に大陸の支配権を共産党に奪われ、以後は台湾に拠点を移して統治を継続している。', significance:'アジアにおける最初の共和政国家として、その建国からの混乱の歴史は「共和政の理念」と「統一的統治の実現」との間の困難な緊張関係を示す重要な事例となっている。', debate:'1949年以降、大陸の中華人民共和国とどちらが「正統な中国」であるかという「二つの中国」問題は、国際政治・国連代表権問題(1971年のアルバニア決議)を通じて今日まで続く重要な外交的懸案であり続けている。'} },
+  { id:"may_fourth_movement", name:"五四運動", category:"event", lat:39.9, lng:116.4, start:1919, end:1919, region:"中華民国(北京)", desc:{background:'第一次世界大戦後のパリ講和会議で、日本が第一次大戦中に獲得した山東省の権益がそのまま中国へ返還されず日本の手に残されたことへの民衆の強い反発が、この運動の直接的契機となった。', process:'北京の学生を中心に大規模な抗議デモが発生し、これが全国的な反日ボイコット運動・愛国主義運動へと急速に発展し、同時に旧来の儒教的価値観を批判し科学と民主主義を重視する「新文化運動」とも結びついた。', significance:'この運動を通じて中国のナショナリズムと近代的な知的覚醒が本格的に結びつき、翌年の中国共産党結成にもつながる思想的・組織的な土壌を形成した、20世紀中国政治思想史上決定的な画期である。', debate:'この運動が「愛国主義的な政治運動」としての側面と「儒教批判・文化革新運動」としての側面のどちらをより本質的な性格とみるべきか、その複合的な性格をめぐる評価が論じられる。'} },
+  { id:"chiang_kai_shek", name:"蔣介石", category:"person", parentId:"republic_of_china", lat:32.06, lng:118.79, start:1887, end:1975, region:"中華民国", desc:{background:'孫文の信任を得て黄埔軍官学校の校長に就任し軍事的基盤を築いたことが、国民党内での指導的地位確立の背景となった。', process:'北伐を主導して軍閥を打倒し形式的な中国統一を達成したが直後に共産党弾圧(上海クーデタ)に転じ、日中戦争では抗戦を指導しつつも国共内戦では最終的に共産党に敗れ台湾へ撤退し、以後「中華民国」総統として台湾統治を継続した。', significance:'20世紀中国の激動を体現する指導者として、日中戦争における抗戦指導は連合国の一員としての中国の地位確立に貢献したが、国共内戦での敗北は彼の統治の限界(経済政策の失敗・腐敗)を露呈させた。', debate:'彼の統治(特に国共内戦敗北)の要因を、国民党政権自体の腐敗・経済失政に求めるか、共産党の巧みな農村動員戦略という外的要因に求めるかで、中国近代史上の評価が分かれる。'} },
+  { id:"twenty_one_demands", name:"二十一ヶ条要求", category:"event", lat:39.9, lng:116.4, start:1915, end:1915, region:"中華民国(北京)", desc:{background:'第一次世界大戦でヨーロッパ列強が中国から目を離している間隙を突き、日本が中国における権益拡大を図ったことが背景となった。', process:'日本が中華民国(袁世凱政権)に対し山東省のドイツ権益継承や南満洲・東部内蒙古における権益拡大など広範な要求を突きつけ、最終的に一部修正のうえ受諾を強いられた。', significance:'この要求は中国国内に強い反日感情を植え付け、後の五四運動における反日ナショナリズムの高揚の直接的な歴史的背景となった。', debate:'この要求を袁世凱政権が受諾した経緯(国内の政治的立場強化のための取引的側面もあったとされる)は、当時の中国指導者の対応の是非をめぐる評価に影響している。'} },
+  { id:"new_culture_movement", name:"新文化運動", category:"event", lat:39.9, lng:116.4, start:1915, end:1919, region:"中華民国(北京)", desc:{background:'辛亥革命後も旧態依然とした儒教的価値観・因習が中国社会に根強く残っていることへの若手知識人層の危機感が、この文化運動の背景となった。', process:'陳独秀・胡適らが雑誌『新青年』を拠点に、儒教批判・白話文(口語文)運動・科学と民主主義の称揚を展開し、五四運動と結びついてマルクス主義の本格的な紹介・受容も進んだ。', significance:'この運動を通じて口語文学(魯迅の作品など)が確立され、伝統的な文語文中心の中国文学は根本的な転換を遂げるとともに、この知的土壌からマルクス主義・共産主義の受容が急速に進み中国共産党結成へとつながった。', debate:'この運動における徹底した伝統文化批判(「孔家店打倒」)が、中国の文化的アイデンティティにとってどこまで健全な近代化への必要な過程であったか、それとも行き過ぎた自己否定であったかが、今日の中国における伝統文化再評価の動きとも関連して論じられる。'} },
+  { id:"ccp_founding", name:"中国共産党の結成", category:"event", lat:31.23, lng:121.47, start:1921, end:1921, region:"中華民国(上海)", desc:{background:'五四運動・新文化運動を通じたマルクス主義の受容拡大と、ロシア革命の成功に触発された知識人層の期待が、この組織結成の思想的背景となった。', process:'陳独秀・李大釗らを中心にコミンテルン(共産主義インターナショナル)の支援・指導のもと上海で秘密裏に結成され、当初は都市労働者を組織基盤とする方針をとったが、後に毛沢東の主導で農村を基盤とする独自の革命戦略へと転換していった。', significance:'結成当初はわずか数十人規模の小組織であったが、最終的に1949年の中華人民共和国建国という20世紀最大級の政治的達成を成し遂げるに至った、世界共産主義運動史上最も成功した事例の一つである。', debate:'都市労働者中心という当初のマルクス主義正統理論に基づく戦略から、毛沢東による農村基盤・農民動員という中国独自の革命路線への転換が、この党の最終的な成功にとってどこまで決定的であったかが論じられる。'} },
+  { id:"first_united_front", name:"第一次国共合作", category:"event", lat:23.13, lng:113.26, start:1924, end:1927, region:"中華民国(広東)", desc:{background:'軍閥割拠の混乱を打開し中国統一を目指す孫文が、ソ連コミンテルンの支援と共産党の組織力を活用する必要性を認識したことが、この統一戦線結成の背景となった。', process:'国民党と共産党が協力して軍閥打倒を目指す統一戦線を結成し、ソ連の援助のもと黄埔軍官学校を設立して軍事力を整備、北伐開始への準備を整えたが、孫文の死後に指導権を握った蔣介石が上海クーデタで共産党員を大量弾圧し、この統一戦線は崩壊した。', significance:'イデオロギーの異なる二大政党の一時的な協力という稀有な事例として、この崩壊は以後20年以上続く国共内戦という深刻な対立の直接的な出発点となった。', debate:'蔣介石による共産党弾圧(上海クーデタ)を、共産主義の脅威を早期に排除する必要な措置とみるか、統一戦線の理念を裏切る背信行為とみるかで、国共両党の歴史認識は根本的に対立している。'} },
+  { id:"northern_expedition", name:"北伐", category:"war", lat:32.06, lng:118.79, start:1926, end:1928, region:"中国(広東〜北京)", desc:{background:'軍閥割拠による中国の分裂状態を打破し統一を実現するという国民党・共産党共通の目標が、この軍事行動の背景となった。', process:'蔣介石率いる国民革命軍が広東を出発して北上し、各地の軍閥を次々と打倒・帰順させて形式的な中国統一を達成したが、この過程で蔣介石は共産党員の粛清(上海クーデタ)を断行し国共関係を決定的に悪化させた。', significance:'形式的には中国統一を達成したが、実質的には主要な軍閥が国民党の傘下で自立性を保つ緩やかな統合にとどまり、真の中央集権的統一には至らなかった、南京国民政府の限定的な統一の性格を示す事例である。', debate:'この北伐による統一を「実質を伴う真の統一」とみるか「軍閥の看板の掛け替えにとどまる名目的統一」とみるかで、南京国民政府期の中国統治の実態評価が分かれる。'} },
+  { id:"shanghai_massacre", name:"上海クーデター(四・一二事件)", category:"event", lat:31.23, lng:121.47, start:1927, end:1927, region:"中華民国(上海)", desc:{background:'北伐の進展とともに勢力を拡大する共産党・労働者運動への蔣介石の警戒感と、彼を支援する浙江財閥・列強の反共的圧力が、この弾圧の背景となった。', process:'上海の労働者組織・共産党員を標的に青幇(秘密結社)とも連携した大規模な武力弾圧を行い、多数の共産党員・労働運動家を殺害し、これにより第一次国共合作は事実上崩壊した。', significance:'この事件を機に共産党は都市部での活動基盤をほぼ喪失し、毛沢東らが農村部を拠点とする独自のゲリラ的革命戦略へ転換する直接的な契機となった。', debate:'この弾圧を「共産主義拡大の脅威に対する国民党の正当な自己防衛」とみるか「労働者・共産党への裏切りと残虐な弾圧」とみるかで、国共両党の歴史叙述は鋭く対立している。'} },
+  { id:"zhang_zuolin_bomb", name:"張作霖爆殺事件", category:"event", lat:41.8, lng:123.43, start:1928, end:1928, region:"満洲(奉天)", desc:{background:'満洲を実効支配する軍閥張作霖が日本の関東軍の意向に必ずしも従順でなくなっていたことへの不満が、この暗殺事件の背景となった。', process:'関東軍の一部将校が張作霖の乗った列車を独断で爆破し暗殺したが、この行為は日本政府・軍中央の正式な承認を得たものではなく、関東軍の独走(統帥権の逸脱)を象徴する事件であった。', significance:'この暗殺は結果的に息子の張学良を国民党側(蔣介石政権)へ接近させることとなり、日本の当初の思惑とは逆に満洲における日本の影響力後退を招いたが、軍部の独走という構造的問題は是正されず後の満洲事変へとつながっていった。', debate:'この事件における軍中央の統制欠如(関東軍の独断専行)が、なぜ処罰も限定的にとどまり、その後の満洲事変というより大規模な独走をも許すことになったのか、日本の文民統制の構造的欠陥として論じられる。'} },
+  { id:"xian_incident", name:"西安事件", category:"event", lat:34.27, lng:108.95, start:1936, end:1936, region:"中華民国(西安)", desc:{background:'共産党討伐を優先する蔣介石の方針に対し、満洲を追われた張学良が抗日を優先すべきとする不満を強めていたことが、この事件の背景となった。', process:'張学良が視察に訪れた蔣介石を西安で拘束し、内戦停止と抗日統一戦線結成を要求し、周恩来が仲介する形で蔣介石はこれを受け入れ第二次国共合作が成立した。', significance:'この事件により国共内戦は一時停止され日本への抗戦のための統一戦線が形成されることとなり、これがなければ日中戦争における中国側の抵抗態勢はより脆弱であった可能性が高い、中国近代史の重要な転換点である。', debate:'張学良のこの行動を「抗日という国家的大義を優先した愛国的決断」とみるか「上官への抗命という規律違反」とみるかで評価が分かれ、彼はこの後半世紀以上にわたり軟禁生活を強いられることとなった。'} },
+  { id:"lugouqiao_incident", name:"盧溝橋事件", category:"event", lat:39.85, lng:116.2, start:1937, end:1937, region:"中華民国(北京郊外)", desc:{background:'満洲事変以降、華北への日本の勢力拡大が進む中、北京郊外での日中両軍の緊張状態が続いていたことが、この事変の背景となった。', process:'盧溝橋付近での演習中の日本軍に対する銃撃事件(発端の詳細は不明)を機に日中両軍の武力衝突が発生し、現地レベルでの停戦交渉にもかかわらず日本政府が大規模な増派を決定したことで全面戦争(日中戦争)へと拡大した。', significance:'この局地的な軍事衝突が、和平的解決の努力にもかかわらず日本側の強硬姿勢によって全面戦争へとエスカレートしたことは、以後8年に及ぶ日中戦争という悲劇的な結末を招いた決定的な転換点となった。', debate:'最初の発砲が偶発的なものであったか意図的な挑発であったかは今も確定しておらず、局地紛争が全面戦争へと拡大した責任の所在(現地軍の独走か中央政府の判断か)についての史料的検証が続けられている。'} },
+  { id:"second_sino_japanese_war", name:"日中戦争", category:"war", lat:39.85, lng:116.2, start:1937, end:1945, region:"中国全土", desc:{background:'盧溝橋事件を機とする日中両軍の武力衝突が、和平的解決の試みが失敗する中で全面戦争へと拡大したことが背景となった。', process:'日本軍は当初圧倒的な軍事的優位で主要都市を占領したが中国側は首都を重慶へ移して長期抗戦を継続し、国共両党が一時的に協力(第二次国共合作)しつつゲリラ戦・持久戦を展開、日本の真珠湾攻撃を機に太平洋戦争へと拡大した末、1945年の日本敗戦により終結した。', significance:'この戦争は推定2000万人規模の中国人犠牲者を出す20世紀最大級の悲劇の一つとなり、南京事件をはじめとする日本軍の行為をめぐる歴史認識問題は今日まで日中関係における重要な懸案であり続けている。', debate:'この戦争の犠牲者数・南京事件の実態などをめぐる日中両国間の歴史認識の相違は、東アジアにおける戦争責任・歴史教育のあり方をめぐる現在進行形の重要な外交的・学術的論争であり続けている。'} },
+  { id:"nanjing_incident", name:"南京事件", category:"event", lat:32.06, lng:118.79, start:1937, end:1938, region:"中華民国(南京)", desc:{background:'上海攻略後の日本軍が首都南京への進撃を続ける中、現地軍の統制の緩みと中国側守備隊の混乱した撤退が、この事件の背景となった。', process:'南京占領後の日本軍により、投降兵・捕虜および多数の民間人が組織的・無差別に殺害されたとされ、この期間の犠牲者数については中国側と日本側とで大きく異なる推計が示されている。', significance:'この事件は日中戦争における日本軍の行為の中でも最も深刻な人道的問題として国際的にも記憶され、極東国際軍事裁判(東京裁判)においても重要な訴因の一つとして扱われた。', debate:'犠牲者数(数万人説から30万人説まで)や事件の性格づけ(組織的虐殺か個別の逸脱行為の集積か)をめぐる歴史認識の相違は、日中間の歴史教育・戦争責任論における最も先鋭な論争点であり続けている。'} },
+  { id:"chinese_civil_war", name:"国共内戦", category:"war", lat:39.9, lng:116.4, start:1946, end:1949, region:"中国全土", desc:{background:'日中戦争終結後、抗日のために一時的に協力していた国民党と共産党の間で、戦後の中国統治権をめぐる根本的な対立が再燃したことが背景となった。', process:'当初は国民党が軍事的に優勢であったが、共産党の巧みな農村土地改革による農民の支持獲得と、国民党側の深刻な経済失政(ハイパーインフレ)・腐敗による民心離反により戦局は逆転し、1949年に共産党が中国大陸の支配権を確立し国民党は台湾へ撤退した。', significance:'この内戦の結果、中国大陸には共産党による中華人民共和国が、台湾には国民党による中華民国が並存する「二つの中国」問題が生まれ、この構造は今日の台湾海峡両岸関係の根本的な起源となっている。', debate:'国民党敗北の要因を、経済失政・腐敗という自滅的要因に求めるか、共産党の農村動員戦略の巧みさという要因に求めるかで、この内戦の帰趨に関する歴史的評価が分かれる。'} },
+  { id:"mao_zedong", name:"毛沢東", category:"person", parentId:"peoples_republic_china", lat:39.9, lng:116.4, start:1893, end:1976, region:"中華人民共和国(北京)", desc:{background:'農村出身という経歴と、都市労働者中心のマルクス主義正統理論に対する独自の批判的視座が、農民を革命の主体とする彼独自の戦略構想の背景となった。', process:'長征を経て党内の指導権を確立し、抗日戦争・国共内戦を勝ち抜いて中華人民共和国を建国、その後は大躍進政策・文化大革命という急進的な社会主義建設を主導したが、これらは深刻な経済的混乱と人的犠牲(推定数千万人規模)を伴う結果となった。', significance:'中国共産党の建国の父として絶大な権威を持ち続け、その「農村が都市を包囲する」革命戦略は第三世界の他の共産主義運動にも大きな影響を与えたが、晩年の急進的政策の失敗は深刻な歴史的教訓を残した。', debate:'建国の功績と大躍進・文革の失政という光と影をどう総合的に評価すべきか、中国共産党自身が公式に採用した「功績が第一義、誤りは第二義」という評価枠組みの妥当性が今も国際的に論じられている。'} },
+  { id:"peoples_republic_china", name:"中華人民共和国", category:"nation", lat:39.9, lng:116.4, start:1949, end:2030, region:"中国(北京)", relatedIds:["great_leap_forward", "cultural_revolution", "deng_xiaoping_reform", "tiananmen_incident", "hongkong_handover"], desc:{background:'国共内戦での勝利により中国大陸の実効支配を確立した共産党が、新たな国家体制樹立を宣言する必要が生じたことが背景となった。', process:'毛沢東が天安門で建国を宣言し、以後ソ連型の社会主義計画経済モデルを導入しつつ独自路線(大躍進・文革)を模索し、1978年のトウ小平による改革開放政策への転換を経て市場経済的要素を導入した高度経済成長を実現し、21世紀には世界第二位の経済大国へと発展した。', significance:'建国から70年余りで世界最大級の経済大国へと発展した事例として、社会主義体制と市場経済の組み合わせという独自の統治モデル(「中国式現代化」)は比較政治経済学上の重要な研究対象となっている。', debate:'この経済的成功を一党支配体制の安定性がもたらした利点とみるか、その裏に隠れた人権・自由の制約という代償を重視すべきかで、国際的な評価が大きく分かれ続けている。'} },
+  { id:"great_leap_forward", name:"大躍進政策", category:"event", lat:39.9, lng:116.4, start:1958, end:1961, region:"中華人民共和国", desc:{background:'ソ連型の重工業優先モデルへの不満と、急速な経済発展・共産主義理想実現への毛沢東の焦りが、この急進的政策の背景となった。', process:'人民公社化による農業集団化の徹底と、非効率な小規模製鉄(「土法高炉」)による工業生産急増を目指したが、非科学的な農法(密植など)の強制や誇張された生産報告の横行により深刻な食糧生産の崩壊を招き、推定1500万人から4000万人規模の餓死者を出す未曾有の人為的飢饉を引き起こした。', significance:'20世紀最大級の人為的な人道的惨事の一つとして、イデオロギー的な理想の性急な追求が現実の統治判断を歪めるリスクを示す歴史的教訓として、比較政治学・経済史上重要な研究対象となっている。', debate:'この惨事の責任を毛沢東個人の判断ミスに帰すか、下級官僚による虚偽報告の連鎖という官僚制の構造的問題に帰すかで、中国共産党内部・学術研究双方において評価が分かれている。'} },
+  { id:"cultural_revolution", name:"文化大革命", category:"event", lat:39.9, lng:116.4, start:1966, end:1976, region:"中華人民共和国", desc:{background:'大躍進政策の失敗による自らの権威低下への危機感と、劉少奇・トウ小平ら実務派官僚への政治的巻き返しの必要性が、毛沢東によるこの運動発動の背景となったとされる。', process:'「造反有理」を掲げる紅衛兵を動員して既存の党・政府機構や知識人・伝統文化を攻撃させ、劉少奇をはじめとする政敵を失脚させたが、この過程で行政機構は麻痺し教育制度は崩壊、多数の知識人・文化財が迫害・破壊される深刻な社会的混乱が10年以上続いた。', significance:'毛沢東の死去とその後の四人組逮捕により終結したこの運動は、中国共産党自身が後に「建国以来最大の挫折」と公式に総括する未曾有の混乱であり、この反省がトウ小平による改革開放路線への転換の重要な背景となった。', debate:'この運動の本質を毛沢東個人の権力闘争の道具とみるか、彼が抱いていた理想主義的な官僚制批判・平等主義理念の暴走とみるかで、その動機分析における評価が分かれる。'} },
+  { id:"deng_xiaoping_reform", name:"鄧小平の改革開放", category:"event", lat:22.54, lng:114.06, start:1978, end:1989, region:"中華人民共和国", desc:{background:'文化大革命で二度にわたり失脚・復権を経験した経歴が、彼の現実主義的な統治姿勢と改革への強い意志の背景となった。', process:'毛沢東死後の権力闘争を勝ち抜き実権を掌握すると「白猫黒猫論」に象徴される実用主義のもと改革開放政策を断行し市場経済的要素を導入して高度経済成長の基盤を築いたが、1989年の天安門事件では民主化要求運動を武力で鎮圧する決断も下した。', significance:'「改革開放の総設計師」として、その経済改革は中国を世界第二位の経済大国へと押し上げる決定的な転換点となったが、政治的自由化には一貫して慎重な姿勢を貫いた。', debate:'経済的自由化と政治的統制の維持という二つの路線を同時に追求したこの「トウ小平モデル」が、長期的に持続可能な統治形態であるかどうかは、比較政治学上今も重要な検証課題となっている。'} },
+  { id:"tiananmen_incident", name:"天安門事件", category:"event", lat:39.9, lng:116.4, start:1989, end:1989, region:"中華人民共和国(北京)", desc:{background:'改革開放による経済成長の一方でインフレ・格差拡大・官僚腐敗への不満が高まる中、開明派指導者胡耀邦の死去が、学生を中心とする追悼・民主化要求デモの直接的契機となった。', process:'北京天安門広場を中心に全国的に拡大した学生・市民の民主化要求運動に対し、党内の対応をめぐる路線対立(趙紫陽の融和路線対李鵬らの強硬路線)を経て、最終的に人民解放軍による武力鎮圧が実行され多数の死傷者が出た。', significance:'この鎮圧は中国共産党の統治における経済的自由化と政治的自由化を切り離す方針を決定的に確定させ、以後の中国の統治モデル(経済成長による正統性確保と政治的統制の両立)の重要な転換点となった。', debate:'この事件の犠牲者数・鎮圧の詳細な経緯は中国国内では今も公的な議論が厳しく制限されており、この記憶の統制のあり方自体が、国家による歴史認識管理の問題として国際的に注目され続けている。'} },
+  { id:"hongkong_handover", name:"香港返還", category:"event", lat:22.32, lng:114.17, start:1997, end:1997, region:"香港", desc:{background:'1898年の新界租借条約(99年間)の期限が近づく中、中英両国が香港の将来的な地位について交渉する必要が生じたことが背景となった。', process:'サッチャー・トウ小平会談を経て中英共同声明が締結され、「一国二制度」のもと香港が中国に返還されつつも高度な自治(資本主義体制・独自の法制度)を50年間維持するという枠組みが定められた。', significance:'社会主義国家が資本主義的な自治区域を内包するという前例のない統治実験として国際的に注目されたが、2020年の香港国家安全法制定以降はこの自治の実質的な後退が国際的に強く懸念されている。', debate:'「一国二制度」が当初の約束通り機能しているか、それとも中国中央政府による統制強化により事実上形骸化しつつあるかについて、国際的な評価と中国政府の見解が鋭く対立している。'} },
+  { id:"xi_jinping", name:"習近平", category:"person", parentId:"peoples_republic_china", lat:39.9, lng:116.4, start:1953, end:2035, region:"中華人民共和国(北京)", desc:{background:'文化大革命期に下放(農村労働)を経験した「知識青年」世代としての経歴と、地方統治での実績の蓄積が、党内での権力基盤確立の背景となった。', process:'総書記就任後、反腐敗運動を通じて党内の政敵を排除しつつ権力を集中させ、国家主席の任期制限を撤廃(2018年)して長期統治の制度的基盤を整え、「中国の夢」を掲げた民族的威信の向上と、香港国家安全法・新疆政策など統制強化策を進めている。', significance:'トウ小平以来の集団指導体制の慣行から、より個人への権力集中を強める統治スタイルへの転換を体現しており、この変化は中国の今後の政治的方向性を考える上で国際的に重要な観察対象となっている。', debate:'任期制限撤廃という措置を、安定した長期的な国家戦略遂行のための必要な制度変更とみるか、権威主義的な個人独裁への回帰とみるかで、国際的な評価が大きく分かれている。'} },
+
+  // ===================== 中華民国(台湾)・台湾現代史 =====================
+  { id:"roc_taiwan", name:"中華民国(台湾)", category:"nation", lat:25.03, lng:121.56, start:1949, end:2030, region:"台湾(台北)", relatedIds:["incident_228","taiwan_democratization"], desc:{background:'国共内戦での敗北により、国民党政権が大陸での統治権を失い台湾へ拠点を移す必要に迫られたことが背景となった。', process:'蔣介石率いる国民党政権が台湾に「中華民国」政府を樹立し、当初は大陸反攻を掲げつつ戒厳令下での権威主義的統治を続けたが、1980年代後半から民主化が進み、現在は独自の民主的政治制度を発展させている。', significance:'大陸の中華人民共和国との「二つの中国」問題は、国連代表権問題(1971年のアルバニア決議による中国代表権の交代)を経て今日まで続く東アジア国際政治の最重要懸案の一つであり続けている。', debate:'台湾の国際的地位(独立した主権国家か、中国の一部か)をめぐる問題は、両岸関係・米中関係の中心的な地政学的争点として現在も極めて重要な国際政治上の論争であり続けている。'} },
+  { id:"incident_228", name:"二・二八事件", category:"event", lat:25.03, lng:121.56, start:1947, end:1947, region:"台湾(台北)", desc:{background:'日本統治終了後に台湾を接収した国民党政権の統治(本省人への差別的対応・経済的混乱・汚職)への台湾住民の不満が、この事件の背景となった。', process:'闇タバコ取り締まりをめぐる小さな衝突が全島規模の抗議運動へと拡大し、国民党政権はこれを武力で徹底的に弾圧し、知識人・エリート層を含む多数の犠牲者(推定数千人から数万人)を出した。', significance:'この弾圧とそれに続く「白色テロ」と呼ばれる長期の戒厳令下での言論統制は、台湾社会に長く「本省人・外省人」間の深刻な分断と記憶のタブー化を残し、後の民主化運動における重要な歴史的記憶となった。', debate:'この事件の犠牲者数・責任の所在(蔣介石自身の直接的な指示があったか)については長く公的な議論が封じられてきたが、民主化後の真相究明・名誉回復事業を通じて徐々に歴史的検証が進められている。'} },
+  { id:"taiwan_democratization", name:"台湾の民主化(李登輝)", category:"event", lat:25.03, lng:121.56, start:1988, end:1996, region:"台湾(台北)", desc:{background:'経済発展による中間層の拡大と、蔣経国(蔣介石の子)による段階的な政治的開放路線への転換が、この民主化の背景となった。', process:'1987年の戒厳令解除を皮切りに複数政党制・言論の自由が段階的に認められ、1996年には史上初の総統直接選挙が実施され、2000年には国民党から民進党への平和的な政権交代も実現した。', significance:'権威主義体制から比較的短期間で安定した民主主義体制への移行を達成した事例として、東アジアにおける民主化の成功例(韓国と並ぶ)として比較政治学上重要視される。', debate:'この民主化の進展が、中国大陸との関係(統一か独立かをめぐる国内世論の分裂)にどのような影響を与え続けているかが、台湾政治の中心的な争点として論じられ続けている。'} },
+
+  // ===================== モンゴル(元以後・近現代) =====================
+  { id:"northern_yuan", name:"北元", category:"dynasty", lat:47.2, lng:102.85, start:1368, end:1635, region:"モンゴル高原", desc:{background:'元(モンゴル帝国の中国統治部分)が朱元璋率いる明軍により中国本土から駆逐されたことが、モンゴル高原への退却の背景となった。', process:'モンゴル高原に退いた元の残存勢力が「北元」として存続を図ったが、内部の権力争いと明の攻勢により求心力を失い、最終的にモンゴル系諸部族が分立する状態へと移行した。', significance:'中国本土の統治権を失いながらもモンゴル民族としての独自のアイデンティティと政体を保ち続けた点で、征服王朝崩壊後の民族的連続性の事例として重要である。', debate:'「北元」が正統な元朝の継続とみなされるべきか、単なる地方政権への後退とみなされるべきかについて、モンゴル・中国双方の歴史叙述における位置づけが異なる。'} },
+  { id:"qing_mongolia", name:"清朝支配下のモンゴル", category:"event", lat:47.92, lng:106.92, start:1691, end:1911, region:"モンゴル高原", desc:{background:'満洲族の清朝が中国統治を確立する過程で、北方の安全保障上の脅威となり得るモンゴル諸部族を服属させる必要があったことが背景となった。', process:'内モンゴルは早期に清の支配下に組み込まれ、外モンゴル(ハルハ部)も北方のジュンガル部との対立を経て清への服属を選択し、清朝の藩部体制の一部として統治された。', significance:'この征服により清朝はモンゴル高原全域を版図に組み込み、この統治の枠組みは後の中華民国・中華人民共和国による内モンゴル領有の歴史的根拠ともなった。', debate:'内モンゴルが中国の一部として統合され続けた一方、外モンゴルが20世紀に独立を達成したという対照的な帰結を分けた要因(ソ連の後ろ盾の有無など)が、比較民族自決論の観点から論じられる。'} },
+  { id:"sukhbaatar", name:"スフバートル", category:"person", parentId:"mongolian_peoples_republic", lat:47.92, lng:106.92, start:1893, end:1923, region:"モンゴル(フレー)", desc:{background:'中国(北洋軍閥)によるモンゴルへの再統治の試みへの反発が、彼の独立運動指導の背景となった。', process:'ソ連赤軍の支援を得てモンゴル人民義勇軍を組織し中国軍・白軍残党を駆逐して独立を回復し、モンゴル人民革命党を指導して社会主義国家建設の基礎を築いたが、若くして病没した。', significance:'「モンゴル建国の英雄」として現在もウランバートルの中心広場(彼の名を冠する)に銅像が建てられるなど国民的に敬愛され、モンゴル近代国家建設の父として位置づけられている。', debate:'彼の独立運動がソ連の後ろ盾に強く依存していたことから、この独立を「真の民族自決」とみるか「ソ連の衛星国化の出発点」とみるかで、モンゴル近代史の評価が分かれる。'} },
+  { id:"mongolian_peoples_republic", name:"モンゴル人民共和国", category:"nation", lat:47.92, lng:106.92, start:1924, end:1992, region:"モンゴル", desc:{background:'ソ連赤軍の支援のもと独立を回復したモンゴルが、ソ連型の社会主義国家建設を志向したことが背景となった。', process:'1924年に樹立され、以後70年近くソ連の強い影響下で社会主義的な集団化・仏教弾圧などを進めたが、1990年の民主化革命を経て複数政党制・市場経済へと移行した。', significance:'ソ連に次ぐ世界で2番目の社会主義国家として、中国の反発と国際的孤立の中でソ連の後ろ盾により独立を維持し続けた稀有な事例であり、内モンゴルが中国領にとどまったのとは対照的な歴史的経路をたどった。', debate:'この独立の達成・維持がソ連という後ろ盾にどこまで依存していたか、真の自律的な国家建設と外部大国への従属との間のバランスが論じられる。'} },
+  { id:"mongolia_modern", name:"モンゴル国", category:"nation", lat:47.92, lng:106.92, start:1992, end:2030, region:"モンゴル", desc:{background:'ソ連崩壊という後ろ盾の消失が、モンゴルにおける社会主義体制の維持を困難にし、民主化・市場経済化への転換を促す背景となった。', process:'1990年の民主化革命を経て複数政党制・市場経済への移行を進め、鉱物資源(石炭・銅など)の開発を軸とする経済発展を模索しているが、中国・ロシアという二大国に挟まれた内陸国という地政学的制約の中で「第三の隣国」政策(欧米・日本など)を通じた外交的自立も図っている。', significance:'社会主義から民主主義・市場経済への平和的移行を達成した事例として、また巨大な二つの隣国に挟まれた内陸国の外交戦略の事例として、比較政治学・国際関係論上重要視される。', debate:'資源依存型経済がもたらす経済的な脆弱性(資源価格変動の影響)と、中国・ロシアへの経済的依存の深まりが、この国の実質的な自立性にどこまで影響しているかが論じられる。'} },
+
+  // ===================== 朝鮮史(古代〜高麗) =====================
+  { id:"gojoseon", name:"古朝鮮(衛氏朝鮮)", category:"nation", lat:39.02, lng:125.75, start:-2333, end:-108, region:"朝鮮半島北部(平壌)", desc:{background:'遼東・朝鮮半島北部における青銅器文化の発達と農業共同体の形成が、朝鮮半島最初期の国家形成の背景となったとされる。', process:'檀君神話に建国伝承を持ち、後代には燕からの亡命者衛満が政権を奪取(衛氏朝鮮)して発展したが、前漢武帝の遠征により前108年に滅ぼされ、その地に楽浪郡など漢の四郡が設置された。', significance:'朝鮮半島最初の国家として、その建国神話(檀君神話)は現在も韓国・北朝鮮双方において民族的起源神話として重要な位置を占め続けている。', debate:'檀君神話の史実性と、この国の実際の版図・統治実態(特に衛氏朝鮮期以前の実態)については史料が乏しく、考古学的検証を含めた論争が続いている。'} },
+  { id:"han_commanderies", name:"漢四郡", category:"event", lat:39.02, lng:125.75, start:-108, end:313, region:"朝鮮半島北部", desc:{background:'前漢武帝による衛氏朝鮮征服(前108年)が、朝鮮半島北部への中国王朝の直接的な行政統治導入の背景となった。', process:'楽浪郡・真番郡・臨屯郡・玄菟郡の四郡が設置され、特に楽浪郡は約400年にわたり存続して中国の先進的な文物・制度を朝鮮半島に伝える窓口として機能したが、高句麗の勢力拡大により4世紀初頭に完全に駆逐された。', significance:'漢字・儒教・律令的統治技術が本格的に朝鮮半島へ流入する経路となり、この文化的影響は百済・新羅を経て日本列島へも伝播する東アジア文化圏形成の重要な結節点としての役割を果たした。', debate:'この郡県支配を「中国による直接的な植民地支配」とみるか「一定の自治を伴う緩やかな朝貢的関係」とみるかで、朝鮮史における評価が分かれ、近代日本の朝鮮統治正当化にこの史実が政治的に利用された経緯も歴史認識上の論点となっている。'} },
+  { id:"goguryeo", name:"高句麗", category:"nation", lat:41.13, lng:126.19, start:-37, end:668, region:"朝鮮半島北部・満洲(国内城→平壌)", relatedIds:["gwanggaeto"], desc:{background:'満洲・朝鮮半島北部の山岳地帯という地理的条件のもと、狩猟・農耕を組み合わせる集団が独自の国家形成を進めたことが背景となった。', process:'漢四郡を駆逐して満洲・朝鮮半島北部の広大な領域を統一し、広開土王・長寿王の代に最盛期を迎え中国王朝(隋・唐)の侵攻をも度々撃退したが、内紛と唐・新羅連合軍の攻勢により668年に滅亡した。', significance:'隋の煬帝による大遠征を撃退するなど中国の統一帝国にも屈しなかった強勢を誇り、この抵抗は隋滅亡の一因ともなるなど東アジア国際政治に大きな影響を与えた。', debate:'高句麗を「朝鮮史の一部」とみるか「満洲を主要な版図とする独自の多民族国家(中国東北地方の歴史の一部)」とみるかについて、韓国・中国・北朝鮮それぞれの歴史認識(中国の「東北工程」問題を含む)が鋭く対立している。'} },
+  { id:"gwanggaeto", name:"広開土王(好太王)", category:"person", parentId:"goguryeo", lat:41.13, lng:126.19, start:374, end:412, region:"高句麗", desc:{background:'高句麗が満洲・朝鮮半島北部における覇権確立を目指す中、百済・新羅・倭(日本)などとの複雑な外交・軍事関係への対応が治世の背景となった。', process:'満洲の広大な領域から朝鮮半島中部にまで軍事的に版図を拡大し、新羅の要請に応じて倭の侵攻を撃退するなど朝鮮半島情勢に積極的に介入した。', significance:'高句麗の最大版図を実現した英雄的君主として、その事績を記す「広開土王碑」は当時の東アジア国際関係(特に倭との関係)を知る上で極めて重要な一次史料となっている。', debate:'広開土王碑の倭に関する記述(倭が朝鮮半島に軍事介入していたことを示唆する部分)の解釈をめぐっては、日韓の歴史学者の間で碑文の判読・解釈自体に長年の論争があり、近代の政治的利用(日本の朝鮮統治正当化への援用)の問題も含め史学史上重要な検討課題となっている。'} },
+  { id:"baekje", name:"百済", category:"nation", lat:36.28, lng:126.91, start:18, end:660, region:"朝鮮半島南西部(漢城→熊津→泗沘)", desc:{background:'朝鮮半島南西部における馬韓諸国の一つが、中国(南朝)・倭(日本)との海上交易・外交関係を積極的に築いたことが発展の背景となった。', process:'仏教・漢字文化を積極的に受容し日本への文化伝播(仏教公伝・五経博士派遣など)の重要な媒介者となったが、高句麗・新羅との抗争が続く中で徐々に劣勢に転じ、最終的に新羅・唐連合軍により660年に滅ぼされた。', significance:'日本古代国家形成における文化的影響(仏教・漢字・律令制度の伝来)の最も重要な媒介者として、日本書紀にもその緊密な関係が繰り返し記録されている、日朝交流史上決定的な存在である。', debate:'百済滅亡後、日本が大規模な救援軍を派遣した(白村江の戦い)ことが示す両国関係の緊密さの実態(単なる友好関係か、より深い政治的・血縁的結びつきがあったか)について、古代日朝関係史上の論争がある。'} },
+  { id:"silla", name:"新羅", category:"nation", lat:35.84, lng:129.21, start:-57, end:935, region:"朝鮮半島南東部(慶州)", relatedIds:["baekgang_battle"], desc:{background:'朝鮮半島南東部の辰韓諸国の一つとして出発した新羅が、独自の身分制度(骨品制)と仏教受容を通じて国家体制を整備したことが発展の背景となった。', process:'唐と同盟して百済・高句麗を滅ぼし朝鮮半島の大部分を統一したが、統一後は唐の勢力を排除して自立性を確保し、仏教文化(仏国寺・石窟庵)の隆盛を築いたが、9世紀末以降は地方豪族の自立化により弱体化し、936年に高麗により統一された。', significance:'朝鮮半島初の統一国家として、その仏教美術・律令制度は以後の朝鮮半島の国家的伝統の重要な基盤となり、統一後の対唐自立路線は朝鮮の主体的な国家運営の先例ともなった。', debate:'新羅による朝鮮半島「統一」が、高句麗の故地(満洲)を放棄した不完全な統一であったことをどう評価すべきか、この「統一」の範囲・性格をめぐる民族史的な議論が朝鮮史学において続いている。'} },
+  { id:"baekgang_battle", name:"白村江の戦い", category:"war", lat:36.0, lng:126.7, start:663, end:663, region:"朝鮮半島(錦江河口)", desc:{background:'百済滅亡後、その復興を目指す遺臣たちが倭(日本)に救援を要請し、日本がこれに応じて大規模な援軍派遣を決定したことが、この戦いの背景となった。', process:'白村江において日本の水軍が唐・新羅連合水軍と交戦したが、火攻めを含む唐軍の巧みな戦術により壊滅的な敗北を喫し、百済復興の望みは完全に絶たれた。', significance:'この敗北を機に日本は対外的な軍事介入から国内の防衛体制強化(西日本の山城築造・防人配置)へと方針を転換し、律令国家体制の確立を急ぐ契機ともなった、日本古代対外関係史上の重要な転換点である。', debate:'この敗戦が日本の古代国家形成(律令制導入の加速)にどこまで直接的な危機感として作用したか、対外的軍事的挫折と国内制度改革との因果関係が論じられる。'} },
+  { id:"unified_silla", name:"統一新羅", category:"nation", lat:35.84, lng:129.21, start:676, end:935, region:"朝鮮半島(慶州)", desc:{background:'唐との同盟による百済・高句麗征服の後、新羅が唐の朝鮮半島への直接支配意図(安東都護府設置など)を排除する必要に迫られたことが、この時代の背景となった。', process:'唐軍を朝鮮半島から駆逐して独自の統一国家を確立し、仏教文化(仏国寺・石窟庵)の黄金期を築き律令制度・骨品制による統治体制を整えたが、地方豪族(豪族)の自立化と王位継承をめぐる内紛により9世紀末には急速に弱体化した。', significance:'朝鮮半島における最初の統一国家として、この時代の仏教美術・建築(石窟庵など)は朝鮮美術史上の最高峰とされ、以後の高麗・朝鮮王朝における国家的統一の理念的先例となった。', debate:'骨品制という厳格な血統的身分制度が、優秀な人材の登用を制限し王朝後期の弱体化を招いた構造的要因であったかどうかが、統一新羅の衰退要因分析において論じられる。'} },
+  { id:"balhae", name:"渤海", category:"nation", lat:44.6, lng:129.57, start:698, end:926, region:"満洲東部・朝鮮半島北部", desc:{background:'高句麗滅亡後、その遺民と靺鞨族が満洲・朝鮮半島北部において高句麗の後継国家樹立を目指したことが建国の背景となった。', process:'大祚栄が建国し「海東の盛国」と称されるほどの繁栄を築き、唐・日本との活発な交流(遣渤海使の往来)を行ったが、10世紀初頭に契丹(遼)の攻撃を受け滅亡した。', significance:'高句麗の継承国家として満洲の広大な領域を統治した点で、朝鮮史における「南北国時代」(統一新羅と渤海の並立)という歴史認識の重要な一翼を担い、この時代の満洲領有の歴史的記憶は現代の韓国・北朝鮮の歴史認識にも影響している。', debate:'渤海を「朝鮮史の一部」とみるか「中国東北地方の地方政権(靺鞨族主体)」とみるかについて、韓国・中国それぞれの歴史認識(「東北工程」問題を含む)が対立する現在進行形の歴史論争となっている。'} },
+  { id:"goryeo_dynasty", name:"高麗王朝", category:"dynasty", lat:37.97, lng:126.56, start:918, end:1392, region:"朝鮮半島(開城)", relatedIds:["wang_geon", "goryeo_mongol"], desc:{background:'統一新羅末期の地方豪族割拠という混乱状況の中、王建が高句麗の後継を標榜して勢力を拡大したことが建国の背景となった。', process:'後三国(後高句麗・後百済・新羅)の分裂状態を統一し、仏教を国教として保護し科挙制度も導入したが、モンゴル(元)の侵攻を受け長期の抗戦の末に服属し、以後は元の駙馬国(婿の国)としての従属的地位に置かれ、14世紀末に武将李成桂のクーデタにより滅ぼされた。', significance:'「高麗」の国号は英語のKoreaの語源となり、この時代に完成した高麗青磁や『高麗大蔵経』の版木は朝鮮半島の文化的達成の頂点として世界的に評価されている。', debate:'モンゴルへの服属を、亡国を避けるための現実的な生存戦略とみるか、屈辱的な従属とみるかで、この時代の朝鮮史における評価が分かれる。'} },
+  { id:"wang_geon", name:"王建(太祖)", category:"person", parentId:"goryeo_dynasty", lat:37.97, lng:126.56, start:877, end:943, region:"高麗", desc:{background:'統一新羅末期の混乱の中、高句麗の後継を掲げる後高句麗の武将として台頭し、独自の勢力基盤を築いたことが建国の背景となった。', process:'後高句麗の指導者弓裔を追放して自ら王位に就き高麗を建国し、後百済・新羅を吸収して朝鮮半島を再統一し、地方豪族との婚姻政策(29人の妃を娶ったとされる)により統治基盤を固めた。', significance:'「高麗建国の祖」として、その国号(高麗)は現在の英語国名Koreaの語源となるなど、朝鮮民族のアイデンティティの重要な淵源となっている。', debate:'彼の婚姻政策(多数の地方豪族の娘を妃とする)が、統治基盤の安定に寄与した一方、後継者争いという長期的な政治的不安定要因を残したのではないかという評価がある。'} },
+  { id:"goryeo_mongol", name:"高麗の元(モンゴル)服属", category:"event", lat:37.97, lng:126.56, start:1231, end:1270, region:"高麗", desc:{background:'モンゴル帝国の東方拡大政策のもと、高麗が服属・朝貢を拒み続けたことが、この度重なる侵攻の直接的契機となった。', process:'モンゴル軍が数次にわたり侵攻し、高麗王室は江華島に避難して長期の抗戦を続けたが、国土の荒廃が深刻化する中で最終的に服属を受け入れ、以後は元の駙馬国(王が元の皇女を娶る従属的地位)として存続した。', significance:'この侵攻の中で高麗が仏教の加護を求めて製作した『高麗大蔵経』の版木は、その文化的・宗教的意義とともに現存する世界最古級の完全な大蔵経版木として世界遺産に登録されている。', debate:'長期の抗戦(江華島遷都による約30年の抵抗)の末に服属に至った経緯を、粘り強い抵抗の成果とみるか、結局は服属を避けられなかった限界とみるかで評価が分かれる。'} },
+
+  // ===================== 朝鮮史(朝鮮王朝〜大韓帝国) =====================
+  { id:"joseon_dynasty", name:"朝鮮王朝(李氏朝鮮)", category:"dynasty", lat:37.57, lng:126.98, start:1392, end:1897, region:"朝鮮半島(漢城=ソウル)", relatedIds:["yi_seonggye", "sejong_the_great", "yi_sun_sin", "ganghwa_incident", "treaty_ganghwa", "imo_incident", "gapsin_coup", "donghak_peasant_revolution"], desc:{background:'李成桂による高麗打倒とクーデタが、儒教理念に基づく新たな王朝樹立の背景となった。', process:'朱子学を国是として仏教を抑制し(崇儒抑仏)、世宗の代にハングル創製など文化的最盛期を築いたが、豊臣秀吉の侵攻(壬辰倭乱)や後金・清の侵攻(丙子胡乱)という対外的危機を経験し、19世紀末には日本の圧力のもと開国を強いられ、最終的に1910年の韓国併合により滅亡した。', significance:'朱子学的な儒教統治理念を徹底した朝鮮社会の基本的性格を約500年にわたり規定し、科挙制度・両班(貴族官僚層)による支配体制は現代韓国社会の文化的基層にも影響を残している。', debate:'この王朝の長期にわたる儒教的統治理念の徹底が、19世紀の近代化対応の遅れ(日本との対比)にどこまで構造的に影響したかについて、比較近代化論の観点から議論される。'} },
+  { id:"yi_seonggye", name:"李成桂(太祖)", category:"person", parentId:"joseon_dynasty", lat:37.57, lng:126.98, start:1335, end:1408, region:"朝鮮王朝", desc:{background:'高麗末期の親元派・親明派の対立と倭寇撃退での軍功が、彼の政治的台頭の背景となった。', process:'遼東への出兵命令を受けた際に威化島から引き返すクーデタ(威化島回軍)を起こして実権を掌握し、高麗を廃して朝鮮王朝を開き、明への事大(朝貢)関係を確立して国号「朝鮮」の使用も明の承認を得た。', significance:'朝鮮王朝約500年の建国者として、儒教(朱子学)を国家統治の基本理念とする体制を確立し、この理念は以後の朝鮮社会の根本的な性格を規定し続けた。', debate:'威化島回軍という軍事クーデタによる王朝交代が、当時の親明・事大主義的な外交路線への転換とどこまで密接に結びついていたか、この決断の外交的・政治的動機が論じられる。'} },
+  { id:"sejong_the_great", name:"世宗大王", category:"person", parentId:"joseon_dynasty", lat:37.57, lng:126.98, start:1397, end:1450, region:"朝鮮王朝", desc:{background:'父太宗が確立した安定した王権基盤の上に、民衆の教育・文化的向上という理念的な統治目標を追求したことが治世の背景となった。', process:'漢字を読み書きできない民衆のため独自の表音文字ハングル(訓民正音)を創製させ、雨量計(測雨器)の発明や天文学の発展など科学技術の振興にも尽力し、北方の女真族討伐により国境を確定させた。', significance:'「世宗大王」として朝鮮史上最も尊崇される統治者であり、ハングルは現在も韓国・北朝鮮双方において民族的誇りの象徴かつ実用的な文字体系として用いられ続けている。', debate:'当時の支配層(両班)の一部がハングル創製に強く反対した(漢字こそが正統な文字であるとする事大主義的な立場)ことは、民衆への教育普及という理念と支配層の既得権益との緊張関係を示す事例として論じられる。'} },
+  { id:"yi_sun_sin", name:"李舜臣", category:"person", parentId:"joseon_dynasty", lat:34.76, lng:127.66, start:1545, end:1598, region:"朝鮮王朝(全羅道)", desc:{background:'文官優位の朝鮮社会において武官としての不遇な経歴を経験しながらも、水軍指揮官としての卓越した戦術眼を蓄積していたことが背景となった。', process:'独自に開発・改良した装甲艦「亀甲船」を駆使し、閑山島海戦・鳴梁海戦など寡兵をもって日本水軍に度重なる決定的勝利を収めて制海権を確保し補給線を寸断したが、最後の露梁海戦で戦死した。', significance:'朝鮮を救った国民的英雄として現在も韓国で最も尊崇される歴史的人物の一人であり、その卓越した戦術は世界海戦史上でも屈指の事例として国際的にも評価されている。', debate:'彼の軍事的天才性を疑う余地はないが、当時の朝廷内での政争(讒言による一時的な失脚・投獄)が示す文官優位の統治構造の問題点が、彼の評価と併せて論じられる。'} },
+  { id:"ganghwa_incident", name:"江華島事件", category:"event", lat:37.7, lng:126.45, start:1875, end:1875, region:"朝鮮王朝(江華島)", desc:{background:'明治維新後の日本が朝鮮への開国要求を強める中、朝鮮側の鎖国政策(大院君による攘夷政策)との間で緊張が高まっていたことが背景となった。', process:'日本の軍艦雲揚号が江華島付近で朝鮮側の砲台と交戦したことを口実に日本が開国を要求し、翌年の江華島条約により朝鮮は日本に対し治外法権・関税自主権喪失を含む不平等な条件での開国を強いられた。', significance:'アメリカのペリー来航による日本の開国と類似した構図で、この条約は朝鮮が近代国際関係に組み込まれる出発点となったが、同時に日本による朝鮮進出の第一歩ともなった。', debate:'この事件を、日本が意図的に仕組んだ挑発(砲艦外交)とみるか、偶発的な軍事的緊張の結果とみるかで、日朝双方の歴史認識に差異がある。'} },
+  { id:"treaty_ganghwa", name:"日朝修好条規(江華条約)", category:"treaty", lat:37.7, lng:126.45, start:1876, end:1876, region:"朝鮮王朝(江華島)", desc:{background:'江華島事件という軍事的圧力を背景に、日本が朝鮮に開国を要求したことが、この条約締結の直接的背景となった。', process:'日本が朝鮮に対し treaty締結を強要し、朝鮮を「自主の邦」と規定して清との伝統的な宗属関係を否定しつつ、日本に治外法権・関税自主権の否定などの不平等な特権を認めさせる内容であった。', significance:'朝鮮が近代的な国際条約体制に組み込まれる最初の一歩となったが、その不平等な内容(日本のみの領事裁判権など)は以後の朝鮮の半植民地化過程の出発点となった。', debate:'「自主の邦」という規定が、朝鮮の独立性を国際的に認める進歩的な内容であったか、むしろ清との宗属関係を否定することで日本の介入の余地を広げる狙いを持つものであったかで、この条文の政治的意図をめぐる評価が分かれる。'} },
+  { id:"imo_incident", name:"壬午軍乱", category:"event", lat:37.57, lng:126.98, start:1882, end:1882, region:"朝鮮王朝(漢城)", desc:{background:'日本の圧力下での近代化改革(別技軍創設など)への旧来の軍人層の不満と、閔氏一族の専横への反発が、この兵乱の背景となった。', process:'待遇差別に不満を持つ旧式軍隊の兵士が蜂起し日本公使館を襲撃する事態にまで発展したが、清軍の介入により鎮圧され、この結果朝鮮における清の影響力が一時的に強化された。', significance:'この事件を機に日本は朝鮮への軍隊駐留権を獲得(済物浦条約)し、清も朝鮮への内政干渉を強化するなど、朝鮮をめぐる日清両国の勢力争いが本格化する契機となった。', debate:'この事件を「保守的な軍人の単純な待遇不満」とみるか「日本の急進的な近代化圧力への朝鮮社会全体の反発の表れ」とみるかで、その性格づけが論じられる。'} },
+  { id:"gapsin_coup", name:"甲申政変", category:"event", lat:37.57, lng:126.98, start:1884, end:1884, region:"朝鮮王朝(漢城)", desc:{background:'壬午軍乱後の清の影響力強化に対し、日本の支援を得た急進開化派(金玉均ら)が近代化改革の断行を目指したことが、このクーデタの背景となった。', process:'日本公使館の軍事支援を得て一時政権を掌握し急進的な改革を宣言したが、清軍の即座の介入によりわずか3日で鎮圧され、指導者たちは日本へ亡命した。', significance:'この失敗により朝鮮における清の影響力はさらに強化される一方、日清両国間の緊張も高まり天津条約(日清両軍の朝鮮からの撤兵と将来の出兵時の相互通告)締結につながった。', debate:'この改革運動を「朝鮮の自主的近代化を目指した進歩的試み」と評価するか「日本の勢力拡大の道具にされた性急なクーデタ」と評価するかで、韓国史学における評価が分かれる。'} },
+  { id:"donghak_peasant_revolution", name:"東学農民運動(甲午農民戦争)", category:"war", lat:35.82, lng:127.15, start:1894, end:1895, region:"朝鮮王朝(全羅道)", relatedIds:["sino_japanese_war"], desc:{background:'朝鮮固有の民間宗教東学の教えと、官吏の腐敗・重税への農民の蓄積した不満が、この農民反乱の背景となった。', process:'全琫準を指導者に農民軍が蜂起し一時は全羅道の広範囲を制圧する勢いを見せたが、朝鮮政府の要請による清軍出兵とこれに対抗する日本軍出兵が、日清戦争勃発の直接的な引き金となった。', significance:'朝鮮の内政問題(農民反乱)が東アジア国際政治における日清間の全面戦争へと発展する契機となった点で、内政と国際政治の連動という重要な世界史的意義を持つ事件である。', debate:'この反乱を「単なる農民一揆」とみるか「近代朝鮮における民族主義的・改革的な運動の先駆」とみるかで、韓国史学における評価が分かれる。'} },
+  { id:"korean_empire", name:"大韓帝国", category:"nation", lat:37.57, lng:126.98, start:1897, end:1910, region:"朝鮮半島(漢城)", desc:{background:'閔妃殺害事件などを経て高宗が日本の影響力からの自立を図る必要性を強く認識したことが、この国号変更・皇帝即位の背景となった。', process:'高宗が皇帝に即位し国号を「大韓帝国」と改めて清との宗属関係を否定し独立国家であることを内外に宣言し、近代化改革(光武改革)も進めたが、日露戦争での日本の勝利により保護国化(第二次日韓協約)が進み、1910年の韓国併合により消滅した。', significance:'朝鮮が「王国」から「帝国」へと国号を改め清との伝統的な宗属関係を法的に清算した点で、近代的な主権国家としての体裁を整えようとした最後の試みであったが、結果的にこれを実質化する国力・国際的支援を欠いていた。', debate:'この皇帝即位・改革を「主体的な近代化・自立化の試み」として評価するか、実質を伴わない「名目だけの独立宣言」にすぎなかったとみるかで評価が分かれる。'} },
+  { id:"japan_annex_korea", name:"韓国併合", category:"event", lat:37.57, lng:126.98, start:1910, end:1910, region:"朝鮮半島", desc:{background:'第二次日韓協約による保護国化後も残っていた朝鮮の内政権・司法権を完全に掌握するため、日本が最終的な併合という選択肢を追求したことが背景となった。', process:'軍事的圧力と親日派勢力の協力のもと日韓併合条約が締結され、朝鮮は正式に大日本帝国に併合されて総督府による直接統治下に置かれ、以後1945年の日本敗戦まで36年間続いた。', significance:'アジアにおける最も長期かつ全面的な植民地支配の事例の一つとして、この統治は朝鮮の土地・言語・姓名(創氏改名)にまで及ぶ同化政策を伴い、その記憶は現代の日韓関係における最も根深い歴史認識問題の根源となっている。', debate:'この併合条約の法的有効性(強制性の程度)をめぐる日韓間の見解の相違は、2010年の日韓共同声明でも完全には解消されず、賠償・謝罪のあり方をめぐる論争として今日まで継続している。'} },
+
+  // ===================== 朝鮮史(近現代) =====================
+  { id:"samil_movement", name:"三・一独立運動", category:"event", lat:37.57, lng:126.98, start:1919, end:1919, region:"朝鮮(京城=ソウル)", desc:{background:'ウィルソン米大統領が提唱した「民族自決」の理念に触発された朝鮮の独立運動家たちが、この国際的機運を捉えて大規模な独立要求運動を計画したことが背景となった。', process:'高宗の葬儀に合わせて全国各地で「独立万歳」を叫ぶ非暴力の大規模デモが展開されたが、日本の朝鮮総督府はこれを武力で徹底的に弾圧し多数の死傷者を出した。', significance:'この運動は朝鮮民族の独立への意志を国内外に強く印象づけ、上海における大韓民国臨時政府樹立の直接的契機となり、以後の朝鮮独立運動における最も重要な象徴的出来事として記憶されている。', debate:'この運動への武力弾圧を機に日本の朝鮮統治政策が「武断統治」から表面的には融和的な「文化統治」へ転換したことが、実質的な統治政策の改善を意味したか、単なる統治手法の巧妙化にすぎなかったかが論じられる。'} },
+  { id:"provisional_government_korea", name:"大韓民国臨時政府", category:"nation", lat:31.23, lng:121.47, start:1919, end:1945, region:"中国(上海→重慶)", desc:{background:'三一運動という大規模な独立要求運動の高まりが、独立運動を国際的に代表する統一組織樹立の必要性を認識させたことが背景となった。', process:'上海の租界という日本の直接統治の及ばない地で樹立され、初代大統領には李承晩が就任し、以後は資金難・内部対立に苦しみながらも独立運動の象徴的な求心力を保ち続け、日本敗戦後に朝鮮に帰還した。', significance:'この臨時政府の法統(正統性)は現在の大韓民国憲法にも明記されており、韓国という国家の歴史的連続性・正統性の根拠として重要な位置を占め続けている。', debate:'この臨時政府の実効的な統治権・国際的承認の程度が極めて限定的であったことを踏まえ、その後の大韓民国建国における「法統」としての意義をどこまで実質的なものと評価すべきかが論じられる。'} },
+  { id:"korea_division", name:"朝鮮の南北分断", category:"event", lat:38.0, lng:127.0, start:1945, end:1948, region:"朝鮮半島(北緯38度線)", desc:{background:'日本降伏に際し、朝鮮半島における日本軍の武装解除を米ソ両軍が分担する暫定的な軍事的境界線として北緯38度線が設定されたことが、この分断の直接的背景となった。', process:'当初は一時的な軍事分割線とされたが、米ソの統一政府樹立交渉が冷戦の進展とともに決裂し、それぞれの占領地域に別個のイデオロギーに基づく政府(大韓民国・朝鮮民主主義人民共和国)が樹立されて分断が固定化した。', significance:'この分断は1950年の朝鮮戦争を経てさらに深刻化し、今日まで70年以上続く南北分断という東アジア冷戦構造の最も象徴的な遺産であり続けている。', debate:'「暫定的な軍事境界線」がなぜ恒久的な国家分断に転化したのか、米ソ両大国の政策決定における朝鮮民族の意思の不在という問題が、脱植民地化と大国政治の関係を考える上で重要な論点となる。'} },
+  { id:"korean_war", name:"朝鮮戦争", category:"war", lat:37.57, lng:126.98, start:1950, end:1953, region:"朝鮮半島全域", desc:{background:'南北分断という既存の対立構造の中、金日成が武力による朝鮮統一を目指しソ連・中国の支援を取り付けたことが、この戦争の直接的背景となった。', process:'北朝鮮軍の奇襲南進で開戦し、国連軍(実質的に米軍中心)の介入で戦局は逆転したが、中国人民志願軍の参戦により再び戦線は膠着し、1953年の休戦協定(講和条約ではない)により北緯38度線付近を軍事境界線とする現状が固定化された。', significance:'この戦争は冷戦下最初の大規模な「熱戦」として、米ソ・中国という大国が直接・間接に関与する国際紛争となり、今日まで法的には終結していない(休戦状態が続く)という異例の状況を残している。', debate:'この戦争が「法的には今も終結していない」という異例の状態が、今日の朝鮮半島の緊張・核問題にどこまで構造的に影響し続けているかが、平和条約締結の必要性という文脈で論じられる。'} },
+  { id:"kim_il_sung", name:"金日成", category:"person", parentId:"north_korea", lat:39.02, lng:125.75, start:1912, end:1994, region:"朝鮮民主主義人民共和国(平壌)", desc:{background:'満洲における抗日パルチザン活動の経歴が、ソ連占領下での北朝鮮指導者としての地位確立の背景となった。', process:'ソ連の支援のもと朝鮮民主主義人民共和国の指導者となり、朝鮮戦争を主導した後、以後「主体思想」を掲げる独自路線を追求し、権力の個人崇拝・世襲体制(息子金正日への権力継承)を確立した。', significance:'彼が確立した統治体制は死後も「永遠の主席」として法的・思想的な国家指導理念の中核であり続けており、彼を頂点とする個人崇拝は世界でも類例の少ない徹底したものとして国際的にも注目される。', debate:'彼の抗日パルチザン経歴の実際の規模・戦功については、北朝鮮の公式史観による著しい誇張が指摘されており、その史実性の検証は北朝鮮の国家的正統性言説を批判的に検討する上で重要な論点となっている。'} },
+  { id:"north_korea", name:"朝鮮民主主義人民共和国(北朝鮮)", category:"nation", lat:39.02, lng:125.75, start:1948, end:2030, region:"朝鮮半島北部(平壌)", desc:{background:'ソ連占領下の北部において、金日成を中心とする社会主義勢力が実権を確立したことが建国の背景となった。', process:'金日成を首相(後の主席)として樹立され、朝鮮戦争を経て以後は「主体思想」を掲げる独自の社会主義路線と、金日成・金正日・金正恩という三代にわたる世襲的な権力継承体制を確立した。', significance:'社会主義国家でありながら事実上の世襲王朝的性格を持つ稀有な統治体制として、核開発問題を含め東アジア・国際安全保障における最も重要な懸案の一つであり続けている。', debate:'この体制を「独自の社会主義建設の試み」とみるか「個人崇拝に基づく事実上の専制王朝」とみるかで、国際的な評価は大きく分かれ続けている。'} },
+  { id:"south_korea", name:"大韓民国(韓国)", category:"nation", lat:37.57, lng:126.98, start:1948, end:2030, region:"朝鮮半島南部(ソウル)", relatedIds:["syngman_rhee", "park_chung_hee", "gwangju_uprising", "democratization_korea"], desc:{background:'米軍政下での南部単独選挙の実施が、この国家樹立の直接的背景となった。', process:'李承晩を初代大統領に樹立され、朝鮮戦争を経て北の脅威と対峙しながら、朴正煕による開発独裁を経た高度経済成長(「漢江の奇跡」)と、1987年の民主化を経て現在は東アジア屈指の民主主義国家・経済大国へと発展した。', significance:'権威主義的な開発独裁から民主主義への平和的移行と急速な経済発展を同時に達成した稀有な事例として、「圧縮された近代化」のモデルケースとして開発経済学・比較政治学上重要視される。', debate:'朴正煕政権下の開発独裁が経済成長の必要条件であったか、それとも民主主義との両立が可能であったかという「開発と民主主義」の関係についての評価は、現代韓国政治史における最も重要な論争であり続けている。'} },
+  { id:"syngman_rhee", name:"李承晩", category:"person", parentId:"south_korea", lat:37.57, lng:126.98, start:1875, end:1965, region:"大韓民国(ソウル)", desc:{background:'アメリカ留学経験を持つ独立運動家として大韓民国臨時政府の初代大統領を務めた経歴が、解放後の指導的地位獲得の背景となった。', process:'米軍政の支持のもと南部単独選挙を経て大韓民国初代大統領に就任し、朝鮮戦争を指導したが、次第に独裁的傾向を強め不正選挙(1960年)への抗議運動(四月革命)により退陣に追い込まれ、ハワイへ亡命した。', significance:'韓国建国の父としての功績が認められる一方、その晩年の強権的統治・不正選挙は韓国における最初の民主化運動(四月革命)を引き起こす直接の要因となった。', debate:'彼への評価は「建国の父」としての功績と「独裁者」としての負の側面との間で、韓国国内の政治的立場により今も大きく分かれ続けている。'} },
+  { id:"park_chung_hee", name:"朴正煕", category:"person", parentId:"south_korea", lat:37.57, lng:126.98, start:1917, end:1979, region:"大韓民国(ソウル)", desc:{background:'軍人としての経歴と、李承晩政権崩壊(四月革命)後の政治的混乱が、彼の軍事クーデタによる権力掌握の背景となった。', process:'クーデタで実権を握り、輸出主導型の重化学工業化政策を強力に推進して「漢江の奇跡」と呼ばれる高度経済成長を実現する一方、維新体制と呼ばれる権威主義的な長期独裁統治を敷き反体制派を厳しく弾圧したが、1979年に側近により暗殺された。', significance:'「開発独裁」の代表的成功例として、その経済政策は韓国を貧困国から先進工業国へと押し上げる決定的な転換点となったが、この経済的成功と権威主義的統治との関係は比較政治経済学上の重要な論点であり続けている。', debate:'彼の評価は「経済発展の父」としての肯定的評価と「民主主義を抑圧した独裁者」としての否定的評価との間で、韓国国内でも今日まで世代・政治的立場により鋭く分かれ続けている。'} },
+  { id:"gwangju_uprising", name:"光州事件", category:"event", lat:35.16, lng:126.85, start:1980, end:1980, region:"大韓民国(光州)", desc:{background:'朴正煕暗殺後の軍部(全斗煥ら)による新たな権力掌握とこれに対する民主化要求運動の高まりが、この事件の背景となった。', process:'光州の学生・市民による民主化要求デモに対し戒厳軍が武力鎮圧を行い、多数の死傷者(公式発表を大きく上回る犠牲者数が指摘される)を出す事態となった。', significance:'この弾圧への抵抗の記憶は以後の韓国民主化運動の象徴的な原点となり、1987年の民主化(大統領直接選挙制導入)を求める運動の重要な精神的支柱となった。', debate:'この鎮圧作戦へのアメリカの関与(在韓米軍の軍事作戦統制権を通じた黙認・容認の有無)については史料的検証が続けられており、民主化運動における外部大国の責任という問題として国際的にも論じられている。'} },
+  { id:"democratization_korea", name:"韓国の民主化(六月民主抗争)", category:"event", lat:37.57, lng:126.98, start:1987, end:1987, region:"大韓民国(ソウル)", desc:{background:'光州事件の記憶と経済発展に伴う中間層の拡大が、全斗煥政権への民主化要求運動を継続的に高める背景となった。', process:'1987年6月に全国的な民主化要求デモ(六月抗争)が高まり、政府は大統領直接選挙制の導入を含む民主化宣言を余儀なくされ、以後は定期的な選挙による平和的政権交代を実現する民主主義体制へと移行した。', significance:'権威主義的な開発独裁体制から比較的短期間で安定した民主主義体制へ移行した事例として、台湾と並ぶ東アジアにおける民主化の成功例として比較政治学上重要視される。', debate:'経済発展(中間層の拡大)が民主化を促進したとする「近代化論」的な説明と、光州事件のような具体的な抵抗運動の蓄積を重視する説明との間で、この民主化を可能にした主要因についての学術的評価が分かれる。'} },
+  { id:"kim_dae_jung", name:"金大中", category:"person", parentId:"south_korea", lat:37.57, lng:126.98, start:1924, end:2009, region:"大韓民国(ソウル)", desc:{background:'長年の民主化運動指導者として軍事政権下で度重なる迫害(拉致・投獄・死刑判決)を受けた経験が、彼の政治的信念の背景となった。', process:'民主化後の選挙を経て大統領に就任し、北朝鮮への融和的な「太陽政策」を推進して2000年に南北首脳会談を実現させ、同年ノーベル平和賞を受賞したが、この政策の実効性については賛否が分かれた。', significance:'軍事独裁の犠牲者から大統領へと上り詰めた韓国民主化の象徴的存在として、彼の「太陽政策」は南北関係における融和的アプローチの重要な先例となった。', debate:'「太陽政策」が北朝鮮の核開発を実質的に抑止できなかったことから、この融和政策の有効性(体制変化を促す効果があったか、単に時間稼ぎを許しただけか)について、その後の南北関係の展開を踏まえた評価が分かれ続けている。'} },
+
+  // ===================== 日本史(古代) =====================
+  { id:"yayoi_period", name:"弥生時代", category:"event", lat:33.59, lng:130.4, start:-300, end:250, region:"日本(北部九州中心)", desc:{background:'朝鮮半島経由で稲作技術・金属器(青銅器・鉄器)が日本列島に伝来したことが、この時代の社会変容の背景となった。', process:'水稲耕作の普及により定住的な農業共同体が形成され、余剰生産と灌漑用水をめぐる集落間の抗争を通じて階層化・首長制社会が発達し、中国の史書(『漢書』地理志・『魏志』倭人伝)にも倭(日本列島)に関する記述が現れるようになった。', significance:'縄文時代の狩猟採集社会から農耕社会への根本的な転換を遂げ、この時代に形成された階層構造・首長連合は後のヤマト政権(古墳時代)成立の社会的基盤となった。', debate:'稲作・金属器伝来の担い手が朝鮮半島からの渡来人の大規模な移住によるものか、技術のみの伝播で人口構成自体は縄文人が主体であり続けたのかについて、人類学・考古学上の「渡来説」対「変容説」の論争が続いている。'} },
+  { id:"himiko_yamatai", name:"邪馬台国と卑弥呼", category:"person", lat:34.52, lng:135.85, start:180, end:248, region:"日本(所在地は諸説あり)", desc:{background:'倭国内の長期にわたる争乱(倭国大乱)を経て、諸国の共立により女性の呪術的権威を持つ人物が統治者として推戴されたことが、この統治体制の背景となったとされる。', process:'『魏志』倭人伝によれば鬼道(呪術)による統治を行い魏に朝貢して「親魏倭王」の称号と金印を受けたとされるが、その死後は再び内乱が起こり、宗女壱与の共立により収拾されたと伝えられる。', significance:'中国正史に記された日本列島に関する最初期の詳細な記述として、当時の倭国の政治・社会構造を知る貴重な一次史料となっているが、この記述に対応する考古学的実体の特定は今も日本古代史最大の謎の一つである。', debate:'邪馬台国の所在地(畿内説対九州説)は日本考古学・古代史学における最も著名かつ長期にわたる論争であり、この一点が日本古代国家形成史の理解全体を左右する重要な未解決課題となっている。'} },
+  { id:"yamato_kingship", name:"大和政権(ヤマト王権)", category:"nation", lat:34.47, lng:135.82, start:250, end:710, region:"日本(奈良盆地・飛鳥)", relatedIds:["prince_shotoku", "taika_reform"], desc:{background:'弥生時代後期の階層化した首長連合社会の中、畿内(奈良盆地)の勢力が広域的な政治統合を進めたことが、この政権形成の背景となった。', process:'前方後円墳という共通の墳墓形式を通じた同盟関係の構築により各地の有力首長を服属・連携させ、朝鮮半島(百済など)との交流を通じて先進技術・文物を導入しつつ、大王(後の天皇)を中心とする支配体制を次第に確立していった。', significance:'この政権が古代日本国家の直接の起源であり、5世紀の中国南朝への朝貢(倭の五王)の記録は当時の東アジア国際秩序の中でのヤマト政権の位置づけを知る重要な史料となっている。', debate:'ヤマト政権の成立過程・支配の実態(単一の王権による征服統一か、有力豪族連合による緩やかな盟主関係か)については、文字史料の乏しさから考古学的推論に依存する部分が大きく、日本古代国家形成論の中心的論争であり続けている。'} },
+  { id:"prince_shotoku", name:"聖徳太子(厩戸皇子)", category:"person", parentId:"yamato_kingship", lat:34.47, lng:135.82, start:574, end:622, region:"大和政権(飛鳥)", desc:{background:'蘇我氏と物部氏という有力豪族間の権力闘争の中、仏教受容を推進する蘇我氏側に立って政治的実権を確立したことが、彼の統治の背景となった。', process:'推古天皇の摂政として、家柄によらない能力主義的な人材登用を目指す冠位十二階、豪族への道徳的訓戒を説く十七条憲法を制定し、遣隋使を派遣して隋の皇帝に対等な立場を主張する国書(「日出づる処の天子」)を送った。', significance:'仏教を国家統治の理念的支柱として導入し、中国の先進的な政治制度を積極的に取り入れつつも対等な外交姿勢を貫いたことで、日本の律令国家建設と自立的な東アジア外交の礎を築いた。', debate:'近年の実証的な歴史学研究では、『日本書紀』が伝える聖徳太子の事績の多くが後世の理想化・創作を含む可能性が指摘されており、「厩戸王」という実在の人物と後世構築された「聖徳太子」像との異同が重要な研究課題となっている。'} },
+  { id:"taika_reform", name:"大化の改新", category:"event", lat:34.69, lng:135.5, start:645, end:650, region:"大和政権(難波)", desc:{background:'蘇我氏の専横への皇族・中臣鎌足らの危機感と、唐という強大な統一帝国の出現という国際情勢の変化が、この改革の背景となった。', process:'中大兄皇子・中臣鎌足らが蘇我入鹿を暗殺する乙巳の変を経て、公地公民制・班田収授法・租庸調制など唐の律令制度を模範とする中央集権的な国家体制の構築を進めた。', significance:'豪族による私有地・私有民の支配を否定し天皇を中心とする中央集権国家の建設を目指したこの改革は、以後の律令国家体制確立への決定的な出発点となった。', debate:'「大化の改新」という呼称が示す改革の実態(即座に全面的な律令制導入が実現したか、より緩やかな段階的過程であったか)については、木簡など出土史料の研究進展により見直しが進んでいる。'} },
+  { id:"nara_period", name:"奈良時代", category:"dynasty", lat:34.69, lng:135.8, start:710, end:794, region:"日本(平城京)", relatedIds:["emperor_shomu"], desc:{background:'藤原京から平城京への遷都という新たな都城建設が、律令国家体制の本格的な確立を象徴する事業として行われたことが、この時代の始まりの背景となった。', process:'唐の長安を模範とする平城京を中心に律令制度(大宝律令)による中央集権的統治を進め、仏教を国家的に保護(東大寺大仏建立)する一方、遣唐使を通じた文化交流も活発化したが、皇位継承をめぐる政争や道鏡事件などの混乱も経験し、桓武天皇による平安京遷都で終焉した。', significance:'律令国家体制が本格的に確立し、『古事記』『日本書紀』という国家的な歴史書編纂や『万葉集』の成立など、日本独自の文化的アイデンティティ形成の重要な基盤が築かれた時代である。', debate:'この時代の仏教が国家権力と過度に癒着した(道鏡事件に象徴される)ことが、桓武天皇による平安京遷都という新たな政治的出発を必要とさせた主要因であったかどうかが論じられる。'} },
+  { id:"emperor_shomu", name:"聖武天皇", category:"person", parentId:"nara_period", lat:34.69, lng:135.8, start:701, end:756, region:"奈良時代", desc:{background:'天然痘の大流行や飢饉、貴族間の政争(長屋王の変)など相次ぐ社会的動揺への対応として、仏教の鎮護国家思想への強い期待が高まったことが治世の背景となった。', process:'国分寺・国分尼寺を全国に建立させ、その中心として東大寺に盧舎那大仏(奈良の大仏)を造立させる国家的大事業を進め、この造立には行基ら民間僧の協力も得て広範な民衆動員が行われた。', significance:'仏教を国家統治の理念的支柱とする「鎮護国家」思想を体現する事業として、この大仏造立は当時の東アジアでも最大規模の仏教的事業であり、国家財政を大きく圧迫しながらも日本古代仏教文化の頂点を築いた。', debate:'この巨大事業への動員が民衆にもたらした負担(労役・重税)と、その宗教的・文化的意義とをどう総合的に評価すべきか、大規模な国家的建造事業一般の功罪を考える事例として論じられる。'} },
+  { id:"heian_period", name:"平安時代", category:"dynasty", lat:35.01, lng:135.77, start:794, end:1185, region:"日本(平安京=京都)", relatedIds:["fujiwara_michinaga", "genpei_war"], desc:{background:'奈良時代における仏教勢力の政治介入(道鏡事件)や律令制度の形骸化への対応として、新たな都への遷都と統治体制の刷新が求められたことが、この時代の始まりの背景となった。', process:'桓武天皇による平安京遷都を経て、律令制度が次第に形骸化する中で藤原氏による摂関政治が確立し、国風文化(かな文字・『源氏物語』などの女流文学)が花開いたが、地方では武士団が台頭し、院政期を経て平氏政権、さらに鎌倉幕府成立へと移行した。', significance:'約400年に及ぶこの時代に、律令制的な中央集権体制から摂関政治・院政という独自の権力構造、さらに武士の台頭という日本独自の政治的展開が進み、国風文化はその後の日本文化の基層を形成した。', debate:'摂関政治を「天皇権力の形骸化・貴族による権力簒奪」とみるか「天皇と外戚が共存する独自の権力分有システム」とみるかで、この時代の統治構造の性格づけが論じられる。'} },
+  { id:"emperor_kanmu", name:"桓武天皇", category:"person", parentId:"heian_period", lat:35.01, lng:135.77, start:737, end:806, region:"平安時代", desc:{background:'奈良時代における仏教勢力の政治的影響力増大(道鏡事件)への強い警戒感が、新たな都への遷都を志向する背景となった。', process:'仏教勢力の影響が及ばない新天地を求めて長岡京、次いで平安京への遷都を断行し、律令制度の実効性強化にも努めるとともに、坂上田村麻呂を征夷大将軍として派遣し東北地方の蝦夷平定を進めた。', significance:'平安京は以後千年以上にわたり日本の都であり続け(明治維新までの事実上の首都)、その都市計画は現在の京都の基本構造の起源となっている。', debate:'彼の東北蝦夷平定政策が、日本列島における「化外の民」の統合・同化過程としてどのような歴史的意義を持つか、古代日本の対外・対異民族政策の性格づけとして論じられる。'} },
+  { id:"fujiwara_michinaga", name:"藤原道長", category:"person", parentId:"heian_period", lat:35.01, lng:135.77, start:966, end:1027, region:"平安時代(京都)", desc:{background:'藤原氏内部の権力闘争を勝ち抜き、自らの娘たちを次々と天皇の后に立てる巧みな婚姻政策を展開したことが、彼の権力確立の背景となった。', process:'「この世をば我が世とぞ思ふ望月の欠けたることも無しと思へば」の歌に象徴される絶頂期の権勢を築き、外戚として3代の天皇の摂政・関白の実権を握り、藤原氏全盛期を現出した。', significance:'摂関政治の頂点を体現する人物として、彼の時代に紫式部『源氏物語』などの国風文化が花開き、この時代の貴族文化の繁栄は日本文化史上の重要な達成として位置づけられる。', debate:'その絶大な権勢が天皇の権威を実質的にどこまで空洞化させていたか、この摂関政治の権力構造の性格づけが、後の院政開始の歴史的必然性との関連で論じられる。'} },
+  { id:"genpei_war", name:"源平合戦", category:"war", lat:33.96, lng:130.98, start:1180, end:1185, region:"日本全国(壇ノ浦)", desc:{background:'平氏の専横的な政治運営への貴族・寺社・地方武士層の広範な不満が、源氏を中心とする反平氏勢力結集の背景となった。', process:'源頼朝が東国で挙兵し弟義経の軍事的才能もあって各地で平氏軍を撃破し、最終的に壇ノ浦の戦いで平氏一門は幼帝安徳天皇とともに滅亡した。', significance:'この内乱を通じて頼朝は東国に独自の武家政権(後の鎌倉幕府)の基盤を確立し、以後約700年に及ぶ武家政権の時代の実質的な出発点となった。', debate:'頼朝が弟義経を最終的に排除・追討した経緯(義経の独断専行への不満、あるいは頼朝の権力集中への脅威認識)は、武家政権内部の権力構造・忠誠関係のあり方を考える重要な事例として論じられる。'} },
+
+  // ===================== 日本史(中世) =====================
+  { id:"minamoto_yoritomo", name:"源頼朝", category:"person", parentId:"kamakura_shogunate", lat:35.32, lng:139.55, start:1147, end:1199, region:"鎌倉幕府", desc:{background:'父義朝の敗死(平治の乱)後に伊豆へ流されていたが、平氏の専横への不満を背景に挙兵の機会を捉えたことが、彼の台頭の背景となった。', process:'東国武士団の支持を集めて挙兵し弟義経らの活躍で平氏を滅ぼし、後に義経を排除しつつ全国に守護・地頭を設置する権限を朝廷から獲得して独自の武家政権(鎌倉幕府)の基盤を確立した。', significance:'日本史上最初の武家政権(鎌倉幕府)の創始者として、朝廷から自立した独自の統治機構という日本の政治体制における画期的な転換をもたらした。', debate:'弟義経・叔父などの近親者への冷徹な排除・粛清を伴った彼の権力確立過程は、武家政権創始における「血縁の情」と「権力の論理」との緊張関係を示す事例として論じられる。'} },
+  { id:"kamakura_shogunate", name:"鎌倉幕府", category:"dynasty", lat:35.32, lng:139.55, start:1185, end:1333, region:"日本(鎌倉)", relatedIds:["mongol_invasion_japan", "kemmu_restoration"], desc:{background:'源平合戦での勝利を経て、源頼朝が東国に朝廷から自立した独自の武家政権樹立を志向したことが背景となった。', process:'頼朝が征夷大将軍に任じられ御恩と奉公による主従関係(御家人制)に基づく武家政権を樹立し、承久の乱で朝廷方を破って全国的な支配権を確立、執権北条氏による事実上の統治のもと元寇を撃退したが、この防衛戦での恩賞不足への御家人の不満から統治基盤が弱体化し1333年に滅亡した。', significance:'日本史上最初の本格的な武家政権として、以後約700年続く武士による統治という日本独自の政治体制の出発点となり、御恩と奉公による封建的主従関係のモデルを確立した。', debate:'元寇での防衛成功にもかかわらず、恩賞不足(そもそも新たな領土獲得を伴わない防衛戦であったため)への御家人の不満が統治基盤を弱体化させたという逆説は、軍事的勝利と政治的安定が必ずしも一致しないことを示す事例として論じられる。'} },
+  { id:"kemmu_restoration", name:"建武の新政", category:"event", lat:34.36, lng:135.86, start:1333, end:1336, region:"日本(京都・吉野)", desc:{background:'鎌倉幕府の弱体化(元寇後の恩賞不足による御家人の不満)に乗じ、後醍醐天皇が武家政権打倒と天皇親政の復活を目指したことが背景となった。', process:'楠木正成・足利尊氏ら武士の協力を得て鎌倉幕府を滅ぼし天皇親政を復活させたが、公家中心の論功行賞への武士層の強い不満を招き、離反した足利尊氏の挙兵によりわずか2年余りで崩壊し、天皇は吉野へ逃れて南北朝の内乱へと突入した。', significance:'武家政権の中断という日本史上稀な天皇親政復活の試みであったが、その急速な失敗は、鎌倉幕府滅亡後もなお武士階級による統治が不可避であったことを露呈する結果となった。', debate:'この親政復活の失敗を、後醍醐天皇の武士層への配慮を欠いた統治判断の誤りに求めるか、そもそも既に確立していた武家社会の構造を天皇親政では制御し得なかった時代的な必然性に求めるかで議論がある。'} },
+  { id:"ashikaga_takauji", name:"足利尊氏", category:"person", parentId:"muromachi_shogunate", lat:35.01, lng:135.77, start:1305, end:1358, region:"室町幕府", desc:{background:'鎌倉幕府滅亡に貢献したが、後醍醐天皇による天皇親政(建武の新政)が武士の期待に応えられなかったことへの不満が、彼の離反の背景となった。', process:'後醍醐天皇に反旗を翻して京都に新たな天皇(光明天皇)を擁立し、自ら征夷大将軍として室町幕府を開いたが、後醍醐天皇は吉野に逃れて独自の朝廷(南朝)を維持し、以後60年近くに及ぶ南北朝の内乱が続いた。', significance:'鎌倉幕府に続く第二の本格的な武家政権を樹立したが、その正統性(北朝擁立の是非)をめぐる長期の内乱は、日本の統治における「正統性」の複雑さを示す事例となった。', debate:'南北朝の並立という異例の事態が、天皇の権威の絶対性・唯一性という観念にどのような影響を与えたか、この内乱が後世の皇統認識に残した影響が論じられる。'} },
+  { id:"muromachi_shogunate", name:"室町幕府", category:"dynasty", lat:35.01, lng:135.77, start:1336, end:1573, region:"日本(京都・室町)", relatedIds:["onin_war"], desc:{background:'鎌倉幕府滅亡後の建武の新政(後醍醐天皇による天皇親政の試み)への武士層の不満が、足利尊氏による新たな武家政権樹立の背景となった。', process:'足利尊氏が京都に幕府を開き、南北朝の内乱を経て3代将軍義満の代に最盛期(勘合貿易・北山文化)を迎えたが、8代将軍義政期の応仁の乱を機に将軍権威は急速に失墜し、以後戦国時代へと突入した。', significance:'この時代に発展した禅宗文化(水墨画・茶の湯・能楽)は日本の伝統文化の重要な基層を形成し、また守護大名の自立化という現象は日本における中央集権の弱体化と地方分権化の重要な先例となった。', debate:'この幕府の権力基盤の弱さ(有力守護大名への依存)が、鎌倉幕府と比べてどこまで構造的な脆弱性であったか、戦国時代への移行の必然性が論じられる。'} },
+  { id:"ashikaga_yoshimitsu", name:"足利義満", category:"person", parentId:"muromachi_shogunate", lat:35.01, lng:135.77, start:1358, end:1408, region:"室町幕府", desc:{background:'南北朝の内乱による国内の分裂状態を、室町幕府の権威回復を通じて収拾する必要が治世の背景となった。', process:'南北朝の合一を実現して内乱を終結させ、明との勘合貿易(朝貢形式による日明貿易)を開始して経済的利益を得るとともに、京都北山に金閣を建てるなど北山文化と呼ばれる室町文化の最盛期を築いた。', significance:'室町幕府の権威と経済的繁栄を頂点にまで押し上げた将軍として、彼が確立した勘合貿易システムは以後の日本の対外交易における重要な枠組みとなった。', debate:'明皇帝から「日本国王」に冊封されたことを受け入れたこの外交姿勢が、日本の対外的な自立性・独自の国際的地位認識にとってどのような意味を持つものであったかが、東アジア冊封体制論の観点から論じられる。'} },
+  { id:"onin_war", name:"応仁の乱", category:"war", lat:35.01, lng:135.77, start:1467, end:1477, region:"日本(京都)", desc:{background:'室町幕府8代将軍足利義政の後継者をめぐる対立と、有力守護大名(細川氏・山名氏)間の勢力争いが複雑に絡み合ったことが、この内乱の背景となった。', process:'京都を主戦場に東西両軍が11年にわたり激しい市街戦を繰り広げ、京都の大半が焼失する甚大な被害をもたらしたが、明確な勝敗がつかないまま自然消滅的に終息した。', significance:'この戦乱により将軍・幕府の権威は完全に失墜し、以後全国各地で守護大名に代わる新興勢力(戦国大名)が実力によって領国を支配する下克上の戦国時代が本格的に始まった。', debate:'この内乱が「勝者なき戦争」として終わったにもかかわらず、なぜこれほど決定的に中央権威の崩壊と地方分権化(戦国時代)を招いたのか、その構造的な影響力の大きさが論じられる。'} },
+  { id:"sengoku_period", name:"戦国時代(日本)", category:"event", lat:35.01, lng:135.77, start:1467, end:1590, region:"日本全国", desc:{background:'応仁の乱による室町幕府の権威失墜が、各地で守護大名やその家臣が実力で領国支配権を奪う下克上を可能にする政治的空白を生んだことが背景となった。', process:'織田信長・武田信玄・上杉謙信ら有力戦国大名が領国経営(分国法制定・楽市楽座など)と軍事力強化(鉄砲の導入)を競い合い、最終的に織田信長・豊臣秀吉による天下統一事業を経て徳川家康の江戸幕府開設により終結した。', significance:'約1世紀にわたるこの動乱期は、鉄砲伝来を機とする軍事技術革新や、南蛮貿易を通じたヨーロッパとの本格的な接触など、日本史における重要な変革と国際化の時代であった。', debate:'この時代の「下克上」という現象を、単なる無秩序な権力闘争とみるか、実力主義に基づく新たな社会秩序形成への創造的破壊の過程とみるかで、この時代の歴史的評価が分かれる。'} },
+
+  // ===================== 日本史(近世) =====================
+  { id:"oda_nobunaga", name:"織田信長", category:"person", lat:35.13, lng:136.13, start:1534, end:1582, region:"日本(安土)", desc:{background:'尾張の一地方勢力という比較的小さな基盤から出発しながら、既存の権威・慣習にとらわれない革新的な発想を持っていたことが、彼の急速な台頭の背景となった。', process:'桶狭間の戦いでの奇襲勝利を皮切りに勢力を拡大し、鉄砲を効果的に用いた長篠の戦いでの勝利、楽市楽座による経済振興、比叡山焼き討ちなど既存の宗教的権威にも容赦のない姿勢で天下統一事業を進めたが、家臣明智光秀の謀反(本能寺の変)により志半ばで倒れた。', significance:'戦国時代の混乱に終止符を打つ天下統一事業の基礎を築いた革新的指導者として、その政策(楽市楽座・鉄砲の戦術的活用)は後継の豊臣秀吉・徳川家康による統一事業に直接引き継がれた。', debate:'彼を「残虐な独裁者」とみるか「合理的・革新的な近代化の先駆者」とみるかで評価が分かれ、本能寺の変における明智光秀の動機(野心・怨恨・黒幕説など)も日本史上最大級の未解決の謎として論争が続いている。'} },
+  { id:"toyotomi_hideyoshi", name:"豊臣秀吉", category:"person", lat:34.69, lng:135.5, start:1537, end:1598, region:"日本(大坂)", relatedIds:["imjin_war"], desc:{background:'低い身分から織田信長に仕え、その卓越した才覚により重用されるに至った経歴が、本能寺の変後の権力継承の背景となった。', process:'明智光秀を討って信長の後継者としての地位を確立し、太閤検地・刀狩による兵農分離を進めて全国統一を完成させたが、朝鮮出兵(文禄・慶長の役)という無謀な対外遠征は失敗に終わり、その死後まもなく豊臣政権は徳川家康により実権を奪われた。', significance:'農民出身から天下人にまで上り詰めた稀有な立身出世の体現者として、太閤検地・刀狩は近世日本の身分制社会(士農工商)の基盤を確立する画期的な統治政策となった。', debate:'朝鮮出兵という彼の対外政策の失敗を、老齢による判断力の衰えという個人的要因に求めるか、統一後の武士階級の不満のはけ口を求める構造的必要性に求めるかで議論がある。'} },
+  { id:"tokugawa_ieyasu", name:"徳川家康", category:"person", parentId:"edo_shogunate", lat:35.68, lng:139.65, start:1543, end:1616, region:"江戸幕府", desc:{background:'今川氏・織田氏のもとで人質・従属的立場を長く経験した忍耐強い性格が、関ヶ原の戦いでの覇権確立という最終的な成功の背景となったとされる。', process:'関ヶ原の戦いで実権を確立し征夷大将軍として江戸幕府を開き、大坂の陣で豊臣氏を完全に滅ぼして幕藩体制の基礎を固め、参勤交代・鎖国政策など長期安定統治のための諸制度を整備した。', significance:'260年以上続く江戸幕府を開いた創業者として、その統治体制は日本史上最も長期にわたる安定した平和(「パクス・トクガワーナ」)を実現し、この時代の経済・文化的発展の基盤を築いた。', debate:'「鳴くまで待とう」という逸話に象徴される彼の忍耐強い性格が、実際の政治的成功にどこまで直接的に寄与したか、その現実主義的な統治手法の評価とあわせて論じられる。'} },
+  { id:"edo_shogunate", name:"江戸幕府(徳川幕府)", category:"dynasty", lat:35.68, lng:139.65, start:1603, end:1868, region:"日本(江戸)", relatedIds:["sakoku_policy", "shimabara_rebellion", "perry_arrival"], desc:{background:'関ヶ原の戦い・大坂の陣を経て徳川家康が確立した覇権が、長期安定統治のための諸制度整備の背景となった。', process:'参勤交代による大名統制、鎖国政策による対外関係の管理(オランダ・中国・朝鮮・琉球との限定的交流)、身分制度(士農工商)の固定化を通じて260年以上に及ぶ長期の平和と安定を実現したが、19世紀にはペリー来航を機とする開国要求と内政の行き詰まりにより、最終的に大政奉還・王政復古を経て終焉した。', significance:'世界史上稀にみる長期の平和と鎖国による独自の経済・文化発展(元禄文化・化政文化)を実現し、この時代に蓄積された経済的・教育的基盤(識字率の高さなど)は明治維新後の急速な近代化を可能にする重要な土台となった。', debate:'「鎖国」政策を、対外関係を完全に遮断した閉鎖的政策とみるか、長崎・対馬・薩摩・松前という「四つの窓口」を通じた管理された開放性とみるかで、近年の研究では後者の視点が有力になりつつある。'} },
+  { id:"sakoku_policy", name:"鎖国", category:"event", lat:32.75, lng:129.87, start:1639, end:1854, region:"日本(長崎)", desc:{background:'キリスト教の拡大への警戒(信者の忠誠が幕府より教会・海外勢力に向かうことへの懸念)と、貿易利益の幕府による独占的管理という二つの動機が、この政策の背景となった。', process:'段階的にポルトガル船の来航禁止・日本人の海外渡航禁止などの措置を重ね、最終的にオランダ・中国とは長崎出島経由、朝鮮とは対馬藩経由、琉球とは薩摩藩経由、蝦夷地とは松前藩経由という限定的な「四つの口」を通じた管理貿易体制を確立した。', significance:'完全な鎖国ではなく厳格に管理された対外関係の維持であったことが近年の研究で明らかにされており、この体制下でも蘭学(西洋学問)を通じた一定の海外情報・技術の継続的な流入は確保されていた。', debate:'この政策を「日本の近代化を遅らせた閉鎖的政策」と否定的に評価する伝統的な見方に対し、「独自の経済・文化発展を可能にした管理された国際関係」として積極的に再評価する近年の研究動向との間で評価が分かれる。'} },
+  { id:"shimabara_rebellion", name:"島原の乱", category:"war", lat:32.79, lng:130.37, start:1637, end:1638, region:"日本(島原・天草)", desc:{background:'島原・天草地方における過酷な年貢取り立てとキリシタン弾圧への農民の蓄積した不満が、この大規模反乱の背景となった。', process:'少年天草四郎を指導者(象徴的存在)として農民・キリシタンが原城に立てこもり長期の籠城戦を展開したが、幕府の大軍による総攻撃で反乱軍はほぼ全滅した。', significance:'この反乱の鎮圧を機に幕府はキリシタン弾圧・鎖国政策をさらに強化し、以後日本国内で大規模な武装反乱はほぼ発生しない長期の平和(「パクス・トクガワーナ」)の時代に入った。', debate:'この反乱の性格を「純粋な宗教的反乱(キリシタン一揆)」とみるか「過酷な年貢取り立てへの経済的反発が主因の農民一揆」とみるかで、その本質的な性格づけをめぐる議論が続いている。'} },
+  { id:"perry_arrival", name:"黒船来航(ペリー来航)", category:"event", lat:35.25, lng:139.67, start:1853, end:1854, region:"日本(浦賀)", relatedIds:["kanagawa_treaty"], desc:{background:'アメリカが太平洋捕鯨業の補給拠点確保と中国貿易への中継地としての日本開国を強く求めていたことが、この来航の背景となった。', process:'アメリカ東インド艦隊司令長官ペリーが軍艦(黒船)4隻を率いて浦賀に来航しフィルモア大統領の国書を提示、圧倒的な軍事力を背景とした砲艦外交により幕府に開国を迫り、翌年の再来航時に日米和親条約の締結を実現させた。', significance:'200年以上続いた鎖国体制の終焉を告げる決定的な事件として、この開国要求は幕府の権威失墜と尊王攘夷運動の高揚を招き、最終的な江戸幕府崩壊・明治維新への引き金となった。', debate:'この来航がなければ日本の開国・近代化はどのような経路をたどったか、外圧による開国という経験が明治以降の日本の対外認識・国家戦略にどこまで規定的な影響を与えたかが論じられる。'} },
+  { id:"kanagawa_treaty", name:"日米和親条約", category:"treaty", lat:34.68, lng:138.95, start:1854, end:1854, region:"日本(下田)", desc:{background:'ペリーの砲艦外交による軍事的圧力のもと、幕府が開国要求への具体的な対応を迫られたことが、この条約締結の直接的背景となった。', process:'下田・箱館の2港を開いて薪水・食料の供給を認め、アメリカに一方的な最恵国待遇を与える内容で締結されたが、本格的な自由貿易は認めない限定的な開国にとどまった。', significance:'この条約を皮切りに英・露・蘭とも同様の条約が結ばれ、以後1858年の日米修好通商条約(不平等条約)へとつながる、日本の開国過程における最初の一歩となった。', debate:'この条約自体はまだ本格的な不平等条約(治外法権・関税自主権喪失)を含んでいなかったことから、開国過程を段階的なプロセスとして理解する必要性が論じられる。'} },
+
+  // ===================== 日本史(近代) =====================
+  { id:"meiji_restoration", name:"明治維新", category:"revolution", lat:35.01, lng:135.77, start:1867, end:1889, region:"日本(京都・東京)", relatedIds:["emperor_meiji", "satsuma_rebellion"], desc:{background:'度重なる外圧への対応の失敗による幕府権威の失墜と、下級武士を中心とする尊王攘夷運動・倒幕運動の高まりが、この政治的大転換の背景となった。', process:'薩長同盟を軸とする倒幕勢力が大政奉還・王政復古を経て戊辰戦争で旧幕府勢力を破り、天皇を中心とする新政府のもと廃藩置県・四民平等・徴兵制・殖産興業など急速かつ包括的な近代化改革を断行した。', significance:'非西洋世界において自主的に近代国民国家建設を成し遂げた稀有な成功例として、この急速な近代化はわずか数十年で日清・日露戦争に勝利する国力を築き上げ、アジア・アフリカの他の近代化運動にも大きな影響を与えた。', debate:'この近代化の急速な成功要因を、江戸時代に蓄積されていた経済的・教育的基盤(識字率の高さなど)に求めるか、明治政府指導者の卓越した政治的手腕に求めるかで、比較近代化論上の評価が分かれる。'} },
+  { id:"emperor_meiji", name:"明治天皇", category:"person", parentId:"empire_of_japan", lat:35.68, lng:139.65, start:1852, end:1912, region:"大日本帝国(東京)", desc:{background:'幕末の政治的混乱の中、若くして即位したことが、倒幕・新政府樹立という劇的な政治的転換の象徴的中心となる背景となった。', process:'王政復古を経て新政府の名目上の中心として五箇条の御誓文発布・東京遷都を経験し、大日本帝国憲法発布による立憲君主制確立、日清・日露戦争を経た大国化という日本近代化の全過程を統治期間中に見届けた。', significance:'近代日本の国家的アイデンティティの象徴的中心として、その治世(明治時代)は日本が非西洋世界で最も成功した近代化のモデルケースとなった激動の時代の呼称としても用いられ続けている。', debate:'天皇個人の政治的実権の実態(元老・藩閥政治家による実質的な統治との関係)について、立憲君主としての象徴的権威と実際の政治的影響力の程度がどこまでのものであったかが論じられる。'} },
+  { id:"empire_of_japan", name:"大日本帝国", category:"nation", lat:35.68, lng:139.65, start:1868, end:1947, region:"日本(東京)", relatedIds:["meiji_constitution", "sino_japanese_war", "russo_japanese_war", "japan_annex_korea", "kanto_earthquake", "manchurian_incident", "second_sino_japanese_war", "pacific_war"], desc:{background:'明治維新による近代国家建設が、天皇を中心とする立憲君主制国家という統治形態確立の背景となった。', process:'大日本帝国憲法制定により立憲君主制の体裁を整え、日清・日露戦争を経て台湾・朝鮮を植民地化し、満洲事変以降は軍部の台頭により対外拡張路線を強め、太平洋戦争での敗北により1945年に崩壊した。', significance:'非西洋世界で最も成功した近代国民国家建設・帝国主義的拡張の事例として、その興隆と崩壊の過程は近代化・軍国主義化・敗戦という20世紀アジア史の縮図ともいえる軌跡を描いた。', debate:'この帝国の性格を「西欧列強に伍する近代国家建設の成功」と評価するか「アジアへの侵略・植民地支配を伴う軍国主義国家」と評価するかで、日本国内外における歴史認識が今も鋭く対立している。'} },
+  { id:"meiji_constitution", name:"大日本帝国憲法", category:"treaty", lat:35.68, lng:139.65, start:1889, end:1889, region:"大日本帝国(東京)", desc:{background:'自由民権運動の高まりへの対応と、西欧列強との不平等条約改正のためには立憲国家としての体裁を整える必要があるという認識が、この憲法制定の背景となった。', process:'伊藤博文がプロイセン憲法を主として参考にしつつ起草し、天皇主権のもと限定的な議会(帝国議会)と国民の権利(法律の範囲内での)を規定する欽定憲法として発布された。', significance:'アジアで最初期の近代的成文憲法として、天皇に統治権を集中させつつ立憲主義の形式を備えるという独自の統治モデルを確立し、以後の日本の政治体制の基本枠組みを1945年まで規定し続けた。', debate:'この憲法における天皇の統治権の絶対性と、限定的とはいえ議会・国民の権利規定が併存する構造が、実際の運用において立憲主義的抑制と天皇制絶対主義のどちらの性格をより強く帯びていたかについて、憲法史上の評価が分かれる。'} },
+  { id:"satsuma_rebellion", name:"西南戦争", category:"war", lat:31.6, lng:130.56, start:1877, end:1877, region:"日本(鹡児島)", desc:{background:'明治新政府の急速な近代化改革(廃刀令・秩禄処分など)による士族階級の特権喪失と困窮が、旧武士層の不満を高めていたことが背景となった。', process:'西郷隆盛を擁する鹿児島士族が政府への不満から蜂起し、新政府軍と激しい戦闘を繰り広げたが、近代的な徴兵軍を擁する政府軍の前に敗北し西郷は自刃した。', significance:'士族による最後にして最大の武力反乱として、この鎮圧により明治政府の軍事的基盤(徴兵制に基づく近代軍)の優位性が実証され、以後武力による反政府運動は下火となり自由民権運動という言論による政治運動へと不満のはけ口が移行した。', debate:'西郷隆盛という維新の元勲自身が反乱の指導者となったという逆説は、明治維新という近代化事業の内部に存在した理念的対立(急進的近代化への賛否)をどう象徴しているかが論じられる。'} },
+  { id:"saigo_takamori", name:"西郷隆盛", category:"person", parentId:"empire_of_japan", lat:31.6, lng:130.56, start:1828, end:1877, region:"大日本帝国(鹿児島)", desc:{background:'薩摩藩士として倒幕運動を主導した実績が、明治新政府における指導的地位確立の背景となった。', process:'維新の元勲として新政府に参加したが、朝鮮への強硬な外交政策(征韓論)をめぐる対立から政府を去り下野し、最終的には不平士族に擁立される形で西南戦争を起こして敗死した。', significance:'維新の英雄でありながら新政府に反旗を翻したという劇的な生涯から「最後の武士」として日本国内外で広く敬愛される存在となり、その悲劇的な最期は日本人の美意識(判官贔屓)に深く訴える物語として文化的にも大きな影響を残した。', debate:'彼の実像(急進的な対外強硬派か、旧来の武士の名誉を重んじる保守的人物か)については、後世の理想化・美化された物語(特に映画・小説を通じたイメージ形成)とどこまで一致するかが、史実と伝説の関係を考える上で論じられる。'} },
+  { id:"russo_japanese_war", name:"日露戦争", category:"war", lat:38.9, lng:121.6, start:1904, end:1905, region:"満洲・朝鮮・日本海", desc:{background:'満洲・朝鮮半島における日露両国の勢力争いが、この戦争の背景となった。', process:'日英同盟を後ろ盾に開戦し、旅順攻囲戦・奉天会戦・日本海海戦(バルチック艦隊撃破)で勝利を収めたが、国力の限界からポーツマス条約では賠償金を得られず、この結果への国内の不満は日比谷焼き討ち事件を招いた。', significance:'アジアの新興国が欧州の大国に勝利した史上初の事例として世界的な衝撃を与え、この勝利を機に日本は朝鮮への保護国化・韓国併合を推し進める一方、この勝利は後のアジア・アフリカ諸民族の独立運動にも心理的な鼓舞を与えた。', debate:'この勝利がその後の日本の対外拡張路線(軍国主義化)をどこまで不可避なものとして方向づけたか、この戦争の世界史的意義(非白人国家の勝利という象徴性)と国内的帰結(軍部の発言力増大)との関係が論じられる。'} },
+  { id:"kanto_earthquake", name:"関東大震災", category:"event", lat:35.68, lng:139.65, start:1923, end:1923, region:"大日本帝国(東京・横浜)", desc:{background:'関東地方の活発な地震活動という自然地理的条件が、この巨大地震発生の背景にある。', process:'マグニチュード7.9と推定される大地震が東京・横浜を中心に甚大な被害をもたらし、火災による焼死者が犠牲者の大半を占める中、混乱に乗じて朝鮮人・社会主義者への流言飛語に基づく虐殺事件も発生した。', significance:'この震災は東京の都市計画・防災意識に長期的な影響を残す一方、震災時の朝鮮人虐殺は日本近代史における最も深刻な人権侵害・排外主義の事例の一つとして今日まで歴史的検証の対象であり続けている。', debate:'この虐殺における官憲(軍・警察)の関与の程度(積極的な扇動か、流言の黙認・便乗にとどまったか)については史料的検証が続けられており、この事件の歴史的責任の所在をめぐる議論は今も続いている。'} },
+  { id:"manchurian_incident", name:"満州事変", category:"event", lat:41.8, lng:123.43, start:1931, end:1932, region:"満洲(奉天)", relatedIds:["manchukuo"], desc:{background:'満洲における日本の権益(南満洲鉄道など)を関東軍が独自の判断で拡大しようとする軍事的野心が、この事変の背景となった。', process:'関東軍が南満洲鉄道の線路を自ら爆破し(柳条湖事件)これを中国側の犯行と偽って軍事行動を開始、政府・軍中央の統制を逸脱する形で満洲全域を占領し、翌年には傀儡国家満洲国を樹立した。', significance:'この事変は軍部(特に出先の関東軍)による独走が政府の方針を事実上追認させる先例となり、以後の日本の対外政策における文民統制の崩壊と軍国主義化を決定的に加速させる転換点となった。', debate:'この事変における軍中央・政府の事後追認という対応が、なぜ軍の独走を処罰せず容認する結果となったのか、日本の文民統制の構造的欠陥として重要な検討課題となっている。'} },
+  { id:"manchukuo", name:"満州国", category:"nation", lat:43.88, lng:125.32, start:1932, end:1945, region:"満洲(新京=長春)", desc:{background:'満洲事変を通じて満洲を占領した関東軍が、国際的な批判を回避しつつ実質的支配を継続する方策として傀儡国家樹立を企図したことが背景となった。', process:'清朝最後の皇帝溥儀を執政(後に皇帝)として擁立し「五族協和」を建国理念に掲げたが、実権は関東軍が完全に掌握しており、国際連盟のリットン調査団はこれを日本の傀儡国家と認定し、日本は国際連盟を脱退した。', significance:'この国家樹立と国際連盟脱退は日本の国際的孤立を決定づけ、以後の日中戦争・太平洋戦争へと至る対外強硬路線を不可逆的なものとする重要な転換点となった。', debate:'「五族協和」という建国理念の理想主義的側面と、実際の日本による資源収奪・住民統制という植民地主義的実態との乖離が、この国家の性格をめぐる評価の中心的論点である。'} },
+  { id:"pacific_war", name:"太平洋戦争", category:"war", lat:35.68, lng:139.65, start:1941, end:1945, region:"アジア太平洋全域", relatedIds:["atomic_bombings", "japan_surrender"], desc:{background:'日中戦争の長期化に伴う資源不足(特に石油)への対応として、東南アジアの資源地帯確保を目指す南進政策が、この開戦の背景となった。', process:'真珠湾攻撃を機に開戦し緒戦は東南アジア・太平洋の広範囲を制圧したが、ミッドウェー海戦での大敗以降は劣勢に転じ、サイパン陥落による本土空襲の本格化、広島・長崎への原爆投下、ソ連参戦を経て1945年8月に無条件降伏した。', significance:'この戦争は日本本土への大規模空襲・原爆投下という未曾有の惨禍をもたらすとともに、アジア・太平洋地域全体を巻き込んだ悲劇的な戦争として、戦後の国際秩序(国連創設・冷戦構造)の形成にも決定的な影響を残した。', debate:'この戦争の性格づけ(「大東亜共栄圏」建設という理念とアジア諸地域への侵略・収奪という実態との関係)は、日本国内外における戦争責任・歴史認識論争の中心的な論点であり続けている。'} },
+  { id:"tojo_hideki", name:"東条英機", category:"person", parentId:"empire_of_japan", lat:35.68, lng:139.65, start:1884, end:1948, region:"大日本帝国(東京)", desc:{background:'関東軍参謀長などを歴任した軍歴と、対米強硬路線を主張する陸軍内部での影響力拡大が、彼の首相就任の背景となった。', process:'陸軍大臣兼任のまま首相に就任し対米開戦を最終的に決断・遂行したが、戦局の悪化とともに求心力を失い1944年に退陣、戦後は極東国際軍事裁判(東京裁判)でA級戦犯として起訴され死刑判決を受け執行された。', significance:'日本の戦争指導者として国際的に最も強く戦争責任を問われた人物となり、その裁判・処刑は戦後日本の戦争責任のあり方・戦後処理の枠組みを象徴する事例となった。', debate:'東京裁判における彼への戦争責任の帰し方(個人責任か、より広範な国家・軍組織の構造的責任か)は、戦争責任論・東京裁判の正当性をめぐる今日まで続く歴史的・法学的論争の中心的論点である。'} },
+  { id:"atomic_bombings", name:"広島・長崎への原爆投下", category:"event", lat:34.4, lng:132.45, start:1945, end:1945, region:"日本(広島・長崎)", desc:{background:'本土決戦を想定した日本の徹底抗戦の構えと、戦争の早期終結・戦後の対ソ外交上の優位確保を図るアメリカの思惑が、この投下決断の複合的な背景となったとされる。', process:'広島(1945年8月6日)・長崎(同年8月9日)に相次いで原子爆弾が投下され、爆風・熱線・放射線により両市で合わせて推定20万人以上が死亡し、生存者にも長期にわたる放射線障害(被爆後遺症)が残った。', significance:'人類史上初めて実戦で使用された核兵器として、この惨禍は以後の核兵器廃絶運動・核不拡散体制の出発点となり、日本は「唯一の戦争被爆国」として核軍縮を訴え続ける独自の国際的立場を形成した。', debate:'この投下決断の正当性(本土上陸作戦回避による人的犠牲削減という説明と、戦後の対ソ外交上の示威という側面のいずれを重視するか)については、日米間でも歴史認識に大きな相違があり、今日まで最も重要な歴史的・倫理的論争の一つであり続けている。'} },
+  { id:"japan_surrender", name:"日本の降伏・占領", category:"event", lat:35.68, lng:139.65, start:1945, end:1952, region:"日本(東京)", relatedIds:["japan_constitution", "sf_peace_treaty"], desc:{background:'広島・長崎への原爆投下とソ連参戦という複合的な衝撃が、日本政府の降伏決断を最終的に後押ししたことが背景となった。', process:'昭和天皇の「聖断」によりポツダム宣言受諾が決定され、8月15日に天皇自らのラジオ放送(玉音放送)により国民に敗戦が伝えられ、以後連合国軍(実質的にアメリカ)による占領統治が始まった。', significance:'この降伏により日本の帝国主義的拡張は終焉し、以後の連合国占領下での民主化改革(財閥解体・農地改革・新憲法制定)を通じて戦後日本の基本的な国家的性格が形成される画期となった。', debate:'天皇の戦争責任(「聖断」による終戦決定と開戦時の関与との整合性)をめぐる問題は、天皇制の戦後における存続(象徴天皇制)の正当性とも関連する重要な歴史的・政治的論争であり続けている。'} },
+  { id:"japan_constitution", name:"日本国憲法", category:"treaty", lat:35.68, lng:139.65, start:1946, end:1947, region:"日本(東京)", desc:{background:'連合国軍最高司令官総司令部(GHQ)による占領統治のもと、日本の非軍事化・民主化という占領政策の理念を反映した新たな国家基本法制定が求められたことが背景となった。', process:'GHQ民政局が起草した草案を基礎に、天皇主権から国民主権への転換、戦争放棄(第9条)、基本的人権の保障を柱とする新憲法が制定され、大日本帝国憲法からの全面的な改正という形で成立した。', significance:'「平和憲法」として戦後日本の国家的アイデンティティの根幹をなし、第9条による戦力不保持・交戦権否認の規定は世界でも類例の少ない徹底した平和主義を掲げるものとして国際的にも特筆される。', debate:'第9条の解釈(自衛隊の存在・集団的自衛権行使の合憲性)をめぐる論争は、この憲法制定から70年以上を経た現在も日本の安全保障政策における最も重要かつ継続的な政治的・法的争点であり続けている。'} },
+  { id:"sf_peace_treaty", name:"サンフランシスコ講和条約", category:"treaty", lat:35.68, lng:139.65, start:1951, end:1952, region:"アメリカ・サンフランシスコ", desc:{background:'冷戦の進展に伴い、アメリカが占領統治を終結させ日本を西側陣営の一員として再編する必要性を認識したことが、この講和の背景となった。', process:'サンフランシスコで西側諸国との間に締結され、日本の主権回復と引き換えに沖縄・小笠原諸島の米軍統治継続、同時に締結された日米安全保障条約による米軍駐留継続が定められたが、ソ連・中国など一部の交戦国は調印せず「片面講和」という性格を残した。', significance:'この条約により日本は独立主権国家としての地位を回復したが、同時に日米安保体制という戦後日本の対外政策の基本枠組みが確立され、この枠組みは現在まで日本外交・安全保障政策を規定し続けている。', debate:'全交戦国との「全面講和」を求める国内世論(社会党など)と、西側陣営との早期講和を優先する「片面講和」路線(吉田茂政権)との対立は、戦後日本の外交路線選択における重要な政治的論争であった。'} },
+
+  // ===================== 日本史(現代) =====================
+  { id:"postwar_japan_growth", name:"高度経済成長", category:"event", lat:35.68, lng:139.65, start:1955, end:1973, region:"日本", relatedIds:["tokyo_olympics_1964"], desc:{background:'朝鮮戦争特需による経済的刺激と、平和憲法下での軍事費抑制、教育水準の高さという戦前からの蓄積が、この高度経済成長の背景となった。', process:'1950年代半ばから1970年代初頭にかけて年平均10%前後という驚異的な経済成長率を記録し、「三種の神器」に象徴される耐久消費財の普及や新幹線・高速道路網の整備が進み、東京オリンピック(1964年)・大阪万博(1970年)はこの繁栄を国際的に示す象徴的イベントとなった。', significance:'「東洋の奇跡」と呼ばれるこの成長により日本はアメリカに次ぐ世界第二位の経済大国へと発展し、この経験は後の「アジアNIEs」や中国の経済発展モデルにも一定の影響を与えた開発経済学上重要な事例となっている。', debate:'この高度成長を可能にした要因を、政府主導の産業政策(通産省による誘導)に求めるか、企業の自主的な技術革新・輸出努力に求めるかで、日本型経済発展モデルの評価が経済史上論じられ続けている。'} },
+  { id:"tokyo_olympics_1964", name:"東京オリンピック(1964年)", category:"event", lat:35.68, lng:139.65, start:1964, end:1964, region:"日本(東京)", desc:{background:'戦後復興を成し遂げた日本が、国際社会への本格的な復帰と経済的繁栄を世界に示す機会を求めていたことが、この開催誘致の背景となった。', process:'新幹線(東海道新幹線)・高速道路網の整備など大規模なインフラ投資と並行して開催され、アジアで初めてのオリンピック開催として日本の技術力・組織力を世界に印象づけた。', significance:'「戦後」から「経済大国」への転換を象徴する国家的イベントとして、この大会は日本の国際的信頼回復と高度経済成長のさらなる加速を内外に強く印象づける画期的な意義を持った。', debate:'この大会に向けた巨額のインフラ投資が、その後の日本の都市開発・国土計画のあり方(東京一極集中の加速など)にどこまで長期的な影響を残したかが論じられる。'} },
+  { id:"bubble_economy", name:"バブル経済とその崩壊", category:"event", lat:35.68, lng:139.65, start:1986, end:1991, region:"日本", desc:{background:'1985年のプラザ合意による急激な円高への対応として、日銀が低金利政策を続けたことが、過剰な投機資金の流入を招いた背景となった。', process:'株式・不動産価格が実体経済とかけ離れた水準まで異常に高騰し「土地神話」に基づく投機が蔓延したが、日銀の金融引き締めへの転換を機に1990年代初頭にバブルは崩壊し、以後「失われた10年(20年)」と呼ばれる長期の経済停滞に陥った。', significance:'資産価格の投機的高騰とその崩壊が、その後の日本経済に金融機関の不良債権問題・デフレーションという長期的な構造的課題を残した、資産バブルの形成と崩壊の典型的かつ重要な世界的事例となっている。', debate:'バブル崩壊後の長期停滞(「失われた時代」)の主因を、政府・日銀の金融政策対応の遅れに求めるか、バブル期に蓄積された構造的な過剰債務・過剰設備という問題自体に求めるかで、経済政策論上の議論が続いている。'} },
+  { id:"kobe_earthquake", name:"阪神・淡路大震災", category:"event", lat:34.69, lng:135.2, start:1995, end:1995, region:"日本(神戸)", desc:{background:'都市直下型地震への防災対策の想定が不十分であった状況の中、活断層の活動によりこの大地震が発生した。', process:'神戸市を中心にマグニチュード7.3の直下型地震が発生し、老朽化した木造住宅の倒壊・大規模火災により6000人以上の犠牲者を出す戦後最大級の都市災害となり、初動対応の遅れも大きな批判を招いた。', significance:'この震災を機に日本の防災体制(建築基準法の耐震基準強化、ボランティア活動の制度化)が大きく見直され、市民社会によるボランティア活動の重要性が広く認識される契機ともなった。', debate:'この震災における政府・自治体の初動対応の遅れ(自衛隊出動の遅延など)は、日本の災害対応における官僚機構の意思決定システムの構造的課題として、以後の防災政策見直しの重要な出発点となった。'} },
+  { id:"tohoku_earthquake", name:"東日本大震災", category:"event", lat:38.06, lng:141.36, start:2011, end:2011, region:"日本(東北地方太平洋沖)", desc:{background:'太平洋プレートの沈み込み帯における巨大地震発生のリスクが、防災上想定されていた規模を大きく超える形で現実化したことが背景となった。', process:'マグニチュード9.0の巨大地震とそれに伴う大津波が東北地方太平洋岸を襲い、1万8000人以上の死者・行方不明者を出すとともに、東京電力福島第一原子力発電所で炉心溶融を伴う深刻な原発事故を引き起こした。', significance:'この複合災害(地震・津波・原発事故)は日本の防災・エネルギー政策の根本的な見直しを迫り、世界的にも原子力発電の安全性・エネルギー政策のあり方について再考を促す転換点となった。', debate:'福島第一原発事故における「想定外」という説明の妥当性(過去の津波記録を踏まえた対策が本当に不可能であったか)をめぐる議論は、原子力政策における安全性評価・リスク管理のあり方についての重要かつ継続的な検証課題であり続けている。'} },
+];
+
+/* =========================================================================
+   カテゴリ設定
+   ========================================================================= */
+const CATEGORY_CONFIG = {
+  person:     { label:'人物',       color:'#c0554a' },
+  nation:     { label:'国家',       color:'#3f7ea6' },
+  dynasty:    { label:'王朝',       color:'#8259ac' },
+  event:      { label:'事件・出来事', color:'#c99a4a' },
+  war:        { label:'戦争・戦い',  color:'#8a3a3a' },
+  revolution: { label:'革命',       color:'#3f8f74' },
+  treaty:     { label:'条約',       color:'#7a6a52' },
+};
+
+/* =========================================================================
+   年号の表示フォーマット
+   ========================================================================= */
+function formatYear(y){
+  y = Math.round(y);
+  if(y < 0) return `紀元前${Math.abs(y)}年`;
+  if(y === 0) return `紀元1年`;
+  return `西暦${y}年`;
+}
+function formatYearShort(y){
+  y = Math.round(y);
+  if(y < 0) return `前${Math.abs(y)}`;
+  return `${y}`;
+}
+
+/* =========================================================================
+   地図の初期化
+   ========================================================================= */
+const map = L.map('map', {
+  center:[36, 118],
+  zoom:4,
+  minZoom:2,
+  maxZoom:12,
+  worldCopyJump:true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19,
+}).addTo(map);
+
+const markerLayer = L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 11,
+  iconCreateFunction: function(cluster){
+    return L.divIcon({
+      html: `<div class="cluster-badge">${cluster.getChildCount()}</div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: L.point(32, 32),
+    });
+  },
+}).addTo(map);
+const markerById = {}; // id -> {marker, entry}
+
+/* =========================================================================
+   フィルタ状態
+   ========================================================================= */
+const activeCategories = new Set(Object.keys(CATEGORY_CONFIG));
+let searchTerm = '';
+
+/* =========================================================================
+   サイドバー: フィルタリスト生成
+   ========================================================================= */
+const filterListEl = document.getElementById('filterList');
+Object.entries(CATEGORY_CONFIG).forEach(([key, cfg])=>{
+  const count = historicalData.filter(d=>d.category===key).length;
+  const row = document.createElement('label');
+  row.className = 'filter-row';
+  row.innerHTML = `
+    <input type="checkbox" data-cat="${key}" checked>
+    <span class="swatch" style="background:${cfg.color}"></span>
+    <span class="fname">${cfg.label}</span>
+    <span class="fcount">${count}</span>
+  `;
+  filterListEl.appendChild(row);
+});
+filterListEl.addEventListener('change', (e)=>{
+  const cb = e.target;
+  if(cb.type !== 'checkbox') return;
+  const cat = cb.dataset.cat;
+  if(cb.checked) activeCategories.add(cat);
+  else activeCategories.delete(cat);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = true;
+    activeCategories.add(cb.dataset.cat);
+  });
+  updateMap();
+});
+document.getElementById('selectNoneBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+  });
+  activeCategories.clear();
+  updateMap();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  updateMap();
+});
+
+/* =========================================================================
+   詳細パネル
+   ========================================================================= */
+const detailPanel = document.getElementById('detailPanel');
+const detailContent = document.getElementById('detailContent');
+
+let currentDetailEntry = null;
+
+function getCurrentYear(){
+  return parseInt(document.getElementById('yearSlider').value, 10);
+}
+
+// entry(国家・王朝・事件など)に紐づく人物、および entry.relatedIds で明示的に
+// リンクされた国家・王朝(同盟/敵対関係)・事件・戦争・革命・条約などを、
+// 年代に関わらず全て取得(古い順)。表示中のジャンルでフィルタする。
+function getRelatedItems(entry){
+  if(activeCategories.size === 0) return null;
+
+  const byParent = historicalData.filter(p => p.category === 'person' && p.parentId === entry.id);
+
+  const explicitIds = entry.relatedIds || [];
+  const byExplicit = explicitIds
+    .map(id => historicalData.find(d => d.id === id))
+    .filter(Boolean);
+
+  const merged = [...byParent];
+  for(const item of byExplicit){
+    if(item.id !== entry.id && !merged.some(m => m.id === item.id)) merged.push(item);
+  }
+
+  return merged
+    .filter(d => activeCategories.has(d.category))
+    .sort((a,b)=> a.start - b.start);
+}
+
+function showDetail(entry, parentEntry){
+  currentDetailEntry = entry;
+  const cfg = CATEGORY_CONFIG[entry.category];
+
+  const backHtml = parentEntry
+    ? `<button class="back-btn" data-back-id="${parentEntry.id}">← ${parentEntry.name} に戻る</button>`
+    : '';
+
+  let relatedHtml = '';
+  {
+    const related = getRelatedItems(entry);
+    if(related !== null){
+      if(related.length > 0){
+        const items = related.map(p => {
+          const pCfg = CATEGORY_CONFIG[p.category];
+          return `
+          <li class="person-list-item" data-person-id="${p.id}">
+            <span class="person-name"><span class="related-cat-badge" style="background:${pCfg.color}">${pCfg.label}</span>${p.name}</span>
+            <span class="person-years">${formatYear(p.start)} 〜 ${formatYear(p.end)}</span>
+          </li>`;
+        }).join('');
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語(${related.length}件・古い順)</h4>
+            <ul>${items}</ul>
+          </div>`;
+      } else {
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語</h4>
+            <div class="related-persons-empty">関連する用語データはありません。</div>
+          </div>`;
+      }
+    }
+  }
+
+  const metaLabel = entry.category === 'person' ? '活躍した年代(生没年)' : '時期';
+
+  detailContent.innerHTML = `
+    ${backHtml}
+    <span class="detail-badge" style="background:${cfg.color}">${cfg.label}</span>
+    <h3>${entry.name}</h3>
+    <div class="detail-meta">
+      <div>${metaLabel}: ${formatYear(entry.start)} 〜 ${formatYear(entry.end)}</div>
+      <div>地域: ${entry.region || '—'}</div>
+    </div>
+    ${renderDesc(entry.desc)}
+    ${relatedHtml}
+  `;
+  detailPanel.classList.remove('hidden');
+}
+
+const DESC_SECTION_CONFIG = [
+  { key:'background',    label:'背景(なぜ起きたか)',           cls:'sec-background' },
+  { key:'process',       label:'経過(何が決定的だったか)',       cls:'sec-process' },
+  { key:'significance',  label:'意義・影響(何を変えたか)',       cls:'sec-significance' },
+  { key:'debate',        label:'論点・史学上の論争',             cls:'sec-debate' },
+];
+
+function renderDesc(desc){
+  if(!desc) return '';
+  if(typeof desc === 'string'){
+    return `<p>${desc}</p>`;
+  }
+  const sections = DESC_SECTION_CONFIG
+    .filter(sec => desc[sec.key])
+    .map(sec => `
+      <div class="desc-section ${sec.cls}">
+        <span class="desc-label">${sec.label}</span>
+        <p class="desc-text">${desc[sec.key]}</p>
+      </div>`)
+    .join('');
+  return `<div class="desc-sections">${sections}</div>`;
+}
+
+// 動的に生成される「戻る」ボタン・人物リスト項目のクリックをイベント委譲で処理
+detailContent.addEventListener('click', (e)=>{
+  const personItem = e.target.closest('.person-list-item');
+  if(personItem){
+    const person = historicalData.find(d => d.id === personItem.dataset.personId);
+    if(person) showDetail(person, currentDetailEntry);
+    return;
+  }
+  const backBtn = e.target.closest('.back-btn');
+  if(backBtn){
+    const parent = historicalData.find(d => d.id === backBtn.dataset.backId);
+    if(parent) showDetail(parent);
+    return;
+  }
+});
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailPanel.classList.add('hidden');
+});
+
+/* =========================================================================
+   マーカー描画・年代フィルタリング
+   ========================================================================= */
+function createMarker(entry){
+  const cfg = CATEGORY_CONFIG[entry.category];
+  const marker = L.circleMarker([entry.lat, entry.lng], {
+    radius:7,
+    weight:2,
+    color:'#f3ecdc',
+    fillColor:cfg.color,
+    fillOpacity:0.92,
+  });
+  marker.bindTooltip(entry.name, {
+    permanent:true,
+    direction:'right',
+    offset:[9,0],
+    className:'entry-label',
+  });
+  marker.on('click', ()=> showDetail(entry));
+  return marker;
+}
+
+function updateMap(){
+  const year = parseInt(document.getElementById('yearSlider').value, 10);
+  document.getElementById('yearDisplay').textContent = formatYear(year);
+
+  markerLayer.clearLayers();
+  let visibleCount = 0;
+  const term = searchTerm.toLowerCase();
+
+  historicalData.forEach(entry=>{
+    if(!activeCategories.has(entry.category)) return;
+    if(year < entry.start || year > entry.end) return;
+    if(term && !entry.name.toLowerCase().includes(term)) return;
+    // 国家・王朝に紐づく人物は、そのピンをクリックした先の一覧からのみ表示する
+    if(entry.category === 'person' && entry.parentId) return;
+    const marker = createMarker(entry);
+    markerLayer.addLayer(marker);
+    visibleCount++;
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+/* =========================================================================
+   年表(タイムライン)スライダー
+   ========================================================================= */
+const yearSlider = document.getElementById('yearSlider');
+yearSlider.addEventListener('input', updateMap);
+
+// 目盛り(500年刻み)を生成
+const ticksEl = document.getElementById('ticks');
+const MIN_YEAR = -2100, MAX_YEAR = 2030;
+for(let y = MIN_YEAR; y <= MAX_YEAR; y += 500){
+  const pct = (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+  const tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = pct + '%';
+  tick.textContent = formatYearShort(y);
+  ticksEl.appendChild(tick);
+}
+
+/* =========================================================================
+   再生(自動再生)機能
+   ========================================================================= */
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+let playing = false;
+let playTimer = null;
+
+function startPlaying(){
+  playing = true;
+  playBtn.textContent = '⏸ 停止';
+  playTimer = setInterval(()=>{
+    const step = parseInt(speedSelect.value, 10);
+    let v = parseInt(yearSlider.value, 10) + step;
+    if(v > MAX_YEAR){ v = MIN_YEAR; }
+    yearSlider.value = v;
+    updateMap();
+  }, 180);
+}
+function stopPlaying(){
+  playing = false;
+  playBtn.textContent = '▶ 再生';
+  clearInterval(playTimer);
+}
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlaying();
+  else startPlaying();
+});
+
+/* =========================================================================
+   初期描画
+   ========================================================================= */
+updateMap();
+
+</script>
 </body>
 </html>

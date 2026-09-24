@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中東・南アジア史地図 — 世界史探究</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+<style>
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
+
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
+
+    --header-h:68px;
+    --footer-h:104px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
+
+  a{color:var(--gold-strong);}
+
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
+
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ---------- Header ---------- */
+  #app-header{
+    height:var(--header-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
+
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
+
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
+
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
+
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
+
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+  }
+  .entry-label::before{ display:none; }
+
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
+
+  /* Detail panel */
+  #detailPanel{
+    width:340px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-340px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .desc-sections{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .desc-section{
+    padding-left:12px;
+    border-left:3px solid var(--line-parchment);
+  }
+  .desc-section.sec-background{ border-left-color:#3f7ea6; }
+  .desc-section.sec-process{ border-left-color:#c99a4a; }
+  .desc-section.sec-significance{ border-left-color:#3f8f74; }
+  .desc-section.sec-debate{ border-left-color:#8a3a3a; }
+  .desc-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .desc-section.sec-background .desc-label{ color:#3f7ea6; }
+  .desc-section.sec-process .desc-label{ color:#a67c2e; }
+  .desc-section.sec-significance .desc-label{ color:#2f7358; }
+  .desc-section.sec-debate .desc-label{ color:#8a3a3a; }
+  .desc-text{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    margin:0;
+  }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
+
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
+
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
+
+  /* Footer timeline */
+  #timeline{
+    height:var(--footer-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
+
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
+
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <header id="app-header">
+    <div>
+      <h1>中東・南アジア史 地図で学ぶ世界史</h1>
+      <p class="subtitle">紀元前3500年 〜 西暦2026年 ・ 高校世界史探究 学習用</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">紀元前500年</span>
+    </div>
+  </header>
+
+  <div id="main">
+
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
+
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
+
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: サラディン、アショーカ王">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-3500" max="2026" step="1" value="-500">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   中東・南アジア史 地図アプリ — データ本体
+   -------------------------------------------------------------------------
+   ジャンル(category)は以下の7種:
+     person     人物
+     nation     国家
+     dynasty    王朝
+     event      事件・出来事
+     war        戦争・戦い
+     revolution 革命
+     treaty     条約
+
+   各エントリの形式:
+   {
+     id:       一意の文字列ID
+     name:     表示名(日本語)
+     category: 上記7種のいずれか
+     lat, lng: 地図上の座標(代表都市・場所)
+     start:    存在/在位/発生開始年(西暦。紀元前はマイナスで表現。例: 紀元前500年 = -500)
+     end:      終了年(単発の出来事は start と同じか、数年程度の幅を持たせる)
+     region:   地域・国名の補助タグ
+     desc:     詳細説明文
+   }
+
+   ★ データは今後、時代・地域ごとに分割して追加していきます。
+     新しいブロックを追加する際は、この配列に要素を push する形で
+     どんどん拡張できます(下記はコメントで時代ごとに区切り済み)。
+   ========================================================================= */
+
+const historicalData = [
+
+  // ===================== 古代メソポタミア・アナトリア・エジプト =====================
+  { id:'sumer', name:'シュメール(都市国家群)', category:'nation', lat:31.32, lng:45.64, start:-3500, end:-2000, region:'メソポタミア南部(現イラク南部)',
+    desc:{background:'ティグリス・ユーフラテス両河の下流域という乾燥地帯で、大規模な灌漑農業により余剰穀物生産が可能となったことが、都市国家群の形成を支える経済的基盤となった。', process:'ウル・ウルク・ラガシュなど独立した都市国家が神殿を中心とする祭祀・行政組織(神権政治)のもとで並立・抗争を繰り返し、楔形文字による記録・法典編纂・車輪の使用などの技術革新を生み出した。', significance:'世界最古の文字体系(楔形文字)と都市文明を築いた点で「文明のゆりかご」と呼ばれ、後のアッカド・バビロニアなどメソポタミア諸文明の制度的・宗教的基盤を提供した。', debate:'統一王権を持たない都市国家並立体制がなぜ長期にわたり存続し得たか、また周辺のセム系民族(アッカド人)との文化的継承・断絶の実態がどこまで解明できるかが議論される。'} },
+  { id:'akkadian_empire', name:'アッカド帝国', category:'nation', lat:32.54, lng:44.42, start:-2334, end:-2154, region:'メソポタミア(現イラク)',
+    desc:{background:'シュメールの都市国家群が抗争を繰り返す中、セム系のアッカド人サルゴンが軍事的統一を目指したことが建国の背景となった。', process:'シュメールの諸都市国家を征服して人類史上最初期の中央集権的な領域国家を樹立し、常備軍と行政官僚制度による統治を確立したが、内乱と異民族(グティ人)の侵入により約150年で崩壊した。', significance:'都市国家の枠を超えた「帝国」という統治形態の先駆例として、後のメソポタミア諸帝国(アッシリア・バビロニアなど)の統治モデルの原型を提供した。', debate:'崩壊の原因を外敵の侵入のみに帰すか、気候変動による農業生産力の低下という環境要因も重視すべきかで近年の古気候学的研究をめぐり議論がある。'} },
+  { id:'sargon_akkad', name:'サルゴン(アッカドのサルゴン)', category:'person', parentId:'akkadian_empire', lat:32.54, lng:44.42, start:-2334, end:-2279, region:'アッカド帝国',
+    desc:{background:'出自不明の低い身分から身を起こしたとされる伝承が、後世彼を「実力による統治者」の理想像として神話化する土壌となった。', process:'シュメールの諸都市国家を次々と征服して統一し、アッカドを都に人類史上最初の常備軍を用いた領域国家を樹立、その版図はペルシア湾から地中海沿岸にまで及んだとされる。', significance:'「世界征服者」の原型として後のメソポタミア諸王(アッシリア王など)に理想の統治者像として長く参照され続けた。', debate:'彼の事績を伝える後代の記録には神話的脚色が多く含まれるため、実際の版図・統治の実態がどこまで史実かは史料批判上の重要な課題である。'} },
+  { id:'babylon_first_dynasty', name:'古バビロニア王国(バビロン第1王朝)', category:'nation', lat:32.54, lng:44.42, start:-1894, end:-1595, region:'メソポタミア(バビロン)',
+    desc:{background:'アッカド帝国崩壊後のメソポタミアで諸勢力が分立する中、アムル人(アモリ人)の一派がユーフラテス川中流の要衝バビロンを拠点に台頭したことが背景となった。', process:'6代目のハンムラビ王のもとで周辺諸国を征服し全メソポタミアを統一する古バビロニア王国の最盛期を迎えたが、彼の死後まもなく求心力を失い、ヒッタイトの遠征を機に滅亡した。', significance:'ハンムラビ法典に代表される法治の伝統を確立し、バビロンは以後1000年以上にわたりメソポタミア文明の中心都市であり続けた。', debate:'この王朝の急速な弱体化の要因を、ハンムラビ個人のカリスマへの依存度の高さに求めるか、灌漑農業の生産力低下という構造的問題に求めるかで議論がある。'} },
+  { id:'hammurabi', name:'ハンムラビ(ハンムラビ王)', category:'person', parentId:'babylon_first_dynasty', lat:32.54, lng:44.42, start:-1792, end:-1750, region:'古バビロニア王国',
+    desc:{background:'父祖から受け継いだ比較的小規模な都市国家バビロンを足がかりに、周辺の有力都市国家(マリ・エシュヌンナなど)との抗争を勝ち抜く必要があったことが治世の背景となった。', process:'巧みな外交(同盟の使い分け)と軍事行動により周辺諸国を次々と征服し全メソポタミアを統一する古バビロニア王国の最盛期を築き、法典編纂・灌漑事業・神殿修復など内政面でも精力的な統治を行った。', significance:'ハンムラビ法典は成文法による統治という理念を後世に伝え、その「目には目を」の応報原則は今日でも法思想史上広く言及される。', debate:'法典が実際にどこまで現実の司法運用に適用されたか(理念の表明にとどまったか実効性を持ったか)は、楔形文字文書研究における重要な論争点である。'} },
+  { id:'code_of_hammurabi', name:'ハンムラビ法典', category:'treaty', lat:32.54, lng:44.42, start:-1754, end:-1754, region:'バビロン(古バビロニア王国)',
+    desc:{background:'統一されたばかりの広大な版図を、地域ごとに異なる慣習法ではなく統一的な法規範のもとで統治する必要が、法典編纂の背景となった。', process:'石碑に刻まれた282条の条文は身分(自由人・奴隷)や被害の性質に応じて刑罰を細かく規定し、「目には目を、歯には歯を」に象徴される同害復讐(タリオ)の原則を明文化した。', significance:'現存する世界最古級の体系的法典として、成文法による統治という理念の起源を示し、後の古代オリエント・地中海世界の法思想に大きな影響を残した。', debate:'身分によって刑罰の重さが異なる規定は「平等な正義」という近代法理念とは相容れないが、当時としてこれをどう評価すべきか(恣意的支配への歯止めという進歩性を重視するか)が論じられる。'} },
+  { id:'hittite_empire', name:'ヒッタイト新王国', category:'nation', lat:40.02, lng:34.61, start:-1650, end:-1180, region:'アナトリア中央部',
+    desc:{background:'アナトリア高原という鉄鉱石産地に位置したことが、この文明が鉄製武器・戦車技術で軍事的優位を築く基盤となった。', process:'早期に鉄器使用の技術を確立して軍事的優位を築き、古バビロニア王国を滅ぼすなど勢力を拡大し、最盛期には古代エジプトと肩を並べる大国としてカデシュの戦いで激突したが、後に「海の民」の侵入とされる混乱により前12世紀頃に急速に崩壊した。', significance:'鉄器文明の先駆者として、その技術・製法は「海の民」の混乱による帝国崩壊後に周辺地域へ拡散し、地中海世界における鉄器時代の本格的な到来を準備したとされる。', debate:'鉄器技術の独占が崩壊後にどのように周辺世界へ拡散したか(意図的な技術移転か、混乱に伴う技術者の離散によるものか)が技術史上の重要な論点となっている。'} },
+  { id:'ancient_egypt', name:'古代エジプト(ファラオの時代)', category:'nation', lat:30.04, lng:31.24, start:-3100, end:-30, region:'エジプト(ナイル川流域)',
+    desc:{background:'ナイル川の定期的氾濫がもたらす肥沃な沖積土壌と、周囲を砂漠に囲まれた外敵からの天然の防御という地理的条件が、安定した長期文明形成の基盤となった。', process:'上下エジプトの統一(前3000年頃)以降、古王国(ピラミッド建設)・中王国・新王国という周期的な統一と分裂を繰り返しながら3000年近く独自の文明を維持し、ヒエログリフ・太陽神信仰・ファラオを神格化する王権理念を発展させたが、末期には度重なる異民族支配を経てプトレマイオス朝を最後に前30年にローマに併合された。', significance:'ピラミッド・神殿建築や暦法・医学など高度な文明的達成は後の地中海世界(ギリシア・ローマ)にも大きな影響を与え、ヒエログリフ解読(ロゼッタストーン)を通じて近代エジプト学という学問分野を生み出した。', debate:'3000年もの長期にわたり基本的な統治理念・文化が維持され続けた要因を、地理的孤立性に求めるか、ナイル川という単一の生命線に依存する社会構造の安定性に求めるかで議論がある。'} },
+  { id:'ramesses_ii', name:'ラムセス2世', category:'person', parentId:'ancient_egypt', lat:30.04, lng:31.24, start:-1303, end:-1213, region:'古代エジプト新王国',
+    desc:{background:'父セティ1世の代からのヒッタイトとの対立(シリア方面の覇権争い)が、彼の治世における大規模な軍事行動の背景となった。', process:'カデシュの戦いでヒッタイトと激突したが決定的勝敗はつかず、後に史上初の国際和平条約とされるエジプト・ヒッタイト平和条約を締結し、アブシンベル神殿など数多くの巨大建造物を建設した。', significance:'60年を超える長期の治世で古代エジプト新王国の最盛期を体現し、「大王(ラメセス大王)」として後世まで最も著名なファラオの一人となった。', debate:'カデシュの戦いの結果を自身の勝利として大々的に喧伝した碑文の記述と、実際の戦況(引き分けに近い)との乖離は、古代王権のプロパガンダのあり方を考える好例として論じられる。'} },
+  { id:'battle_of_kadesh', name:'カデシュの戦い', category:'war', lat:34.57, lng:36.50, start:-1274, end:-1274, region:'シリア(オロンテス川流域)',
+    desc:{background:'シリア方面の覇権をめぐるエジプト新王国とヒッタイト帝国との長年の対立が、この決戦の背景となった。', process:'ラメセス2世率いるエジプト軍がヒッタイト軍の待ち伏せにより一時窮地に陥ったが、援軍の到着により辛くも壊滅を免れ、戦闘自体は実質的に引き分けに終わった。', significance:'この戦いの詳細は双方の記録(エジプト側のレリーフ・ヒッタイト側の粘土板文書)が現存する史上最初期の戦争であり、双方の史料を比較できる稀有な事例として軍事史研究上重要である。', debate:'エジプト側の記録がラメセス2世の個人的武勇による勝利として誇張しているのに対し、実際の戦況分析からは痛み分けに近かったとされ、勝敗の実態と記録上の演出との乖離が論じられる。'} },
+  { id:'egypt_hittite_treaty', name:'エジプト・ヒッタイト平和条約', category:'treaty', lat:34.57, lng:36.50, start:-1259, end:-1259, region:'シリア',
+    desc:{background:'カデシュの戦いで決着がつかなかった後も両国の対立が長期化し、双方とも第三勢力(アッシリアなど)の台頭という共通の脅威に直面していたことが、和平締結の背景となった。', process:'エジプトとヒッタイトの間で相互不可侵と軍事同盟を定める条約が締結され、銀板に刻まれた条文の写しが両国の言語で作成された。', significance:'現存する人類史上最古の国際和平条約として、その内容(相互不可侵・軍事同盟・逃亡者の引き渡し)は近代の国際条約の原型ともいえる先駆的な国際法の実践例である。', debate:'この条約の写しが国連本部にも展示されるなど「人類最古の平和の実践」として称揚される一方、実際には両国とも第三の脅威(アッシリア台頭)への対処という現実的計算に基づく同盟であった側面も重視すべきとの指摘がある。'} },
+  { id:'assyrian_empire', name:'アッシリア帝国(新アッシリア)', category:'nation', lat:36.36, lng:43.15, start:-911, end:-609, region:'メソポタミア北部(現イラク北部)',
+    desc:{background:'ティグリス川上流の乏しい農業基盤を補うため、早くから軍事力による周辺地域からの収奪・交易統制に依存する国家性格を発展させたことが背景となった。', process:'鉄製武器・戦車・攻城技術に優れた常備軍と、征服地の住民を強制移住させて反乱を防ぐ統治手法により、最盛期にはエジプトを含む古代オリエント世界のほぼ全域を統一する史上初の「世界帝国」を築いたが、過酷な統治への反発から複数の被征服民族が連携して反乱を起こし前612年に都ニネヴェが陥落し急速に崩壊した。', significance:'史上初めて古代オリエント世界全域を統一した「世界帝国」として、その中央集権的な統治システム(駅伝制・属州制)は後のペルシア帝国の統治モデルの先例となった。', debate:'アッシリアの統治は「残虐な征服帝国」として旧約聖書などに描かれ長く否定的に評価されてきたが、近年の考古学研究は行政・交易・学術(ニネヴェの図書館)における先進性も重視し評価の見直しが進んでいる。'} },
+  { id:'ashurbanipal', name:'アッシュールバニパル', category:'person', parentId:'assyrian_empire', lat:36.36, lng:43.15, start:-685, end:-627, region:'アッシリア帝国',
+    desc:{background:'拡大しきった帝国の統治体制の集大成として、行政・軍事のみならず学術・文化面でも帝国の威信を示す事業が求められたことが背景となった。', process:'エジプト・エラムへの遠征で帝国最大版図を実現する一方、都ニネヴェに古代オリエント世界最大級の図書館を建設し、メソポタミア各地から集めた粘土板文書(ギルガメシュ叙事詩を含む)を体系的に収集・保存させた。', significance:'この図書館は19世紀の発掘により発見され、メソポタミア文明の文学・宗教・科学に関する研究の一次史料の宝庫として近代の楔形文字学・古代オリエント史研究に計り知れない貢献をした。', debate:'「残虐な征服者」という伝統的なアッシリア王のイメージと、学術・文化の保護者としての側面という二面性を、この人物においてどう統合的に評価すべきかが論じられる。'} },
+  { id:'neo_babylonian_empire', name:'新バビロニア王国(カルデア王国)', category:'nation', lat:32.54, lng:44.42, start:-626, end:-539, region:'メソポタミア(バビロン)',
+    desc:{background:'アッシリア帝国の過酷な統治への反発から、バビロニアとメディアが連携して反乱を起こしたことが建国の背景となった。', process:'ナボポラッサルがアッシリアを滅ぼして独立を回復し、息子ネブカドネザル2世の代にエジプトを牽制しつつユダ王国を征服して「バビロン捕囚」を行うなど最盛期を築いたが、内紛により急速に弱体化し前539年にアケメネス朝ペルシアのキュロス2世により無血で征服された。', significance:'「空中庭園」に象徴される壮麗な都市文明を築き、旧約聖書における「バビロン捕囚」の記述を通じてユダヤ教・キリスト教の歴史認識に強い印象を残した。', debate:'アケメネス朝によるバビロン征服が「無血の解放」として自らを正当化する碑文(キュロスの円筒印章)を残していることの史実性(実際にどこまで平和的な征服であったか)が論じられる。'} },
+  { id:'nebuchadnezzar_ii', name:'ネブカドネザル2世', category:'person', parentId:'neo_babylonian_empire', lat:32.54, lng:44.42, start:-634, end:-562, region:'新バビロニア王国',
+    desc:{background:'父ナボポラッサルによるアッシリアからの独立回復という基盤の上に、新バビロニアの覇権を確立する必要が治世の背景となった。', process:'エジプトを牽制しつつユダ王国を二度にわたり征服し、反乱を起こしたエルサレムを破壊してユダヤ人を「バビロン捕囚」として強制連行し、壮麗な都市建設(伝説の「空中庭園」を含むとされる)を進めた。', significance:'この捕囚体験はユダヤ教における民族的離散(ディアスポラ)の原体験として、以後のユダヤ人の宗教的・民族的アイデンティティ形成に決定的な影響を残した。', debate:'「空中庭園」の実在性・所在地については考古学的に確定しておらず、この伝説がどこまで史実に基づくか、あるいはニネヴェの庭園との混同かが議論されている。'} },
+  { id:'babylonian_captivity', name:'バビロン捕囚', category:'event', lat:32.54, lng:44.42, start:-597, end:-538, region:'バビロン(新バビロニア王国)',
+    desc:{background:'ネブカドネザル2世によるユダ王国征服とエルサレム破壊が、ユダヤ人指導層・知識人層のバビロンへの強制連行を招いた直接的背景となった。', process:'約半世紀にわたりバビロンに強制移住させられたユダヤ人共同体は、エルサレム神殿という物理的な礼拝の場を失う中で律法(トーラー)の書写・研究を中心とする新たな宗教実践を発展させたが、アケメネス朝ペルシアのキュロス2世による解放令(前538年)により帰還が許された。', significance:'神殿なき信仰実践の確立はシナゴーグ(会堂)という新たな宗教制度を生み出し、以後のユダヤ教が特定の聖地・神殿に依存しない普遍的な宗教として発展する礎を築いた。', debate:'この経験がユダヤ教の宗教的性格(選民思想・律法中心主義)の確立にどこまで決定的な影響を与えたかは、ユダヤ教成立史における最重要の論点の一つである。'} },
+  { id:'phoenicia', name:'フェニキア(都市国家群)', category:'nation', lat:34.44, lng:35.83, start:-1200, end:-539, region:'地中海東岸(現レバノン沿岸)',
+    desc:{background:'レバノン山地の豊富な木材資源と地中海に面した地理的条件が、海洋交易国家としての発展を促した。', process:'ティルス・シドンなど独立した港市国家が地中海全域に及ぶ広範な交易網を築き、カルタゴなど各地に植民都市を建設し、表音文字体系(フェニキア文字)を発展させた。', significance:'フェニキア文字はギリシア文字・ラテン文字を含む西方のほぼ全てのアルファベット系文字の直接の起源となり、人類の文字史に計り知れない影響を残した。', debate:'統一国家を持たない都市国家群でありながらなぜ広範な文化的影響力(文字の伝播)を持ち得たか、その交易ネットワークの実態解明が古代地中海史の重要な研究課題となっている。'} },
+  { id:'kingdom_of_israel_united', name:'イスラエル王国(統一王国時代)', category:'nation', lat:31.78, lng:35.22, start:-1050, end:-930, region:'パレスチナ',
+    desc:{background:'周辺のペリシテ人など強力な部族連合の脅威に対処するため、それまで部族連合体であったイスラエル諸部族が単一の王権のもとに統合される必要が生じたことが背景となった。', process:'サウルに始まりダビデ・ソロモンと続く王権のもとで統一され、エルサレムを都に定めて神殿を建設するなど最盛期を築いたが、ソロモンの死後まもなく北のイスラエル王国と南のユダ王国に分裂した。', significance:'旧約聖書における理想化された統一王国として、後のユダヤ教・キリスト教における「メシア(救世主)」思想(ダビデの子孫からの再興待望)の原点となった。', debate:'この統一王国の実際の規模・国力については、考古学的証拠が乏しいことから聖書の記述をどこまで史実として受け止めるべきか(「最小主義」対「最大主義」)という論争が聖書考古学上続いている。'} },
+  { id:'david', name:'ダビデ', category:'person', parentId:'kingdom_of_israel_united', lat:31.78, lng:35.22, start:-1040, end:-970, region:'イスラエル王国',
+    desc:{background:'羊飼いの若者から身を起こしペリシテの巨人ゴリアテを倒したとされる逸話が、後のサウル王からの人望獲得と王位継承の正統性の背景となった。', process:'サウル王との対立を経て全イスラエル部族の王として即位し、エルサレムを征服して都と定め、王国の版図を大きく拡大した。', significance:'「ダビデの家系」から救世主(メシア)が現れるという待望思想はユダヤ教・キリスト教双方の中心的な神学的概念となり、イエスの系譜がダビデに連なるとされる根拠ともなった。', debate:'近年の考古学的発見(テル・ダン碑文における「ダビデの家」の言及)は彼の実在性を支持する有力な証拠とされる一方、その王国の実際の規模については依然議論が続いている。'} },
+  { id:'solomon', name:'ソロモン', category:'person', parentId:'kingdom_of_israel_united', lat:31.78, lng:35.22, start:-990, end:-931, region:'イスラエル王国',
+    desc:{background:'父ダビデが築いた統一王国の基盤の上に、王権の宗教的権威を確立する象徴的事業が求められたことが治世の背景となった。', process:'エルサレムに壮麗な神殿(ソロモン神殿)を建設し、フェニキアのティルス王との交易同盟や周辺諸国との外交(シバの女王来訪の逸話など)を通じて経済的繁栄を築いたが、大規模建設事業のための重税と強制労働への不満が彼の死後の王国分裂を招く一因となった。', significance:'「知恵の王」として旧約聖書に描かれ、彼が建てた神殿はユダヤ教における最も神聖な場所として、後のユダヤ人の宗教的アイデンティティの中心的象徴であり続けている。', debate:'彼の治世の繁栄の実態について、考古学的発掘(メギドなどの遺構)がどこまでソロモン時代に帰属するかをめぐり年代測定上の論争(「低年代説」対「高年代説」)が続いている。'} },
+  { id:'kingdom_of_judah', name:'ユダ王国', category:'nation', lat:31.78, lng:35.22, start:-930, end:-586, region:'パレスチナ南部',
+    desc:{background:'ソロモン死後の重税と強制労働への北部諸部族の不満が、統一王国分裂の直接的背景となった。', process:'ダビデ王朝の血統を維持しエルサレム神殿を中心とする南方の王国として存続したが、新バビロニアのネブカドネザル2世による二度の征服を経て前586年にエルサレムが破壊され「バビロン捕囚」を迎えて滅亡した。', significance:'ダビデ王統の正統な継承国家として、この滅亡と捕囚の経験はユダヤ教における民族的試練と再生の中心的な物語となった。', debate:'北のイスラエル王国が前722年に滅亡した後もユダ王国が150年近く存続し得た要因を、地理的な僻遠さに求めるか、周辺大国間の勢力均衡を利用した巧みな外交に求めるかで議論がある。'} },
+  { id:'kingdom_of_israel_north', name:'イスラエル王国(北王国)', category:'nation', lat:32.28, lng:35.19, start:-930, end:-722, region:'パレスチナ北部',
+    desc:{background:'ソロモン死後の重税と強制労働政策への不満から、南部(ユダ族・ベニヤミン族)を除く北部10部族が離反したことが分裂の直接的背景となった。', process:'サマリアを都に独自の王朝(複数回の王朝交代を経験)を築いたが、南のユダ王国よりも政治的に不安定で、前722年にアッシリア帝国により征服され、住民の多くが強制移住させられ他地域からの移民と混住させられた。', significance:'この征服後に消息を絶った10部族は「失われた10部族」として、後世さまざまな伝説(日本失われた支族説なども含む)を生む起源となった。', debate:'「失われた10部族」の実際の運命(完全な同化・離散か、一部が独自の共同体として存続したか)は歴史的にも宗教的にも大きな関心を集め続けている未解決の問題である。'} },
+
+  // ===================== 古代ペルシア帝国 =====================
+  { id:'zoroastrianism', name:'ゾロアスター教の成立と発展', category:'event', lat:29.94, lng:52.89, start:-1200, end:651, region:'イラン高原',
+    desc:{background:'古代イランの多神教的な自然崇拝の中から、預言者ゾロアスターが善悪二元論に基づく倫理的一神教的思想を説いたことが成立の背景となった。', process:'善神アフラ=マズダーと悪神アンラ=マンユ(アーリマン)の宇宙的対立という善悪二元論を核とし、最後の審判・死後の楽園と地獄・救世主の到来といった終末論的教義を体系化し、アケメネス朝以降のペルシア諸帝国で事実上の国教的地位を得た。', significance:'その終末論・天使論・最後の審判といった教義は、後のユダヤ教(バビロン捕囚期の接触)・キリスト教・イスラームの終末論形成に大きな影響を与えたとする説が有力である。', debate:'ユダヤ教の終末論・天使論がどこまでゾロアスター教から直接的な影響を受けたのか、それとも独自に発展したものかは、比較宗教史上の重要かつ未解決の論争である。'} },
+  { id:'achaemenid_empire', name:'アケメネス朝ペルシア', category:'nation', lat:29.94, lng:52.89, start:-550, end:-330, region:'イラン高原中心に西アジア全域',
+    relatedIds:['cyrus_great','darius_i','xerxes_i','greco_persian_wars','alexander_conquest_persia'],
+    desc:{background:'メディア王国に服属していたペルシア人がキュロス2世のもとで自立し、周辺の諸帝国(メディア・リディア・新バビロニア)を次々と征服したことが建国の背景となった。', process:'サトラップ制(属州総督制)と「王の道」に代表される駅伝制、多様な民族・宗教への寛容政策により、エジプトからインダス川に至る史上最大級の帝国を築いたが、アレクサンドロス大王の遠征により前330年に滅亡した。', significance:'多民族・多宗教を包摂する寛容な統治理念は、後のヘレニズム諸国家やローマ帝国の統治手法にも影響を与えた、古代帝国統治の一つの完成形と評価される。', debate:'その統治を「寛容な帝国」として理想化するギリシア側の一部記述(実際にはギリシア人はペルシアを専制の象徴として否定的に描くことが多い)と、被支配民族側の記録(旧約聖書のキュロス評価など)との間の史料的な緊張関係が論じられる。'} },
+  { id:'cyrus_great', name:'キュロス2世(大王)', category:'person', parentId:'achaemenid_empire', lat:30.19, lng:53.17, start:-600, end:-530, region:'アケメネス朝ペルシア',
+    desc:{background:'メディア王国に服属する一地方勢力であったペルシア人を率いて自立を図ったことが、帝国建設への出発点となった。', process:'メディア・リディア・新バビロニアを次々と征服して史上最大級の帝国を築き、バビロン征服後にはユダヤ人のエルサレムへの帰還と神殿再建を認める勅令を発した。', significance:'旧約聖書では異例にも「主に油注がれた者」として肯定的に描かれる異邦の王となり、その被征服民の宗教・慣習を尊重する統治理念は「キュロスの円筒印章」を通じて古代における人権宣言の先駆けとも評価される。', debate:'「キュロスの円筒印章」を近代的な人権思想の先駆と評価する見方に対し、これは当時の慣行的な征服者の自己正当化の言説にすぎないとする批判的な見方もあり、この文書の史学的意義をめぐり論争がある。'} },
+  { id:'darius_i', name:'ダレイオス1世', category:'person', parentId:'achaemenid_empire', lat:32.19, lng:48.26, start:-550, end:-486, region:'アケメネス朝ペルシア',
+    desc:{background:'カンビュセス2世死後の帝位継承をめぐる混乱(ガウマタの反乱)を武力で鎮圧して即位したことが、統治体制再構築の背景となった。', process:'帝国全土をサトラップ(属州)に分割し中央集権的な行政・徴税制度を整備、「王の道」と呼ばれる幹線道路網や統一貨幣を導入し、ギリシア本土への遠征(ペルシア戦争の緒戦、マラトンの戦いで敗北)も行った。', significance:'ベヒストゥン碑文に刻まれた自らの即位の正統性を記す銘文は、複数言語(古代ペルシア語・エラム語・アッカド語)による対訳という点で、19世紀の楔形文字解読の鍵となった。', debate:'サトラップ制という分権的な統治と中央集権的な統制とのバランスをどう両立させていたか、その統治の実効性の実態が研究上の関心事である。'} },
+  { id:'xerxes_i', name:'クセルクセス1世', category:'person', parentId:'achaemenid_empire', lat:29.94, lng:52.89, start:-518, end:-465, region:'アケメネス朝ペルシア',
+    desc:{background:'父ダリウス1世が果たせなかったギリシア征服という未完の課題を引き継いだことが、大規模な再遠征の背景となった。', process:'史上空前の規模の大軍を率いてギリシアへ侵攻しテルモピュライの戦いで一時勝利しアテナイを占領・破壊したが、サラミスの海戦での大敗により遠征は失敗に終わり撤退を余儀なくされた。', significance:'この敗北はペルシア帝国の西方拡大の限界を露呈させ、以後ギリシア世界(特にアテナイ)の政治的・文化的な黄金時代(古典期民主政)を準備する重要な契機となった。', debate:'この遠征失敗がペルシア帝国自体の国力にどこまで長期的な打撃を与えたか、あるいは帝国はその後も安定を保ち続けたかという評価の相違がある。'} },
+  { id:'greco_persian_wars', name:'ペルシア戦争', category:'war', lat:38.15, lng:23.95, start:-499, end:-449, region:'ギリシャ・アケメネス朝ペルシア',
+    desc:{background:'小アジアのギリシア人植民市(イオニア)がペルシアの支配に対して反乱を起こし、アテナイがこれを支援したことが開戦の直接的契機となった。', process:'ダリウス1世・クセルクセス1世による二度の大規模遠征がマラトンの戦い・サラミスの海戦・プラタイアの戦いでのギリシア連合軍の勝利によりいずれも撃退された。', significance:'この勝利はギリシア世界、特にアテナイにおける民主政の黄金時代を準備し、東西世界の対立という後世の歴史叙述(ヘロドトス『歴史』)の枠組みの原点ともなった。', debate:'ヘロドトスによる「自由なギリシアと専制的なペルシア」という対比的な歴史叙述は、後世のオリエンタリズム的な東西二元論の起源としてどこまで批判的に相対化すべきかが論じられる。'} },
+  { id:'alexander_conquest_persia', name:'アレクサンドロス大王の東方遠征(アケメネス朝の滅亡)', category:'war', lat:32.19, lng:48.26, start:-334, end:-330, region:'アケメネス朝ペルシア全域',
+    desc:{background:'父フィリッポス2世が築いたマケドニア軍事力の基盤の上に、ギリシア世界の宿敵ペルシアへの遠征という大義名分が、アレクサンドロスの東征を正当化する背景となった。', process:'イッソス・ガウガメラの戦いでアケメネス朝ペルシア軍を撃破し、ペルセポリスを焼き払って前330年にダレイオス3世暗殺をもってペルシア帝国を滅ぼし、さらにインダス川流域にまで軍を進めた。', significance:'この征服により東地中海からインドに至る広大な地域にギリシア文化が波及する「ヘレニズム時代」が幕を開け、東西文明の融合という世界史上の一大画期をもたらした。', debate:'アレクサンドロス自身がペルシアの統治制度・宮廷儀礼を積極的に取り入れた(オリエント化政策)ことをめぐり、これを文化融合の理念とみるか単なる統治上の便宜策とみるかで評価が分かれる。'} },
+  { id:'seleucid_empire', name:'セレウコス朝シリア', category:'nation', lat:36.20, lng:36.16, start:-312, end:-63, region:'シリア・メソポタミア・イラン',
+    desc:{background:'アレクサンドロス大王の急死後、後継者(ディアドコイ)間の抗争を勝ち抜いた将軍セレウコスが、旧ペルシア帝国東方領域の継承者として台頭したことが建国の背景となった。', process:'シリアからイランに至る広大な版図を統治しギリシア人都市の建設を通じてヘレニズム文化の東方への浸透を進めたが、東方領域はパルティアの独立により徐々に失われ、西方領域も次第にローマの圧力に押され前63年にローマに併合された。', significance:'ヘレニズム文化と中東・イラン文化の融合を促進し、ガンダーラ美術に象徴されるようにその文化的影響はインド方面にまで及んだ。', debate:'広大な領域を統治する上でのギリシア人入植都市と現地住民との文化的統合の実態(どこまで融合が進みどこまで分離が残ったか)が論じられる。'} },
+  { id:'parthian_empire', name:'パルティア(アルサケス朝)', category:'nation', lat:33.09, lng:44.58, start:-247, end:224, region:'イラン・メソポタミア',
+    desc:{background:'セレウコス朝の東方領域における統制力の弱まりに乗じ、イラン系遊牧民パルニ族が自立を図ったことが建国の背景となった。', process:'セレウコス朝からイラン高原を奪って独立し、重装騎兵と機動力に優れた騎射戦術(「パルティアン・ショット」)でローマの東方進出を長期にわたり阻み、シルクロード交易の中継拠点としても繁栄したが、内部抗争の末に3世紀にサーサーン朝に取って代わられた。', significance:'ローマ帝国と並ぶ古代世界の二大強国として東西交易(シルクロード)を仲介し、この地位は後継のサーサーン朝にも引き継がれた。', debate:'ローマとの長期にわたる抗争(カルラエの戦いでのローマ軍壊滅など)で決定的勝利を収めながらも版図拡大に消極的であった要因が、遊牧民的な統治構造の限界にあったかどうかが論じられる。'} },
+  { id:'sassanid_empire', name:'ササン朝ペルシア', category:'nation', lat:33.09, lng:44.58, start:224, end:651, region:'イラン・メソポタミア',
+    relatedIds:['ardashir_i','shapur_i','khosrow_i','byzantine_sassanid_wars','battle_qadisiyyah'],
+    desc:{background:'パルティアの統治への不満を背景に、ペルシス地方の豪族アルダシール1世が中央集権的な国家再建を志向したことが建国の背景となった。', process:'パルティアを打倒してゾロアスター教を国教に定めた中央集権的な統治体制を確立し、ローマ・ビザンツ帝国との数世紀に及ぶ抗争を繰り返しつつ、ホスロー1世の代に法制度・行政の整備で最盛期を迎えたが、ビザンツとの長期消耗戦で国力を疲弊させた末、勃興期のイスラーム軍の急速な征服により651年に滅亡した。', significance:'ゾロアスター教を核とする独自の統治理念とペルシア文化はイスラーム化後も行政制度・文学・宮廷文化として継承され、後のイスラーム世界(特にアッバース朝)におけるペルシア文化復興の基盤となった。', debate:'ビザンツとの長期消耗戦がイスラーム軍による急速な征服を許した決定的要因であったとする見方が有力だが、これに加えサーサーン朝内部の宗教的・社会的緊張(マズダク教運動の影響など)をどこまで重視すべきかが論じられる。'} },
+  { id:'ardashir_i', name:'アルダシール1世', category:'person', parentId:'sassanid_empire', lat:33.09, lng:44.58, start:180, end:242, region:'ササン朝ペルシア',
+    desc:{background:'パルティア支配下のペルシス地方の一領主として、パルティアの分権的統治体制への不満を抱いていたことが、彼の自立運動の背景となった。', process:'パルティア王アルタバヌス4世を破ってこれを打倒し、ゾロアスター教の神官階級と結びついた中央集権的な統治体制を確立し、アケメネス朝の後継者を自任してローマとの対決姿勢を鮮明にした。', significance:'サーサーン朝約400年の礎を築き、ゾロアスター教を国家統治の理念的支柱とする体制はイラン人のアイデンティティの核として長く継承された。', debate:'「アケメネス朝の後継者」を自認する彼の正統性主張が、実際にどこまでアケメネス朝の記憶・伝統を継承したものか、後世の政治的レトリックにすぎないかが論じられる。'} },
+  { id:'shapur_i', name:'シャープール1世', category:'person', parentId:'sassanid_empire', lat:33.09, lng:44.58, start:215, end:270, region:'ササン朝ペルシア',
+    desc:{background:'父アルダシール1世が確立した中央集権体制を継承し、対ローマ戦線でのさらなる勢力拡大を志向したことが治世の背景となった。', process:'ローマとの戦いで三代の皇帝を打ち破り、特にウァレリアヌス帝を捕虜とする前代未聞の勝利を収め、この様子はナクシェ・ロスタムの磨崖レリーフに誇示的に刻まれた。', significance:'ローマ皇帝を捕虜とした唯一の事例として、サーサーン朝の国威を大きく高め、ローマ帝国東方における軍事的劣勢を象徴する歴史的事件となった。', debate:'ウァレリアヌス帝の捕囚後の処遇(屈辱的な扱いを受けたとする伝承)の史実性については、ローマ側史料の政治的バイアスを踏まえた史料批判が求められる。'} },
+  { id:'khosrow_i', name:'ホスロー1世(アヌーシールワーン)', category:'person', parentId:'sassanid_empire', lat:33.09, lng:44.58, start:501, end:579, region:'ササン朝ペルシア',
+    desc:{background:'先代諸王の治世で蓄積された宗教的混乱(マズダク教運動による社会秩序の動揺)を収拾し、国家体制を再建する必要が治世の背景となった。', process:'マズダク教徒を弾圧して秩序を回復し、税制改革・軍制改革(騎士階級の再編)を進めて中央集権を強化し、ビザンツ帝国との抗争でも優位に立ち「不滅の魂を持つ者」の異名で呼ばれる最盛期を築いた。', significance:'彼の治世に整備された行政・法制度はイスラーム征服後もアッバース朝など後継のイスラーム王朝に大きな影響を残し、「正義の王」として後世のペルシア文学(『シャー・ナーメ』など)でも理想化された。', debate:'マズダク教運動(財産・妻の共有を説いたとされる急進的な社会運動)の実態については史料が乏しく、その社会史的意義の解明が今なお課題となっている。'} },
+  { id:'byzantine_sassanid_wars', name:'ビザンツ・ササン朝戦争', category:'war', lat:36.20, lng:37.16, start:602, end:628, region:'シリア・メソポタミア・アナトリア',
+    desc:{background:'東地中海とメソポタミア・カフカス地方の覇権をめぐり、ビザンツ帝国とサーサーン朝ペルシアが長期にわたり対立関係にあったことが背景となった。', process:'数世紀にわたり断続的に戦争が繰り返され、7世紀初頭には一時サーサーン朝がエジプト・シリアを制圧する大攻勢を見せたがビザンツ皇帝ヘラクレイオスの反攻により形勢は逆転し、両国とも壊滅的な消耗を経験した。', significance:'この最終戦争(602-628年)による両国の疲弊は、直後に勃興したイスラーム勢力による急速な征服(サーサーン朝の完全滅亡、ビザンツ領シリア・エジプトの喪失)を許す決定的な条件を作り出した。', debate:'この長期消耗戦が「両大国が共倒れした」ことでイスラームの急速な拡大を可能にしたという見方は世界史上の重要な因果関係として広く共有されているが、その因果の必然性の程度については議論の余地がある。'} },
+
+  // ===================== イスラームの成立と正統カリフ時代 =====================
+  { id:'pre_islamic_arabia', name:'イスラーム以前のアラビア', category:'event', lat:21.42, lng:39.83, start:-500, end:610, region:'アラビア半島',
+    desc:{background:'アラビア半島の大部分を占める砂漠地帯という厳しい環境が、部族単位の遊牧生活(ベドウィン)と血縁に基づく氏族社会の形成を促した。', process:'多神教信仰(カアバ神殿には多数の部族神が祀られていた)のもとメッカ・メディナなどのオアシス都市が隊商交易(乳香・没薬・香辛料交易)で栄え、部族間の血讐と同盟関係が複雑に絡み合う社会秩序が形成された。', significance:'この部族社会の構造(名誉・血縁・同盟の論理)は、後のイスラーム共同体(ウンマ)が血縁を超えた信仰共同体として提示された際の対比軸として、イスラーム成立の社会的背景を理解する上で重要である。', debate:'イスラーム以前のアラビア社会を「無知の時代(ジャーヒリーヤ)」として全否定的に描くイスラーム側の伝統的史観と、実際には高度に発達した交易・詩文化を持っていたとする近年の再評価との間で、評価の相違がある。'} },
+  { id:'muhammad', name:'ムハンマド', category:'person', lat:24.47, lng:39.61, start:570, end:632, region:'アラビア半島(メッカ・メディナ)',
+    desc:{background:'メッカの隊商交易社会における貧富の格差拡大と、既存の多神教信仰への宗教的閉塞感が、新たな一神教的啓示への希求を生んだ背景となった。', process:'40歳頃にヒラー山の洞窟で最初の啓示を受けたとされ、当初はメッカで迫害を受けたためメディナへ移住(ヒジュラ)して信仰共同体(ウンマ)を確立し、以後は軍事的・外交的手腕によりメッカを含むアラビア半島の大部分を統一した。', significance:'イスラームという世界宗教の創始者として、その教え(クルアーン)と言行(ハディース)は以後の法体系(シャリーア)・社会秩序の根本規範となり、今日まで世界人口の4分の1近くが信仰する宗教の基盤を築いた。', debate:'後継者選出の方式(血縁世襲か共同体の合意か)について明確な指示を残さなかったことが、彼の死後のスンナ派・シーア派分裂の遠因になったとされ、この点が今日のイスラーム世界の宗派対立の起源として論じられる。'} },
+  { id:'hijra', name:'ヒジュラ(聖遷)', category:'event', lat:24.47, lng:39.61, start:622, end:622, region:'メッカ→メディナ',
+    desc:{background:'メッカの有力部族(クライシュ族)による迫害の激化が、ムハンマドと信徒たちの移住という決断を促した直接的背景となった。', process:'ムハンマドと信徒たちがメッカからメディナへ移住し、そこで血縁ではなく信仰に基づく新たな共同体(ウンマ)を樹立する「メディナ憲章」を締結した。', significance:'この移住の年(622年)がイスラーム暦(ヒジュラ暦)の紀元と定められ、血縁・部族を超えた信仰共同体という画期的な社会統合原理の実現という点で、イスラーム史における最重要の画期とされる。', debate:'「メディナ憲章」がユダヤ教徒を含む多宗教共存の先駆的文書であったとする評価と、実際にはムハンマドの政治的・軍事的指導権確立が主眼であったとする見方との間で、その理念的意義の評価が分かれる。'} },
+  { id:'rashidun_caliphate', name:'正統カリフ時代', category:'nation', lat:24.47, lng:39.61, start:632, end:661, region:'アラビア半島・シリア・メソポタミア・エジプト',
+    relatedIds:['muhammad','abu_bakr','umar_i','uthman','ali','islamic_conquests','battle_yarmouk','battle_qadisiyyah','first_fitna'],
+    desc:{background:'ムハンマドが後継者選出の明確な方式を残さずに没したことが、共同体の合意(選挙的推戴)による指導者選出という統治形態の背景となった。', process:'アブー=バクル・ウマル・ウスマーン・アリーの4代が相次いで指導者(カリフ)となり、この間にアラビア半島統一の完成、ビザンツ・サーサーン両帝国からのシリア・エジプト・イラク・イラン征服という急速な大征服を成し遂げたが、後半は暗殺と内乱(第一次フィトナ)が相次ぎ統治は不安定化した。', significance:'後世スンナ派から「正統カリフ」として理想化される時代であり、この急速な大征服はイスラーム世界の地理的基盤を確立した画期的な過程である。', debate:'4代のうち3代までが暗殺されるという事実は、「理想の時代」という後世の理想化とは裏腹に、この時代がすでに深刻な政治的対立を内包していたことを示しており、この乖離をどう理解すべきかが論じられる。'} },
+  { id:'abu_bakr', name:'アブー=バクル', category:'person', parentId:'rashidun_caliphate', lat:24.47, lng:39.61, start:573, end:634, region:'正統カリフ時代',
+    desc:{background:'ムハンマドの最も早期の改宗者かつ最も信頼された側近であったことが、共同体による初代カリフ選出の背景となった。', process:'ムハンマド死去直後に発生したアラビア各地の部族による背教・離反運動(リッダ戦争)を武力で鎮圧し、共同体の統一を回復させた。', significance:'この鎮圧がなければイスラーム共同体はムハンマドの死とともに瓦解していた可能性が高く、彼の指導力は後の大征服を可能にする統一的基盤を保持した点で決定的な意義を持つ。', debate:'この鎮圧戦争を「正統な統治権の防衛」とみるか、実際には多様な政治的・経済的動機(部族間の主導権争い)を伴う複雑な内戦であったとみるかで、初期イスラーム史研究における解釈が分かれる。'} },
+  { id:'umar_i', name:'ウマル1世', category:'person', parentId:'rashidun_caliphate', lat:31.78, lng:35.22, start:584, end:644, region:'正統カリフ時代',
+    desc:{background:'アブー=バクルの遺言による指名という異例の継承手続きが、彼の即位の背景となった。', process:'ビザンツ・サーサーン両帝国への大規模な征服戦争を主導しシリア・エジプト・イラク・イランを次々と征服する一方、征服地の統治のため軍営都市(ミスル)の建設や徴税制度・行政組織を体系的に整備した。', significance:'「カリフ」の称号を正式に確立し、征服地統治の制度的基盤を築いた点で、イスラーム帝国の実質的な建設者と評価される。', debate:'征服した非ムスリム住民への統治方針(人頭税ジズヤを課しつつ信仰の自由を認める「庇護民(ズィンミー)」制度)がどこまで寛容であったか、その実態評価が論じられる。'} },
+  { id:'uthman', name:'ウスマーン', category:'person', parentId:'rashidun_caliphate', lat:24.47, lng:39.61, start:579, end:656, region:'正統カリフ時代',
+    desc:{background:'ウマイヤ家出身という有力氏族の後ろ盾と、共同体内の合議(シューラー)による選出が、彼の即位の背景となった。', process:'クルアーンの標準テキストを確定し公式版として全土に配布する事業を主導した一方、自らの一族(ウマイヤ家)を要職に多数登用したことが「縁故主義」との批判を招き、これに反発した反乱勢力により自邸を包囲され殺害された。', significance:'クルアーンの正典化(ウスマーン版)は以後のイスラーム世界で唯一の標準テキストとして今日まで受け継がれる、宗教史上決定的な事業であった。', debate:'彼の暗殺が正統カリフ時代の平和的統治の終焉と第一次フィトナ(内乱)の直接的引き金となったことから、その統治(特に縁故主義への批判)の妥当性評価がスンナ派・シーア派双方の歴史認識に影響している。'} },
+  { id:'ali', name:'アリー(アリー・イブン・アビー・ターリブ)', category:'person', parentId:'rashidun_caliphate', lat:32.03, lng:44.40, start:601, end:661, region:'正統カリフ時代',
+    desc:{background:'ムハンマドの従弟かつ娘婿という血縁関係が、後にシーア派が彼を唯一の正統な後継者とみなす教義的根拠となった。', process:'ウスマーン暗殺後にカリフに選出されたが、暗殺者の処罰を求めるムアーウィヤ(ウマイヤ家)との対立からラクダの戦い・スィッフィーンの戦いという内乱(第一次フィトナ)を戦い、最終的にハワーリジュ派の一員により暗殺された。', significance:'彼の血統(子孫)のみが正統な指導者(イマーム)であるとするシーア派の教義的核心を形成し、彼の暗殺と息子フサインのカルバラーでの殉教は、シーア派の宗教的アイデンティティの根幹をなす悲劇として今日まで記憶されている。', debate:'スンナ派が彼を「正統カリフ」の一人として位置づけるのに対しシーア派は彼を特別な宗教的権威(初代イマーム)とみなしており、この評価の相違自体がスンナ・シーア分裂の核心を体現している。'} },
+  { id:'islamic_conquests', name:'イスラームの大征服', category:'war', lat:33.51, lng:36.29, start:633, end:751, region:'西アジア・北アフリカ・イベリア半島',
+    desc:{background:'アラビア半島統一直後のイスラーム共同体が、疲弊しきったビザンツ・サーサーン両帝国という好機を捉えたことが、急速な大征服の背景となった。', process:'ヤルムークの戦い・カーディシーヤの戦いでの勝利を経てシリア・エジプト・イラクを制圧し、さらにサーサーン朝を完全に滅ぼしてイラン高原全域、西方では北アフリカを経てイベリア半島にまで版図を拡大した。', significance:'わずか1世紀足らずでインダス川からイベリア半島に至る史上最大級の帝国を築き、この地域における言語(アラビア語)・宗教(イスラーム)の版図を今日に至るまで規定する世界史上の一大転換点となった。', debate:'この急速な征服の成功要因を、被征服民にとってビザンツ・サーサーン両帝国の重税支配よりイスラーム統治(比較的軽い人頭税)の方が受け入れやすかったという社会経済的要因に求めるか、信仰に基づく軍事的士気の高さに求めるかで議論がある。'} },
+  { id:'battle_yarmouk', name:'ヤルムークの戦い', category:'war', lat:32.75, lng:35.75, start:636, end:636, region:'シリア・ヨルダン国境(ヤルムーク川)',
+    desc:{background:'ビザンツ皇帝ヘラクレイオスが、急速に拡大するイスラーム軍の脅威に対し大軍を編成して迎撃を図ったことが背景となった。', process:'ハーリド=イブン=アル=ワリード率いるイスラーム軍が、数的に優勢なビザンツ軍を巧みな騎兵戦術と地形利用により壊滅的に打ち破った。', significance:'この勝利によりビザンツ帝国はシリア・パレスチナへの支配を事実上放棄せざるを得なくなり、以後のイスラーム勢力による中東地域の恒久的な支配を決定づけた画期的な戦いとなった。', debate:'この勝敗を分けた決定的要因を、イスラーム軍の戦術的優位に求めるか、ビザンツ軍内部の指揮系統の混乱・士気の低さに求めるかで軍事史上の評価が分かれる。'} },
+  { id:'battle_qadisiyyah', name:'カーディスィーヤの戦い', category:'war', lat:31.98, lng:44.60, start:636, end:637, region:'イラク(メソポタミア)',
+    desc:{background:'疲弊したサーサーン朝ペルシアに対し、イスラーム軍がイラク方面への進出を図ったことが背景となった。', process:'サアド=イブン=アビー=ワッカース率いるイスラーム軍がサーサーン朝の大軍(戦象部隊を含む)を打ち破り、この勝利によりイラク全域への道が開かれた。', significance:'この勝利は事実上サーサーン朝の命運を決定づけ、まもなくの都クテシフォン陥落と最終的な帝国滅亡への決定的な転機となった。', debate:'この戦いの詳細な経過については後世のイスラーム史料による記述に依存する部分が大きく、その戦術的記述がどこまで史実を正確に伝えているかについて史料批判上の課題がある。'} },
+  { id:'first_fitna', name:'第1次内乱(第1次フィトナ)', category:'revolution', lat:32.03, lng:44.40, start:656, end:661, region:'イラク・シリア',
+    desc:{background:'ウスマーン暗殺という前代未聞の事件が、後継カリフ位と暗殺者処罰の責任をめぐる深刻な政治的対立を引き起こしたことが背景となった。', process:'アリーとムアーウィヤ(ウマイヤ家)との間でラクダの戦い・スィッフィーンの戦いという内戦が戦われ、調停をめぐる対立からアリー支持派の一部が離反してハワーリジュ派を形成し、最終的にアリーがこの分派の一員により暗殺されムアーウィヤがウマイヤ朝を開いた。', significance:'この内乱を機にイスラーム共同体はスンナ派・シーア派という宗派的分裂の決定的な起点を迎え、カリフ制も世襲王朝(ウマイヤ朝)へと性格を変えることとなった。', debate:'この内乱の帰結(アリー家からウマイヤ家への権力移行)を正統な政治的解決とみるか、力による簒奪とみるかは、今日に至るスンナ派・シーア派それぞれの歴史認識の根本的な相違点である。'} },
+  { id:'battle_karbala', name:'カルバラーの戦い', category:'war', lat:32.62, lng:44.02, start:680, end:680, region:'イラク(カルバラー)',
+    desc:{background:'ウマイヤ朝のヤズィード1世の即位に対し、アリーの子フサインがその正統性を認めず抵抗の姿勢を示したことが背景となった。', process:'少数の同行者と共にクーファへ向かう途中カルバラーの地でウマイヤ朝軍に包囲され、フサインとその一族・従者のほとんどが殺害される凄惨な結果に終わった。', significance:'このフサインの殉教はシーア派における最も重要な宗教的記憶となり、以後毎年「アーシューラー」として盛大に追悼され、不正な権力への抵抗と自己犠牲という宗教的モチーフの中心を成している。', debate:'この事件がシーア派の宗教的アイデンティティ(殉教と悲嘆の宗教的実践)の形成にどこまで決定的であったか、その後の教義的発展との関係が論じられる。'} },
+
+  // ===================== ウマイヤ朝・アッバース朝 =====================
+  { id:'umayyad_caliphate', name:'ウマイヤ朝', category:'nation', lat:33.51, lng:36.29, start:661, end:750, region:'シリア中心に西アジア・北アフリカ・イベリア半島',
+    relatedIds:['muawiya_i','abd_al_malik','marwan_ii','abbasid_revolution'],
+    desc:{background:'第一次フィトナでアリーを退けたムアーウィヤが、カリフ位を世襲王朝として確立したことが建国の背景となった。', process:'都をダマスカスに定めビザンツ風の行政制度を取り入れつつイベリア半島から中央アジアに至る史上最大級の版図を築いたが、アラブ人優遇政策(非アラブ人改宗者マワーリーへの差別)への不満とシーア派・ハワーリジュ派の反発が高まり、アッバース革命により750年に滅ぼされた。', significance:'征服地の急速な拡大によりイスラーム世界の地理的基盤を確立したが、その統治は「アラブ帝国」的性格が強く、これが次のアッバース朝における普遍的なイスラーム帝国への転換を促す反面教師となった。', debate:'この王朝を「世俗的な王権への堕落(神権政治からの後退)」と否定的に評価する伝統的なイスラーム史観に対し、実際の行政的達成(貨幣改革・言語のアラビア語化)を積極的に再評価する近年の研究動向との間で評価が分かれる。'} },
+  { id:'muawiya_i', name:'ムアーウィヤ', category:'person', parentId:'umayyad_caliphate', lat:33.51, lng:36.29, start:602, end:680, region:'ウマイヤ朝',
+    desc:{background:'ウスマーンの縁者としてシリア総督の地位にあったことと、ウスマーン暗殺者の処罰を求める大義名分が、彼のカリフ位獲得への道を開いた。', process:'第一次フィトナでアリーを事実上退けた後カリフに即位し、都をダマスカスに移して行政機構を整備し、自らの死後の後継者を息子ヤズィードに指名する形でカリフ位を事実上世襲制に転換させた。', significance:'選挙的な正統カリフ制から世襲王朝(ウマイヤ朝)への転換を実現した点で、イスラーム政治史における重要な制度的転換点を体現している。', debate:'この世襲化を「安定的統治のための現実的判断」と評価するか「イスラーム的な合議理念からの逸脱」と評価するかは、カリフ制の理念そのものをめぐる根本的な論争である。'} },
+  { id:'abd_al_malik', name:'アブド=アルマリク', category:'person', parentId:'umayyad_caliphate', lat:33.51, lng:36.29, start:646, end:705, region:'ウマイヤ朝',
+    desc:{background:'第二次フィトナ(内乱)で動揺した王朝の統治基盤を再建する必要が、彼の治世における制度改革の背景となった。', process:'ビザンツ・サーサーン両様式が混在していた行政言語をアラビア語に統一し、独自のイスラーム様式による貨幣を鋳造して非イスラーム的な象徴の使用を排除し、エルサレムに岩のドームを建設した。', significance:'これらの改革により帝国は名実ともに「イスラーム帝国」としてのアイデンティティを確立し、以後のイスラーム世界における行政・貨幣制度の基本形を築いた。', debate:'岩のドーム建設の主要な目的を、メッカ巡礼に代わる代替聖地の創出とみるか、単に新たな信仰の記念碑的建造物としての宗教的動機とみるかで議論がある。'} },
+  { id:'marwan_ii', name:'マルワーン2世', category:'person', parentId:'umayyad_caliphate', lat:33.51, lng:36.29, start:691, end:750, region:'ウマイヤ朝',
+    desc:{background:'王朝末期の内紛と、アラブ人優遇への非アラブ人改宗者(マワーリー)の根深い不満が、アッバース革命という王朝転覆の危機の背景となった。', process:'東方ホラーサーン地方を中心に組織されたアッバース家の革命運動軍との戦いに敗れ、逃亡先のエジプトで殺害された。', significance:'彼の敗死をもってウマイヤ朝は滅亡したが、一族の一人アブド=アッラフマーンがイベリア半島に逃れ後ウマイヤ朝を建国し、イスラーム世界の東西分裂という新たな局面を開いた。', debate:'この王朝の滅亡を単なる政変とみるか、アラブ人中心主義から非アラブ人を包摂する普遍的イスラーム帝国への歴史的必然の転換とみるかで評価が分かれる。'} },
+  { id:'abbasid_revolution', name:'アッバース革命', category:'revolution', lat:36.30, lng:59.60, start:747, end:750, region:'ホラーサーン(イラン東部)・イラク',
+    desc:{background:'ウマイヤ朝のアラブ人優遇政策への非アラブ人改宗者(マワーリー、特にペルシア系)の根深い不満が、この革命運動の社会的基盤となった。', process:'アブー=ムスリムが東方ホラーサーン地方で組織した革命軍がウマイヤ朝を打倒し、預言者の叔父の家系アッバース家を新たなカリフに擁立した。', significance:'この革命によりアラブ人優位の民族的帝国から、アラブ人・ペルシア人など多様な民族を包摂する普遍的なイスラーム帝国へと国家の性格が根本的に転換した。', debate:'この革命の主導的な社会階層(アラブ人の不満分子か、ペルシア系マワーリーの主導性か)についての評価は、この転換の「イスラーム的普遍主義」対「ペルシア的要素の復権」という性格づけと密接に関連する論争点である。'} },
+  { id:'abbasid_caliphate', name:'アッバース朝', category:'nation', lat:33.34, lng:44.39, start:750, end:1258, region:'イラク(バグダード)中心に西アジア全域',
+    relatedIds:['abu_al_abbas_saffah','al_mansur','harun_al_rashid','al_mamun','house_of_wisdom','fall_of_baghdad_1258'],
+    desc:{background:'アッバース革命による非アラブ人を包摂する普遍的イスラーム帝国という理念の実現が、新王朝建設の背景となった。', process:'都をバグダードに移してペルシア的な官僚制・宮廷文化を積極的に取り入れ、ハールーン=アッラシード・マームーンの代に学術・文化(バイト=アルヒクマ=知恵の館)の黄金期を築いたが、10世紀以降は各地に自立政権(ブワイフ朝・セルジューク朝など)が乱立してカリフの実権は形骸化し、1258年のモンゴル軍によるバグダード陥落で滅亡した。', significance:'ギリシア・ペルシア・インドの学術遺産をアラビア語に翻訳する大規模な知的事業を通じてイスラーム文明の黄金時代を築き、この成果は後にヨーロッパのルネサンスにも間接的な影響を与えた。', debate:'10世紀以降の政治的実権喪失にもかかわらずカリフの宗教的権威は長く尊重され続けたことは、政治権力と宗教的正統性が必ずしも一致しない統治形態の興味深い事例として論じられる。'} },
+  { id:'abu_al_abbas_saffah', name:'アブー=アルアッバース(サッファーフ)', category:'person', parentId:'abbasid_caliphate', lat:32.03, lng:44.40, start:721, end:754, region:'アッバース朝',
+    desc:{background:'アッバース革命の成功により預言者の叔父の家系という血統的正統性を背景に、新王朝の初代カリフに擁立されたことが背景となった。', process:'「サッファーフ(血を流す者)」の異名が示すように、旧ウマイヤ家の一族を徹底的に粛清して新王朝の基盤を固めた。', significance:'この徹底した粛清により旧勢力の復権の芽を摘み、アッバース朝約500年の礎を確固たるものとした。', debate:'この苛烈な粛清が新王朝の安定に不可欠であったか、それとも過度に残忍な措置であったかという評価は、権力移行期における「必要な暴力」の是非を考える事例として論じられる。'} },
+  { id:'al_mansur', name:'マンスール', category:'person', parentId:'abbasid_caliphate', lat:33.34, lng:44.39, start:714, end:775, region:'アッバース朝',
+    desc:{background:'初代カリフによる王朝基盤の確立を受け、より恒久的な統治拠点の建設が求められたことが背景となった。', process:'ティグリス川岸に円形都市バグダードを新たに建設して遷都し、中央集権的な官僚制と徴税制度を整備してアッバース朝の統治基盤を確固たるものとした。', significance:'バグダードは以後500年にわたりイスラーム世界の政治・学術・文化の中心地であり続け、「平安の都(マディーナ=アッサラーム)」として繁栄を極めた。', debate:'この遷都(旧都ダマスカスからの脱却)が、ウマイヤ朝的なシリア中心の統治からペルシア色の強いメソポタミア中心の統治への転換をどこまで象徴的に体現しているかが論じられる。'} },
+  { id:'harun_al_rashid', name:'ハールーン=アッラシード', category:'person', parentId:'abbasid_caliphate', lat:33.34, lng:44.39, start:763, end:809, region:'アッバース朝',
+    desc:{background:'父マフディーの代までに確立された王朝の安定と繁栄が、彼の治世における文化的黄金期を可能にする条件を整えていた。', process:'フランク王国のカール大帝との友好的な外交使節の交換など国際的な威信を高め、『千夜一夜物語』の舞台としても知られる宮廷文化の繁栄を築き、学術・芸術の保護者としても知られた。', significance:'後世「アッバース朝の黄金時代」の体現者として理想化され、その治世はイスラーム世界の学術・文化的達成の象徴として広く記憶されている。', debate:'『千夜一夜物語』に描かれる彼のイメージがどこまで史実を反映し、どこまで後世の文学的脚色によるものかは、史実と伝説の境界を考える文学史・歴史学上の課題である。'} },
+  { id:'al_mamun', name:'マームーン', category:'person', parentId:'abbasid_caliphate', lat:33.34, lng:44.39, start:786, end:833, region:'アッバース朝',
+    desc:{background:'父ハールーン=アッラシードの死後に弟アミーンとの内戦を勝ち抜いたことが、彼の治世における学術振興事業推進の背景となった。', process:'「知恵の館(バイト=アルヒクマ)」を拡充してギリシア・ペルシア・インドの哲学・科学文献を大規模にアラビア語へ翻訳する事業を国家的に推進し、ムウタズィラ派(理性重視の神学)を公認の神学として奨励した。', significance:'この翻訳事業を通じてアリストテレス哲学やユークリッド幾何学などギリシア古典の多くがアラビア語を経由して保存され、後の12世紀ルネサンスを通じてラテン語世界(西欧)に再導入される礎を築いた。', debate:'ムウタズィラ派の教義(クルアーンの被造性など)を国家権力によって強制した「ミフナ(審問)」政策は、後に伝統主義的なスンナ派神学(ハンバル派)の反発を招いており、国家権力による神学統制の是非が論じられる。'} },
+  { id:'house_of_wisdom', name:'知恵の館(バイト=アルヒクマ)とイスラーム科学の黄金時代', category:'event', lat:33.34, lng:44.39, start:830, end:1050, region:'バグダード中心にイスラーム世界全域',
+    desc:{background:'アッバース朝の繁栄とマームーンら諸カリフの学術奨励政策が、この翻訳・研究機関設立の背景となった。', process:'ギリシア・ペルシア・インドの哲学・医学・数学・天文学の文献を組織的にアラビア語へ翻訳し、フワーリズミーの代数学やイブン=スィーナーの医学など独自の学術的発展も生み出した。', significance:'この知的営為は「イスラーム科学の黄金時代」を築き、ギリシア古典の多くをラテン語世界に再導入する経路(12世紀ルネサンス)としても機能し、西欧の知的発展に間接的だが決定的な貢献をした。', debate:'この機関が単なる翻訳の場であったか、それとも独自の実験・観測を伴う本格的な研究機関であったかについては、史料的制約から実態解明が今なお課題となっている。'} },
+
+  // ===================== 地方王朝群・十字軍・モンゴル・マムルーク =====================
+  { id:'fatimid_caliphate', name:'ファーティマ朝', category:'nation', lat:30.04, lng:31.24, start:909, end:1171, region:'北アフリカ・エジプト',
+    desc:{background:'シーア派イスマーイール派の教義に基づき、アリーの血統こそが正統なカリフであるとする信念のもと北アフリカで勢力を築いたことが建国の背景となった。', process:'エジプトを征服してカイロを新首都に建設し、スンナ派アッバース朝に対抗する独自のカリフを称して東地中海交易の覇権を握り学術機関アズハルを設立したが、内紛と十字軍・セルジューク朝の圧力により衰退し、最終的にサラディンにより1171年に滅ぼされた。', significance:'スンナ派カリフに対抗する形でシーア派カリフ国家を打ち立てた稀有な事例として、イスラーム世界における宗派間の政治的対立の具体例を示す重要な事例である。', debate:'この王朝が実際にどこまでシーア派教義の布教に成功したか(エジプト住民の大多数はスンナ派にとどまった)、宗教的理念と統治の現実政治とのギャップが論じられる。'} },
+  { id:'seljuk_empire', name:'セルジューク朝', category:'nation', lat:33.34, lng:44.39, start:1037, end:1194, region:'イラン・イラク・アナトリア',
+    relatedIds:['alp_arslan','nizam_al_mulk','battle_manzikert'],
+    desc:{background:'中央アジアの遊牧トルコ系民族セルジューク家が、イスラーム化を進めつつイラン・イラク方面へ進出したことが建国の背景となった。', process:'アッバース朝カリフから「スルタン」の称号を得て実権を掌握し、ビザンツ帝国を破って(マンジケルトの戦い)アナトリアへの進出の道を開いたが、内紛により東西に分裂して弱体化した。', significance:'トルコ系民族による中東イスラーム世界への本格的な進出の先駆けとなり、後のオスマン帝国に至るトルコ系イスラーム王朝の伝統を確立した。', debate:'遊牧民出身の征服者がいかにして急速に定住的なイスラーム官僚統治(ニザーム=アルムルクによる制度整備)を確立し得たか、その統治の混成的性格が論じられる。'} },
+  { id:'alp_arslan', name:'アルプ=アルスラーン', category:'person', parentId:'seljuk_empire', lat:39.15, lng:42.53, start:1029, end:1072, region:'セルジューク朝',
+    desc:{background:'先代トゥグリル=ベクが築いた帝国基盤の上に、ビザンツ帝国とのアナトリア方面での対決が必要とされたことが治世の背景となった。', process:'マンジケルトの戦いでビザンツ皇帝ロマノス4世率いる大軍を撃破し、ビザンツ帝国のアナトリア支配に決定的な打撃を与えた。', significance:'この勝利によりトルコ系民族のアナトリア半島への本格的な移住・定着が始まり、以後のこの地域のトルコ化・イスラーム化の出発点となった。', debate:'この勝利が単発的な軍事的成功にとどまらず、なぜ以後数世紀に及ぶアナトリアの民族構成の根本的変容をもたらしたのか、その長期的影響の大きさが論じられる。'} },
+  { id:'battle_manzikert', name:'マンジケルトの戦い', category:'war', lat:39.15, lng:42.53, start:1071, end:1071, region:'アナトリア東部',
+    desc:{background:'セルジューク朝の勢力拡大に対しビザンツ皇帝ロマノス4世が大軍を編成して迎撃を図ったことが背景となった。', process:'ビザンツ軍内部の指揮系統の混乱と裏切りも重なりセルジューク軍に大敗し、皇帝自身が捕虜となる屈辱的な結果に終わった。', significance:'この敗北を機にビザンツ帝国のアナトリア支配は事実上崩壊し、以後この地域は急速にトルコ化・イスラーム化が進み、後のオスマン帝国建国の地理的基盤ともなった。', debate:'この一戦の敗北がビザンツ帝国衰退の決定的な転換点であったとする見方が広く共有される一方、その後も帝国自体は3世紀以上存続し続けたことから、この戦いの影響の即時性・長期性についての評価に幅がある。'} },
+  { id:'nizam_al_mulk', name:'ニザーム=アルムルク', category:'person', parentId:'seljuk_empire', lat:33.34, lng:44.39, start:1018, end:1092, region:'セルジューク朝',
+    desc:{background:'トルコ系遊牧民出身の征服者であるセルジューク朝が、定住的な統治のためペルシア的な官僚制の専門知識を必要としたことが、彼の登用の背景となった。', process:'宰相として税制・軍制・行政制度を体系的に整備し、各地にニザーミーヤ学院と呼ばれるスンナ派神学校網を設立してシーア派(特にファーティマ朝)への対抗イデオロギーの拠点とした。', significance:'この学院網は後のマドラサ(イスラーム神学校)制度の基本モデルとなり、スンナ派イスラーム法学・神学の組織的教育制度を確立する画期的な事業であった。', debate:'彼の暗殺(暗殺教団=ニザール派イスマーイール派の関与とされる)は、当時のスンナ派・シーア派対立の激しさを象徴する事件として、その政治的背景の解明が論じられる。'} },
+  { id:'crusades_levant', name:'十字軍(レヴァント方面)', category:'war', lat:31.77, lng:35.21, start:1096, end:1291, region:'シリア・パレスチナ',
+    desc:{background:'セルジューク朝によるビザンツ領アナトリアの征服とエルサレム巡礼路の脅威を訴えるビザンツ皇帝の要請に応じ、教皇ウルバヌス2世が聖地奪回を呼びかけたことが背景となった。', process:'第1回十字軍(1096-99年)がエルサレムを含む十字軍国家群を建設したが、サラディンによるエルサレム奪還(1187年)を機に劣勢に転じ、以後200年近く断続的な遠征が繰り返されたが1291年のアッコン陥落をもって十字軍国家は完全に消滅した。', significance:'この一連の遠征を通じて東西交易の活性化やイスラーム世界の学術・文物の西欧への流入が進み、意図せざる形でヨーロッパのルネサンスの遠因の一つとなったとされる。', debate:'十字軍を「宗教的情熱に基づく聖戦」とみるか「西欧諸侯の領土的・経済的野心の宗教的偽装」とみるかは、宗教運動と世俗的利害の関係を考える上で最も重要な論争の一つである。'} },
+  { id:'ayyubid_dynasty', name:'アイユーブ朝', category:'nation', lat:30.04, lng:31.24, start:1171, end:1250, region:'エジプト・シリア',
+    desc:{background:'十字軍国家との対峙とファーティマ朝の弱体化という状況の中、クルド系の武将サラディンが実権を掌握したことが建国の背景となった。', process:'ファーティマ朝を廃してスンナ派への復帰を実現し、エジプト・シリアを統合してヒッティーンの戦いで十字軍に大勝しエルサレムを奪還したが、サラディン死後は一族間の分裂により弱体化し、最終的にマムルーク(奴隷軍人)により1250年に取って代わられた。', significance:'シーア派ファーティマ朝からスンナ派への復帰を実現し、十字軍に対する反攻の最盛期を築いた王朝として、イスラーム世界の統合と対十字軍戦争の転換点となった。', debate:'サラディンのエルサレム再征服時の寛大な処置(十字軍側のエルサレム占領時の虐殺とは対照的)が、後世どこまで理想化・脚色されたものかについて史料批判上の検討が必要である。'} },
+  { id:'saladin', name:'サラーフ=アッディーン(サラディン)', category:'person', parentId:'ayyubid_dynasty', lat:31.77, lng:35.21, start:1137, end:1193, region:'アイユーブ朝',
+    desc:{background:'クルド系の武将としてザンギー朝に仕えエジプト遠征に従軍した経験が、ファーティマ朝の実権掌握とその後の独自王朝樹立の背景となった。', process:'ファーティマ朝を廃してエジプトをスンナ派に復帰させ、シリア・エジプトを統合してヒッティーンの戦いで十字軍に決定的勝利を収めエルサレムを奪還し、この際住民への報復を控える寛大な処置をとった。', significance:'イスラーム世界では十字軍撃退の英雄として、西欧世界でも「高潔な騎士道の体現者」として肯定的に描かれる稀有な事例であり、東西双方で理想化された歴史的人物となっている。', debate:'西欧における彼への肯定的評価(「高潔な敵」としての称賛)が、実際の史実に基づくものか、十字軍側の自己正当化のための「立派な敵」という物語装置として機能した側面もあるかが論じられる。'} },
+  { id:'battle_hattin', name:'ハッティンの戦い', category:'war', lat:32.81, lng:35.45, start:1187, end:1187, region:'パレスチナ(ガリラヤ)',
+    desc:{background:'十字軍国家(エルサレム王国)内部の指導者間の対立と、サラディンによる巧みな挑発戦術が、この決戦の背景となった。', process:'水の乏しい荒野に十字軍を誘い込んで包囲し、渇きと疲労で消耗した十字軍を壊滅させ、エルサレム王を含む多数の指導者を捕虜とした。', significance:'この勝利により十字軍の軍事力は事実上壊滅し、まもなくのエルサレム奪還への道を開いた、十字軍戦争史上最大の転換点となった戦いである。', debate:'十字軍側の水源選定・行軍判断の誤りが敗因としてどこまで決定的であったか、サラディン側の戦略的巧緻さとの比重が軍事史上論じられる。'} },
+  { id:'mongol_invasion_middle_east', name:'モンゴルの西アジア侵攻', category:'war', lat:33.34, lng:44.39, start:1219, end:1260, region:'中央アジア・イラン・イラク',
+    relatedIds:['hulagu_khan','fall_of_baghdad_1258','battle_ain_jalut'],
+    desc:{background:'モンゴル帝国の西方拡大政策のもと、フビライの兄フラグが西アジア征服を命じられたことが、この遠征の背景となった。', process:'フラグ=ハン率いるモンゴル軍がバグダードを包囲・陥落させアッバース朝カリフを処刑し、さらにシリア方面へ進撃したが、マムルーク朝のアイン=ジャールートの戦いでの勝利により西方への拡大は阻まれた。', significance:'500年続いたアッバース朝カリフ制の終焉という象徴的意義とともに、バグダードの灌漑システムや図書館(知恵の館)の破壊はイスラーム世界の学術的中心地としての地位の喪失を招いた。', debate:'このモンゴル軍のバグダード破壊がイスラーム世界の学術的衰退の決定的な転換点であったとする見方と、実際にはすでに政治的分裂により学術の中心が各地に分散していたとする見方との間で、その影響の程度が論じられる。'} },
+  { id:'hulagu_khan', name:'フラグ(フレグ)', category:'person', parentId:'mongol_invasion_middle_east', lat:33.34, lng:44.39, start:1218, end:1265, region:'モンゴル帝国(イルハン朝)',
+    desc:{background:'兄モンケ=ハンの命によりイル=ハン国建設のための西方遠征を担ったことが、彼の軍事行動の背景となった。', process:'バグダードを包囲・破壊してアッバース朝カリフを処刑し、さらにシリア方面へ進撃したが、モンケ=ハンの急死による本国への帰還準備でシリア方面の軍を大きく減らしたことがアイン=ジャールートでの敗北の一因となった。', significance:'アッバース朝を滅ぼしイル=ハン国を建国したが、後にイスラームへ改宗する子孫の代には征服者自身がイスラーム文化に同化していくという、遊牧征服王朝に共通するパターンを体現している。', debate:'モンケ死去による軍の縮小という「偶然」がアイン=ジャールートでの敗北、ひいてはモンゴルのエジプト征服失敗にどこまで決定的であったかという「if」の議論がなされる。'} },
+  { id:'fall_of_baghdad_1258', name:'バグダード陥落(アッバース朝の滅亡)', category:'event', lat:33.34, lng:44.39, start:1258, end:1258, region:'イラク(バグダード)',
+    desc:{background:'アッバース朝カリフがモンゴルへの服属要求を拒否したことが、フラグ=ハンによる懲罰的遠征の直接的契機となった。', process:'モンゴル軍がバグダードを包囲し陥落させ、最後のアッバース朝カリフを処刑、大規模な虐殺と破壊(灌漑システム・図書館の破壊を含む)を行った。', significance:'500年続いたアッバース朝カリフ制の完全な終焉を意味し、バグダードはこの破壊以降二度と往時の学術・文化的中心地としての地位を回復することはなかった。', debate:'この破壊がイスラーム世界の「黄金時代」の終わりを象徴する決定的事件として描かれることの妥当性、実際の長期的影響の程度が論じられる。'} },
+  { id:'ilkhanate', name:'イルハン朝', category:'nation', lat:38.08, lng:46.29, start:1256, end:1335, region:'イラン・イラク',
+    desc:{background:'フラグ=ハンによる西アジア征服の後、その子孫が現地に留まり統治を継続したことがこの国家の建国背景となった。', process:'当初は仏教・キリスト教・シャーマニズムなど多様な信仰を許容する統治を行ったが、ガザン=ハンの代にイスラームへの改宗を宣言し、以後は完全にイスラーム化・ペルシア化した統治を進めた。', significance:'征服王朝が現地の宗教・文化に同化していく過程を象徴する事例として、モンゴル帝国の各継承国家に共通するパターン(元朝の中国化、キプチャク=ハン国のイスラーム化)の一例をなす。', debate:'この改宗が純粋な信仰上の選択か、現地統治の正統性確保のための政治的判断であったかが論じられる。'} },
+  { id:'battle_ain_jalut', name:'アイン=ジャールートの戦い', category:'war', lat:32.55, lng:35.45, start:1260, end:1260, region:'パレスチナ北部',
+    desc:{background:'モンゴル軍のシリア方面進撃に対し、エジプトを拠点とするマムルーク朝が防衛の最終防波堤として迎撃を図ったことが背景となった。', process:'モンケ=ハン急死によりフラグが主力を率いて帰還し手薄になったモンゴル軍を、マムルーク朝のスルタン・クトゥズと将軍バイバルスがパレスチナで撃破した。', significance:'モンゴル軍がそれまで無敗を誇っていた中で初めて決定的な敗北を喫した戦いとして、モンゴル帝国の西方拡大の限界を画す世界史上の重要な転換点となった。', debate:'この勝利の要因を、マムルーク軍の卓越した戦術に求めるか、モンケの急死という偶然的要因(モンゴル軍主力の撤退)に求めるかで議論が分かれる。'} },
+  { id:'mamluk_sultanate', name:'マムルーク朝', category:'nation', lat:30.04, lng:31.24, start:1250, end:1517, region:'エジプト・シリア',
+    relatedIds:['baybars','battle_ain_jalut'],
+    desc:{background:'アイユーブ朝が軍事力の中核として用いていた奴隷軍人(マムルーク)が、王朝の弱体化に乗じて実権を掌握したことが建国の背景となった。', process:'モンゴル軍をアイン=ジャールートで撃退し、さらに残存していた十字軍国家群も次々と攻略して1291年のアッコン陥落で完全に一掃したが、16世紀初頭にオスマン帝国の攻撃を受け1517年に滅亡した。', significance:'モンゴル軍撃退と十字軍完全排除という二重の歴史的偉業を成し遂げ、以後250年以上エジプト・シリアを支配する安定政権として東地中海交易の覇権を握った。', debate:'奴隷出身者(マムルーク)が統治者として世襲によらない実力主義的な後継システムを維持し得た統治構造の独自性が、他のイスラーム王朝との比較で論じられる。'} },
+  { id:'baybars', name:'バイバルス', category:'person', parentId:'mamluk_sultanate', lat:30.04, lng:31.24, start:1223, end:1277, region:'マムルーク朝',
+    desc:{background:'マムルーク(奴隷軍人)としての軍事的実績がアイン=ジャールートの戦いでの活躍を経てスルタン位獲得の背景となった。', process:'モンゴル軍撃退の功績を背景に前スルタンを殺害して自ら即位し、残存する十字軍国家を次々と攻略、暗殺教団(ニザール派)の拠点も制圧して国内の統治基盤を固めた。', significance:'マムルーク朝の実質的な建国者として、モンゴル・十字軍という二大脅威への対処を通じてエジプト・シリアの安定的統治体制を確立した。', debate:'前スルタン暗殺による権力掌握という経緯が、マムルーク朝における「実力による継承」という統治原理の典型例としてどう評価されるべきかが論じられる。'} },
+
+  // ===================== オスマン帝国とサファヴィー朝 =====================
+  { id:'ottoman_empire', name:'オスマン帝国', category:'nation', lat:41.01, lng:28.98, start:1299, end:1922, region:'アナトリア中心に西アジア・北アフリカ・南東欧',
+    relatedIds:['osman_i','mehmed_ii','selim_i','suleiman_i','battle_chaldiran','ottoman_safavid_wars','tanzimat','abdulhamid_ii','young_turk_revolution','wwi_middle_east'],
+    desc:{background:'セルジューク朝の弱体化とモンゴルの侵攻による混乱で生じたアナトリアの政治的空白の中、トルコ系の一小侯国が台頭したことが建国の背景となった。', process:'メフメト2世によるコンスタンティノープル陥落(1453年)、スレイマン1世の代の最盛期を経て、東欧・北アフリカ・中東に及ぶ広大な版図を支配したが、18世紀以降は軍事的停滞と欧州列強の圧力(「東方問題」)により領土を次第に喪失し、第一次世界大戦の敗北により1922年に滅亡した。', significance:'600年以上存続したイスラーム世界最大級の帝国として、多民族・多宗教を包摂するミッレト制による統治は、後の中東・バルカン諸国の民族問題の歴史的背景を形作っている。', debate:'「ヨーロッパの病人」という19世紀の蔑称に象徴される衰退史観に対し、近年はオスマン帝国の統治制度の柔軟性・適応力を再評価する研究が進み、単純な「停滞と衰退」の物語を見直す動きが強まっている。'} },
+  { id:'osman_i', name:'オスマン1世', category:'person', parentId:'ottoman_empire', lat:40.18, lng:29.06, start:1258, end:1326, region:'オスマン帝国',
+    desc:{background:'アナトリア西部の辺境(ガーズィー=対ビザンツ戦士)の一小侯国の指導者として、ビザンツ帝国領への軍事的拡大の機会を捉えたことが建国の背景となった。', process:'ビザンツ帝国領への攻撃を繰り返し勢力を拡大し、自らの名(オスマン)にちなむオスマン侯国を樹立してその後の帝国発展の礎を築いた。', significance:'600年以上続くオスマン帝国の始祖として、その名は王朝全体の呼称(オスマン朝)としても用いられ続けている。', debate:'建国当初の実態については同時代史料が乏しく、後世の年代記が理想化・伝説化して描いている部分が多いため、史実の再構成には史料批判上の困難が伴う。'} },
+  { id:'mehmed_ii', name:'メフメト2世(征服王)', category:'person', parentId:'ottoman_empire', lat:41.01, lng:28.98, start:1432, end:1481, region:'オスマン帝国',
+    desc:{background:'父ムラト2世の代までに蓄積された軍事力を背景に、ビザンツ帝国の最後の拠点である都コンスタンティノープル攻略という宿願の実現を志向したことが治世の背景となった。', process:'巨大な大砲(ウルバンの大砲)を用いた大規模な包囲戦の末、1453年にコンスタンティノープルを陥落させてビザンツ帝国を完全に滅ぼし、征服者の称号を得た。', significance:'この陥落は千年以上続いた東ローマ帝国の終焉を告げる世界史上の一大画期であり、多くの歴史家がこれを中世の終わりと近代の始まりを画する象徴的事件とみなしている。', debate:'コンスタンティノープル陥落を「中世の終わり」の象徴的画期とする伝統的な時代区分は、実際にはより緩やかな移行過程を単純化しすぎているとする批判があり、時代区分論として議論される。'} },
+  { id:'selim_i', name:'セリム1世', category:'person', parentId:'ottoman_empire', lat:41.01, lng:28.98, start:1470, end:1520, region:'オスマン帝国',
+    desc:{background:'父バヤズィト2世との激しい後継争いを勝ち抜いたことが、彼の東方(サファヴィー朝・マムルーク朝)への積極的な軍事拡張路線の背景となった。', process:'チャルディラーンの戦いでサファヴィー朝を破り、さらにマムルーク朝を滅ぼしてエジプト・シリア・アラビア半島(メッカ・メディナを含む)を征服し、この地の支配権とともに「カリフ」の称号を継承したとされる。', significance:'この征服によりオスマン帝国はイスラーム世界の政治的中心地(聖地含む)を掌握し、スンナ派イスラーム世界における最有力国家としての地位を確立した。', debate:'オスマン朝によるカリフ位継承の史実性(後世の政治的正当化のための創作かどうか)については史料的根拠が乏しく、歴史学上の論争が続いている。'} },
+  { id:'battle_chaldiran', name:'チャルディランの戦い', category:'war', lat:39.11, lng:44.13, start:1514, end:1514, region:'アナトリア東部・イラン国境',
+    desc:{background:'スンナ派オスマン帝国とシーア派サファヴィー朝の宗教的・政治的対立が、この決戦の背景となった。', process:'オスマン帝国の火器(大砲・銃)を活用した戦術が、サファヴィー朝の伝統的な騎兵戦術を圧倒し決定的勝利を収めた。', significance:'この勝利によりオスマン帝国は東部アナトリアの支配を確立し、以後両国間の国境線(現在のトルコ・イラン国境の原型)が定まる契機となった。', debate:'火器の有無という技術的要因が、この戦いの帰趨をどこまで決定づけたか、軍事技術革新と伝統的戦術との対比が軍事史上の重要な論点である。'} },
+  { id:'suleiman_i', name:'スレイマン1世(壮麗帝)', category:'person', parentId:'ottoman_empire', lat:41.01, lng:28.98, start:1494, end:1566, region:'オスマン帝国',
+    desc:{background:'父セリム1世の征服により拡大した広大な版図の統治体制を、より洗練された形で整備する必要が治世の背景となった。', process:'「立法者(カーヌーニー)」と呼ばれる法体系の整備、ウィーン包囲(1529年)に象徴される中欧への軍事的圧力、地中海・紅海における海軍力の展開などを通じて帝国の最盛期を築いた。', significance:'オスマン帝国の政治・軍事・文化のあらゆる面で頂点を極めた時代の体現者として、西欧では「壮麗王」の異名で恐れられた。', debate:'ウィーン包囲失敗の要因を、補給線の伸長・季節的制約(冬の到来)に求めるか、ハプスブルク側の防衛の巧みさに求めるかで軍事史上の議論がある。'} },
+  { id:'ottoman_safavid_wars', name:'オスマン・サファヴィー戦争', category:'war', lat:33.34, lng:44.39, start:1532, end:1639, region:'イラク・アナトリア東部・コーカサス',
+    desc:{background:'スンナ派オスマン帝国とシーア派サファヴィー朝という宗派の異なる二大イスラーム帝国が、メソポタミア・カフカス地方の覇権をめぐり対立したことが背景となった。', process:'16〜18世紀を通じて断続的に繰り返され、イラク(バグダードなど)の支配権が両国間で度々入れ替わったが、決定的な勝敗はつかず長期的な国境紛争として推移した。', significance:'この対立を通じて形成された両国間の国境線は現在のトルコ・イラン国境の原型となり、この地域における現在のスンナ派・シーア派の分布にも大きな影響を残した。', debate:'この対立を純粋な宗派対立とみるか、領土・交易路をめぐる世俗的な国家間対立が宗教的言説で正当化されたにすぎないとみるかで議論がある。'} },
+  { id:'tanzimat', name:'タンジマート(恩恵改革)', category:'event', lat:41.01, lng:28.98, start:1839, end:1876, region:'オスマン帝国',
+    desc:{background:'帝国各地での民族主義運動の高まりと欧州列強の圧力(「東方問題」)への対応として、西欧的な近代化改革の必要性が認識されたことが背景となった。', process:'ギュルハネ勅令(1839年)を皮切りに法の下の平等・徴税制度改革・近代的軍制の導入など広範な西欧化改革を進めたが、伝統的なイスラーム法(シャリーア)との整合性や既得権益層の抵抗という困難に直面した。', significance:'この改革はオスマン帝国内の非ムスリム住民(キリスト教徒・ユダヤ教徒)にも形式的な法的平等を認めるものであり、後の青年トルコ革命に至る立憲主義的改革運動の先駆けとなった。', debate:'この改革が帝国の実質的な近代化・延命に寄与したとみるか、表面的な制度導入にとどまり実質的な統治構造の変革には至らなかったとみるかで評価が分かれる。'} },
+  { id:'midhat_pasha', name:'ミドハト=パシャ', category:'person', parentId:'ottoman_empire', lat:41.01, lng:28.98, start:1822, end:1884, region:'オスマン帝国',
+    desc:{background:'タンジマート改革の理念を継承し、より立憲主義的な統治体制の確立を志向する改革派官僚として台頭したことが背景となった。', process:'オスマン帝国初の近代的憲法(1876年憲法)の起草を主導しアブドゥルハミト2世を擁立したが、この憲法は露土戦争の勃発を口実にわずか2年で停止され、彼自身も後に追放・暗殺された。', significance:'「青年オスマン人」の理念を体現したこの試みは短命に終わったものの、後の青年トルコ革命(1908年)による憲法復活の理念的先駆けとなった。', debate:'この憲法停止をアブドゥルハミト2世個人の専制志向に帰すか、当時の対外的危機(露土戦争)という状況的要因を重視すべきかで議論がある。'} },
+  { id:'abdulhamid_ii', name:'アブデュルハミト2世', category:'person', parentId:'ottoman_empire', lat:41.01, lng:28.98, start:1842, end:1918, region:'オスマン帝国',
+    desc:{background:'露土戦争という対外的危機の勃発が、彼による1876年憲法の停止と専制統治への回帰の口実となった。', process:'憲法・議会を停止して30年以上に及ぶ専制的な統治(「暗黒時代」とも呼ばれる)を行い、汎イスラーム主義を掲げて帝国の統合を図る一方、アルメニア人虐殺事件など少数民族への弾圧も行ったが、青年トルコ革命により1908年に憲法復活を強いられ、翌年廃位された。', significance:'その専制的統治への反発が青年トルコ革命という立憲革命を招き、これが最終的にオスマン帝国の解体と共和政トルコへの移行という長期的な政治変動の起点となった。', debate:'彼の統治を単純な「専制と抑圧」の時代とみるか、帝国存続のための現実的な統治判断(汎イスラーム主義による求心力維持)を含んでいたとみるかで評価が分かれる。'} },
+  { id:'young_turk_revolution', name:'青年トルコ革命', category:'revolution', lat:41.01, lng:28.98, start:1908, end:1908, region:'オスマン帝国',
+    desc:{background:'アブドゥルハミト2世の専制統治への軍・知識人層の不満が、立憲主義を求める秘密結社「統一と進歩委員会」の結成という形で結集したことが背景となった。', process:'軍を中心とする蜂起により1876年憲法の復活を強制し、翌年アブドゥルハミト2世を廃位に追い込んだが、その後の統一派政権は次第に強権化し第一次世界大戦への参戦とアルメニア人虐殺という悲劇的結末を招いた。', significance:'立憲主義への転換という当初の理念とは裏腹に、最終的には帝国崩壊への道を加速させる結果となり、革命後のトルコ民族主義の高揚は後のケマル=アタテュルクによる共和国建国の思想的土壌ともなった。', debate:'当初の理想主義的な立憲革命がなぜ第一次世界大戦参戦という破局的な結末に至ったのか、統一派内部の急進化の過程が論じられる。'} },
+  { id:'safavid_dynasty', name:'サファヴィー朝', category:'nation', lat:38.08, lng:46.29, start:1501, end:1736, region:'イラン',
+    relatedIds:['ismail_i','abbas_i','battle_chaldiran'],
+    desc:{background:'スーフィー教団(サファヴィー教団)を母体とする軍事勢力が、シーア派イスマーイール派の信仰を掲げてイラン高原統一を目指したことが建国の背景となった。', process:'イスマーイール1世が建国しシーア派十二イマーム派をイランの国教と定めて以後今日まで続くイランのシーア派国家としてのアイデンティティを確立し、アッバース1世の代に最盛期を築いたが、内紛とアフガン系勢力の侵攻により1736年に事実上滅亡した。', significance:'シーア派国教化はイランを周辺のスンナ派イスラーム世界(オスマン帝国など)と宗教的に区別する決定的な画期となり、現在のイランのシーア派国家としてのアイデンティティの直接の起源となった。', debate:'シーア派国教化が、当時イラン高原の住民の多くがスンナ派であった状況からどのように強制的・段階的に転換されたのか、その社会史的過程の解明が今なお課題である。'} },
+  { id:'ismail_i', name:'イスマーイール1世', category:'person', parentId:'safavid_dynasty', lat:38.08, lng:46.29, start:1487, end:1524, region:'サファヴィー朝',
+    desc:{background:'サファヴィー教団の指導者としての宗教的権威と、トルコ系遊牧部族(キジルバシュ)の軍事力を結集したことが、建国の背景となった。', process:'イラン高原を統一してシーア派十二イマーム派を国教と定め、スンナ派オスマン帝国との対立(チャルディラーンの戦いでの敗北)を経験しながらも王朝の基盤を固めた。', significance:'シーア派イランという今日まで続く国家的アイデンティティの創始者として、イラン史上決定的な画期を成した人物である。', debate:'自らを神の化身と称するなど極端な宗教的権威づけを行ったとされる彼の統治理念が、その後の王朝でどこまで継続・希薄化していったかが論じられる。'} },
+  { id:'abbas_i', name:'アッバース1世(大帝)', category:'person', parentId:'safavid_dynasty', lat:32.65, lng:51.68, start:1571, end:1629, region:'サファヴィー朝',
+    desc:{background:'先代諸王の治世における内紛と軍事的劣勢(オスマン帝国・ウズベクへの領土喪失)という危機的状況が、彼の改革の背景となった。', process:'従来の部族軍(キジルバシュ)への依存を脱し常備軍(グラーム、コーカサス出身の奴隷軍人)を創設して中央集権化を進め、新都イスファハーンを壮麗に整備し、オランダ・イギリスとの交易を通じて経済的繁栄を築いた。', significance:'「大帝」と称されるサファヴィー朝最盛期の体現者として、イスファハーンは「世界の半分」と讃えられる国際交易・文化の中心地に発展した。', debate:'彼が推し進めた中央集権化(部族軍から常備軍への転換)が、長期的には伝統的な部族エリート層との緊張を生み、王朝後期の弱体化の遠因になったのではないかという評価がある。'} },
+
+  // ===================== 第一次世界大戦・委任統治・新国家の誕生 =====================
+  { id:'wwi_middle_east', name:'第一次世界大戦と中東', category:'war', lat:33.51, lng:36.29, start:1914, end:1918, region:'中東全域',
+    desc:{background:'第一次世界大戦でオスマン帝国が同盟国側について参戦したことが、中東地域における英仏との全面的な軍事対立の背景となった。', process:'イギリスはアラブ人指導者フサイン=イブン=アリーにアラブ独立を約束してオスマン帝国への反乱(アラブ反乱)を扇動する一方、フランスとサイクス・ピコ協定で戦後の勢力圏分割を密約し、さらにバルフォア宣言でユダヤ人の「民族的郷土」建設も約束するという、相互に矛盾する複数の秘密外交を展開した。', significance:'この三重の矛盾した約束(フサイン=マクマホン書簡・サイクス・ピコ協定・バルフォア宣言)は戦後の中東国境画定と今日まで続くパレスチナ問題の直接的な起源となった。', debate:'この三重外交を「帝国主義的な二枚舌」と断罪する見方が広く共有されているが、当時の戦時外交における複数の同盟相手への配慮という現実的制約をどこまで考慮すべきかも論じられる。'} },
+  { id:'hashemite_dynasty', name:'ハーシム家', category:'dynasty', lat:21.42, lng:39.83, start:1916, end:2026, region:'ヒジャーズ→イラク・ヨルダン',
+    relatedIds:['hussein_bin_ali','faisal_i_iraq','abdullah_i_jordan','arab_revolt'],
+    desc:{background:'預言者ムハンマドの血統を引くとされるメッカのハーシム家が、イギリスとの協力によりアラブ独立運動を主導したことが背景となった。', process:'フサイン=イブン=アリーがアラブ反乱を起こしオスマン帝国に対抗したが、戦後のイギリス・フランスによる委任統治体制のもとで当初の広範なアラブ独立の約束は実現せず、子孫はイラク・ヨルダンの王家として分かれて統治することとなった。', significance:'現在もヨルダン王室として存続する一方、イラクの王統は1958年の革命により断絶しており、同じ家系の異なる運命が対比的に論じられる。', debate:'イギリスがフサインに約束した「アラブ独立」がサイクス・ピコ協定により実質的に反故にされたことは、中東における欧米への根深い不信の歴史的起源としてしばしば言及される。'} },
+  { id:'hussein_bin_ali', name:'フサイン・イブン=アリー', category:'person', parentId:'hashemite_dynasty', lat:21.42, lng:39.83, start:1854, end:1931, region:'ヒジャーズ王国',
+    desc:{background:'オスマン帝国の中央集権化政策(青年トルコ革命後のトルコ民族主義強化)への反発と、イギリスからのアラブ独立支援の約束(フサイン=マクマホン書簡)が、蜂起の背景となった。', process:'アラブ反乱を主導してオスマン帝国軍と戦い、戦後アラブ地域全体の独立と統一王国の樹立を期待したが、サイクス・ピコ協定と国際連盟による委任統治体制により当初の期待は裏切られ、最終的にヒジャーズ地方の王位も同盟者であったイブン=サウードに奪われた。', significance:'アラブ民族主義の初期の象徴的存在として、彼の運動は挫折に終わったものの、後の中東各国の独立運動における「裏切られたアラブ独立」という歴史認識の原点を形成した。', debate:'イギリスの二枚舌外交の犠牲者としての側面が強調される一方、彼自身の統一アラブ王国樹立という野心がどこまで現実的であったかについても議論がある。'} },
+  { id:'arab_revolt', name:'アラブ反乱', category:'war', lat:21.42, lng:39.83, start:1916, end:1918, region:'アラビア半島(ヒジャーズ)・シリア',
+    desc:{background:'オスマン帝国の中央集権化政策とトルコ民族主義強化への反発、およびイギリスによるアラブ独立支援の約束が、この反乱の背景となった。', process:'フサイン=イブン=アリーとその息子ファイサルが指導し、イギリスの軍事顧問T.E.ロレンス(「アラビアのロレンス」)の協力を得てヒジャーズ鉄道への破壊工作などゲリラ戦を展開しオスマン帝国軍を苦しめた。', significance:'オスマン帝国の東部戦線崩壊に一定の貢献をしたが、戦後の英仏によるサイクス・ピコ協定履行により当初期待されたアラブ統一独立国家は実現せず、この反乱はアラブ民族主義運動における「裏切られた期待」の象徴となった。', debate:'アラビアのロレンスの個人的な役割・影響力が、実際の戦局にどこまで決定的であったか、それとも後世の文学的・映画的脚色による過大評価かが論じられる。'} },
+  { id:'sykes_picot_agreement', name:'サイクス・ピコ協定', category:'treaty', lat:33.89, lng:35.50, start:1916, end:1916, region:'シリア・イラク・パレスチナ',
+    desc:{background:'第一次世界大戦中、イギリスとフランスが戦後のオスマン帝国領中東地域の分割について秘密裏に合意する必要があったことが背景となった。', process:'現在のシリア・レバノンをフランスの勢力圏、イラク・ヨルダン・パレスチナをイギリスの勢力圏とする境界線を秘密裏に取り決めたが、この内容はロシア革命後にボリシェヴィキ政権により暴露され、アラブ側の「独立の約束」への裏切りとして大きな衝撃を与えた。', significance:'この秘密協定に基づく境界線は現在の中東諸国の国境線の多くの直接的な起源となっており、民族・部族の分布を無視した人為的な境界画定が今日までの地域紛争の構造的要因の一つとされる。', debate:'この協定の暴露が中東における欧米への不信の原点として繰り返し言及される一方、実際の国境画定にはこの協定通りにならなかった部分も多く、その実際の影響の程度を正確に評価する必要がある。'} },
+  { id:'balfour_declaration', name:'バルフォア宣言', category:'treaty', lat:31.78, lng:35.22, start:1917, end:1917, region:'パレスチナ',
+    desc:{background:'イギリス国内のシオニズム運動への同情と、戦時下でのユダヤ人社会からの支持獲得という戦略的計算が、この宣言の背景となった。', process:'イギリス外相バルフォアがユダヤ人指導者ロスチャイルド卿に宛てた書簡の形で、パレスチナにおけるユダヤ人の「民族的郷土」建設を支持する旨を表明した。', significance:'この宣言はシオニズム運動に国際的な法的正統性を与える画期的な文書となり、後の国際連盟委任統治条項にも組み込まれてイスラエル建国への道を開く一方、同地に居住していたアラブ人住民の存在への配慮を欠いた文言が今日まで続くパレスチナ問題の根源となった。', debate:'「郷土」という曖昧な表現が独立国家建設を意味するのか自治の拡大を意味するのか、当初から解釈の余地を残していたことが、後の対立激化の一因になったとする見方がある。'} },
+  { id:'french_mandate_levant', name:'フランス委任統治領シリア・レバノン', category:'event', lat:33.89, lng:35.50, start:1920, end:1946, region:'シリア・レバノン',
+    desc:{background:'サイクス・ピコ協定に基づきフランスの勢力圏とされたシリア・レバノン地域が、国際連盟による正式な委任統治領として認められたことが背景となった。', process:'フランスは宗教・宗派に基づく統治(レバノンにおけるマロン派キリスト教徒優遇など)を進め、シリアの民族主義運動への弾圧(ダマスカス砲撃事件など)も行ったが、第二次世界大戦中の混乱を経て1946年にシリア・レバノン両国は独立を達成した。', significance:'この委任統治期に確定したレバノンの宗派別権力配分制度(国民協約)は独立後の同国の政治体制の基本枠組みとなり、後のレバノン内戦の構造的要因ともなった。', debate:'宗派に基づく統治・権力配分が社会の安定に寄与したか、逆に宗派間の分断を固定化し後の内戦を準備したかが、レバノン現代史の中心的論点である。'} },
+  { id:'british_mandate_iraq_palestine', name:'イギリス委任統治領イラク・パレスチナ・トランスヨルダン', category:'event', lat:31.78, lng:35.22, start:1920, end:1948, region:'イラク・パレスチナ・トランスヨルダン',
+    desc:{background:'サイクス・ピコ協定に基づきイギリスの勢力圏とされたイラク・パレスチナ地域が、国際連盟による正式な委任統治領として認められたことが背景となった。', process:'イラクではハーシム家のファイサルを国王に擁立し1932年に独立を達成させる一方、パレスチナではバルフォア宣言に基づくユダヤ人移民の増加とアラブ人住民との対立が激化し、イギリスは調停に失敗して1947年に問題を国連に委ねた。', significance:'イラクでの委任統治は比較的早期の独立達成につながったが、パレスチナでの統治失敗は第一次中東戦争へとつながる長期の紛争構造を残すこととなった。', debate:'同じイギリスの委任統治でありながらイラクとパレスチナで対照的な帰結(比較的平和的独立と長期化する紛争)を生んだ要因が、統治政策の相違か、それぞれの地域固有の民族構成の複雑さによるものかが論じられる。'} },
+
+  // ===================== トルコ共和国の成立 =====================
+  { id:'turkish_war_independence', name:'トルコ独立戦争', category:'war', lat:39.93, lng:32.86, start:1919, end:1923, region:'アナトリア',
+    desc:{background:'第一次世界大戦敗北によるオスマン帝国の解体とセーヴル条約による国土分割という屈辱的な状況が、ムスタファ=ケマルによる抵抗運動の背景となった。', process:'ギリシア軍のアナトリア侵攻を撃退し、連合国が承認していたスルタン政府とは別に独自の国民運動政府を樹立して国土回復を実現した。', significance:'この勝利により1920年のセーヴル条約は破棄され、より有利な条件のローザンヌ条約が締結されてトルコ共和国建国の基盤が築かれた、第一次世界大戦の敗戦国が講和条約を実力で覆した稀有な事例である。', debate:'この独立戦争の成功が、その後のケマルによる急進的な世俗化・西欧化改革(カリフ制廃止など)をどこまで正当化する政治的資本となったかが論じられる。'} },
+  { id:'treaty_of_lausanne', name:'ローザンヌ条約', category:'treaty', lat:39.93, lng:32.86, start:1923, end:1923, region:'トルコ',
+    desc:{background:'トルコ独立戦争でのギリシア軍撃退という軍事的成功が、より有利な条件での条約再交渉を可能にする背景となった。', process:'先のセーヴル条約を破棄し、トルコの完全な主権と現在の国境線をほぼ確定させる内容で締結され、あわせてギリシアとの間で大規模な住民交換(宗教を基準とするギリシャ正教徒とムスリムの強制的な人口移動)が実施された。', significance:'第一次世界大戦の敗戦国でありながら実質的な主権回復を勝ち取った異例の講和条約として、トルコ共和国建国の国際的基盤を確立した。', debate:'宗教を基準とする強制的住民交換は、双方に多大な人的犠牲と文化的断絶をもたらしたが、民族紛争の「解決策」としてこの手法をどう評価すべきかという論点を提起する。'} },
+  { id:'mustafa_kemal_ataturk', name:'ムスタファ=ケマル(アタテュルク)', category:'person', parentId:'turkey_republic', lat:39.93, lng:32.86, start:1881, end:1938, region:'トルコ共和国',
+    desc:{background:'オスマン帝国軍人としての経歴とガリポリの戦いでの軍功が、独立戦争指導者としての政治的基盤を築いた。', process:'トルコ独立戦争を指導して国土を守り抜き、スルタン制・カリフ制を相次いで廃止して政教分離・女性参政権・文字改革(アラビア文字からラテン文字へ)などの急進的な世俗化・西欧化改革を断行した。', significance:'「トルコ人の父(アタテュルク)」として、多民族帝国から世俗的な国民国家への根本的な国家再編を成し遂げ、イスラーム世界における世俗主義国家建設の最も徹底した事例として世界的に注目される。', debate:'この急進的な世俗化改革が上からの強制的な近代化として国民の宗教的アイデンティティとの緊張を生んだかどうか、この緊張は21世紀のトルコにおける世俗派とイスラーム主義派の政治的対立の歴史的起源としても論じられる。'} },
+  { id:'turkey_republic', name:'トルコ共和国', category:'nation', lat:39.93, lng:32.86, start:1923, end:2026, region:'アナトリア',
+    relatedIds:['mustafa_kemal_ataturk','turkish_war_independence','treaty_of_lausanne'],
+    desc:{background:'独立戦争勝利とオスマン帝国解体という歴史的転換を経て、ムスタファ=ケマルが新たな国家体制構築を主導したことが背景となった。', process:'1923年の共和国宣言後、カリフ制廃止・世俗的法典の導入・国語改革などを通じて徹底した世俗的国民国家として再編され、NATO加盟などを通じ冷戦期は西側陣営の一員として位置づけられたが、21世紀にはエルドアン政権下でイスラーム的価値観の再興と世俗主義との緊張が高まっている。', significance:'イスラーム世界における世俗主義国家建設の最も徹底した事例として、その経験は他のムスリム多数国家における政教関係のあり方を考える上で重要な参照事例となり続けている。', debate:'エルドアン政権下でのイスラーム的価値観の再興を、ケマル主義的世俗主義への「揺り戻し」とみるか、より広範な国民の意向を反映した民主的な変化とみるかで評価が分かれる。'} },
+
+  // ===================== サウジアラビア・イラク・ヨルダンの成立 =====================
+  { id:'saudi_arabia_kingdom', name:'サウジアラビア王国', category:'nation', lat:24.71, lng:46.68, start:1902, end:2026, region:'アラビア半島',
+    relatedIds:['ibn_saud','oil_discovery_gulf'],
+    desc:{background:'18世紀に成立したワッハーブ派イスラーム改革運動とサウード家の同盟関係が、この王国建国の思想的・政治的基盤となった。', process:'イブン=サウードがアラビア半島の大部分を再統一し、1932年にサウジアラビア王国を建国、その後の石油発見により莫大な富を得て国際的な影響力を高めた。', significance:'イスラーム教の二大聖地(メッカ・メディナ)を擁する王国として、ワッハーブ派イスラームを国是とする政教一致の統治体制を築き、世界最大級の石油埋蔵量を背景に中東地域における最有力国家の一つとなった。', debate:'ワッハーブ派の厳格な教義と、王家による現実的な国際政治・経済運営(アメリカとの緊密な同盟関係)との間の緊張が、この王国の統治の特徴的なジレンマとして論じられる。'} },
+  { id:'ibn_saud', name:'イブン=サウード', category:'person', parentId:'saudi_arabia_kingdom', lat:24.71, lng:46.68, start:1876, end:1953, region:'サウジアラビア王国',
+    desc:{background:'父祖代々のサウード家再興という悲願と、ワッハーブ派イスラーム勢力との同盟関係が、彼の統一事業の背景となった。', process:'リヤドの奪還を皮切りにアラビア半島の大部分を軍事的に統一し、旧ライバルであったハーシム家からヒジャーズ地方(メッカ・メディナを含む)も奪って1932年にサウジアラビア王国を建国した。', significance:'現代サウジアラビアの建国者として、王国は現在も彼の子孫による統治が続いており、その名は今日の王国の正式名称(サウード家のアラビア)に冠されている。', debate:'彼の統一事業がワッハーブ派の宗教的熱意によってどこまで動機づけられていたか、部族間の伝統的な権力闘争としての側面とのバランスが論じられる。'} },
+  { id:'iraq_kingdom', name:'イラク王国', category:'nation', lat:33.34, lng:44.39, start:1921, end:1958, region:'イラク',
+    relatedIds:['faisal_i_iraq','iraq_revolution_1958'],
+    desc:{background:'イギリスの委任統治下、ハーシム家のファイサルが国王として擁立されたことが建国の背景となった。', process:'1932年に独立を達成したが、石油利権をめぐる英国の強い影響力が残り、シーア派・スンナ派・クルド人という複雑な民族・宗派構成をめぐる統治の困難を抱え続け、1958年の軍事クーデタにより王政は打倒された。', significance:'この王政打倒はイラク現代史における共和政への転換点となり、以後のイラクは軍事政権・バアス党一党支配という長期の権威主義的統治を経験することとなった。', debate:'イギリスによる人為的な国境画定(異なる宗派・民族を単一国家に統合)が、この国の長期にわたる政治的不安定の根本的原因であるとする見方が広く共有されている。'} },
+  { id:'faisal_i_iraq', name:'ファイサル1世', category:'person', parentId:'iraq_kingdom', lat:33.34, lng:44.39, start:1885, end:1933, region:'イラク王国',
+    desc:{background:'アラブ反乱を指導したハーシム家の一員として、イギリスによりイラク国王に擁立されたことが治世の背景となった。', process:'多様な民族・宗派(スンナ派アラブ人・シーア派アラブ人・クルド人)を抱える国家の統合を図りながら1932年の独立を実現させたが、王朝としての正統性の基盤は脆弱で、その死後まもなく王政自体も不安定化していった。', significance:'アラブ独立運動の理想を体現しつつも、イギリスの委任統治という制約の中で「借り物の王権」を担わざるを得なかった彼の統治は、中東における人為的国家建設の困難さを象徴する事例である。', debate:'彼自身がイラク出身でない「よそ者」の王として国民統合をどこまで実現し得たか、この正統性の脆弱さが後の王政崩壊にどこまで構造的に寄与したかが論じられる。'} },
+  { id:'iraq_revolution_1958', name:'イラク7月14日革命', category:'revolution', lat:33.34, lng:44.39, start:1958, end:1958, region:'イラク',
+    desc:{background:'ハーシム王家の親英的姿勢とアラブ民族主義の高まり(ナセルのエジプトに象徴される反欧米的機運)への国内の不満が、この革命の背景となった。', process:'軍将校団によるクーデタで国王ファイサル2世をはじめとする王族が殺害され、共和政が樹立された。', significance:'この革命によりイラクは共和政へ移行したが、以後は軍事クーデタが相次ぐ不安定な政情が続き、最終的に1968年のバアス党によるクーデタを経てサダム=フセインの独裁体制へと至る道を準備した。', debate:'この革命を「反植民地主義的な民族解放」と評価するか、単なる軍事エリートによる権力奪取とみるかで、イラク現代史の性格づけが分かれる。'} },
+  { id:'jordan_kingdom', name:'ヨルダン(トランスヨルダン→ヨルダン=ハシミテ王国)', category:'nation', lat:31.95, lng:35.93, start:1921, end:2026, region:'ヨルダン',
+    relatedIds:['abdullah_i_jordan'],
+    desc:{background:'イギリスの委任統治下でハーシム家のアブドゥッラー1世が「トランスヨルダン首長国」として統治を開始したことが建国の背景となった。', process:'1946年に完全独立を達成し「ヨルダン」と改称し、パレスチナ難民の大量流入(1948年・1967年の中東戦争を経て)という人口構成上の課題を抱えながらも、中東の他の君主国に比べ比較的安定した統治を維持し続けている。', significance:'資源に乏しく地政学的に不安定な中東において、王室の巧みなバランス外交(イスラエル・アラブ諸国・欧米との関係維持)により長期の安定を保った稀有な事例として注目される。', debate:'人口の過半数を占めるとされるパレスチナ系住民と、伝統的な東岸出身者(ハーシム王家を支持する部族層)との間の政治的緊張が、この王国の統治の基本的な構造的課題として論じられる。'} },
+  { id:'abdullah_i_jordan', name:'アブドゥッラー1世', category:'person', parentId:'jordan_kingdom', lat:31.95, lng:35.93, start:1882, end:1951, region:'トランスヨルダン→ヨルダン王国',
+    desc:{background:'アラブ反乱を指導したハーシム家の一員として、イギリスの委任統治下でトランスヨルダンの首長に据えられたことが治世の背景となった。', process:'巧みな外交手腕でイギリスとの関係を維持しながら1946年の完全独立を実現させ、第一次中東戦争ではヨルダン川西岸を占領・併合したが、パレスチナ問題への対応(イスラエルとの秘密交渉が疑われた)をめぐりパレスチナ人急進派により1951年に暗殺された。', significance:'現在まで続くヨルダン=ハーシム王朝の建国者として、その現実主義的な対イスラエル政策の系譜は子孫のフセイン国王・アブドゥッラー2世にも受け継がれている。', debate:'彼のイスラエルとの秘密交渉の実態(単独講和を模索していたか)については史料的制約があり、その評価はパレスチナ問題における「アラブの大義」と個別国家の実利との相克を考える事例として論じられる。'} },
+  { id:'oil_discovery_gulf', name:'中東における石油発見と石油産業の勃興', category:'event', lat:26.29, lng:50.15, start:1908, end:1945, region:'ペルシア湾岸(イラン・バーレーン・サウジアラビアなど)',
+    desc:{background:'20世紀初頭以降の世界的な石油需要の高まりと、欧米石油会社によるペルシア湾岸地域での地質調査の進展が、大規模油田発見の背景となった。', process:'イラン(1908年)を皮切りにサウジアラビア・クウェート・イラクなど湾岸諸国で相次いで巨大油田が発見され、当初は欧米石油会社(セブンシスターズ)が採掘権を独占していたが、20世紀半ば以降は産油国側が国有化・利権再交渉を通じて富の分配を取り戻していった。', significance:'この石油収入は湾岸諸国を世界有数の富裕国へと変貌させる一方、資源に依存した経済構造(「資源の呪い」)と欧米列強の戦略的関心の集中という、この地域の現代史を規定する二つの構造的特徴を生み出した。', debate:'石油資源の存在が湾岸諸国の政治的独立・近代化を促進したとみるか、逆に外部勢力の介入を招き真の主権確立を妨げてきたとみるかで、資源経済論・国際政治学上の評価が分かれる。'} },
+  { id:'opec_founding', name:'OPEC(石油輸出国機構)の設立', category:'event', lat:33.34, lng:44.39, start:1960, end:1960, region:'イラク(バグダード)',
+    desc:{background:'産油国側の意向を無視した欧米石油会社(セブンシスターズ)による一方的な原油公示価格引き下げが、産油国間の連携組織結成の直接的契機となった。', process:'サウジアラビア・イラン・イラク・クウェート・ベネズエラの5か国により結成され、当初は目立った影響力を持たなかったが、1973年の第一次石油危機を機に石油価格・生産量の決定権を実質的に掌握するようになった。', significance:'資源保有国が国際商品市場において価格決定力を持ち得ることを実証した先駆的事例として、南北問題における「資源ナショナリズム」の重要な成功例と評価される。', debate:'OPECの価格・供給調整能力の実効性は加盟国間の利害対立(増産派と減産派)によりしばしば揺らいでおり、この組織の実際の市場支配力の程度については経済学的に議論がある。'} },
+
+  // ===================== イラン(パフラヴィー朝〜イラン=イスラーム共和国) =====================
+  { id:'iran_pahlavi_dynasty', name:'パフラヴィー朝', category:'nation', lat:35.69, lng:51.39, start:1925, end:1979, region:'イラン',
+    relatedIds:['reza_shah','mohammad_reza_shah','mossadegh_coup','iranian_revolution'],
+    desc:{background:'ガージャール朝末期の政治的混乱と、軍人レザー=ハーンによるクーデタが、この新王朝樹立の背景となった。', process:'レザー=シャーが西欧的な近代化改革(徴兵制・世俗教育・女性のヴェール着用禁止など)を強権的に推進し、息子モハンマド=レザー=シャーの代には石油国有化運動(モサッデグ首相)を経てアメリカ・イギリスの支援によるクーデタで親米路線を強化したが、急速な近代化への反発とシーア派聖職者層の不満が高まり1979年のイラン革命により王政は崩壊した。', significance:'上からの急速な世俗的近代化(白色革命)は都市中間層の拡大をもたらした一方、伝統的価値観との深刻な軋轢を生み、この緊張は最終的にイスラーム革命という形で爆発することとなった。', debate:'この王朝の近代化政策を評価する際、その経済的成果と、秘密警察(サヴァク)による弾圧・言論統制という負の側面のどちらに力点を置くべきかで評価が分かれる。'} },
+  { id:'reza_shah', name:'レザー=シャー(レザー=ハーン)', category:'person', parentId:'iran_pahlavi_dynasty', lat:35.69, lng:51.39, start:1878, end:1944, region:'パフラヴィー朝',
+    desc:{background:'ガージャール朝末期の中央権力の弱体化と外国勢力(英露)の影響力拡大への危機感が、軍人としての彼の政治的台頭の背景となった。', process:'クーデタで実権を握った後1925年に自ら王位に就いてパフラヴィー朝を開き、徴兵制・近代的行政機構・世俗教育の導入、女性のヴェール着用禁止など西欧化・世俗化改革を強権的に推進したが、第二次世界大戦中に親独的態度を理由に英ソ両国の圧力で退位を強いられた。', significance:'トルコのケマル=アタテュルクを範とする急速な近代化を通じてイランの国家的基盤を再編したが、その強権的手法は伝統的な宗教勢力・部族勢力との緊張を残した。', debate:'退位強要の経緯(英ソによる事実上の内政干渉)は、イランにおける外国勢力への根深い不信の歴史的背景の一つとして位置づけられる。'} },
+  { id:'mohammad_reza_shah', name:'モハンマド=レザー=シャー', category:'person', parentId:'iran_pahlavi_dynasty', lat:35.69, lng:51.39, start:1919, end:1980, region:'パフラヴィー朝',
+    desc:{background:'父レザー=シャーの退位を受けて即位し、冷戦下で石油資源をめぐる英米との複雑な関係を担うことになったことが治世の背景となった。', process:'石油国有化を掲げるモサッデグ首相との対立からクーデタ(米英の支援)を経て親政を回復し、「白色革命」と称する上からの急進的な近代化・土地改革を推進する一方、秘密警察(サヴァク)による反対派弾圧を強化したが、急速な西欧化への宗教勢力・伝統層の反発が1979年のイラン革命を招き亡命を余儀なくされた。', significance:'親米路線と急進的な世俗的近代化を推し進めた統治は、結果的にイスラーム主義勢力による革命という反動を招き、中東における「上からの近代化」の限界を示す事例となった。', debate:'彼の近代化政策(女性の権利拡大・産業化)を積極的に評価する声と、抑圧的な統治・対米従属を批判する声との間で、イラン革命の評価そのものと連動して評価が大きく分かれる。'} },
+  { id:'mossadegh_coup', name:'モサッデグ政権とクーデター(1953年)', category:'event', lat:35.69, lng:51.39, start:1951, end:1953, region:'イラン',
+    desc:{background:'イラン議会がイギリス系石油会社(アングロ・イラニアン)の資産を国有化する決定を下したことが、英米の警戒を招く背景となった。', process:'イギリスとアメリカの情報機関(CIA・MI6)が主導した工作により、民主的に選出されていたモサッデグ首相の政権が転覆され、国王モハンマド=レザー=シャーの親政・親米路線が復活した。', significance:'この工作は2013年にCIA自身が関与を公式に認めた冷戦期の代表的な体制転換工作の一つであり、以後のイランにおける根深い反米感情、ひいては1979年のイラン革命の重要な歴史的伏線となった。', debate:'この工作が短期的な西側の戦略的利益(石油利権確保)をもたらした一方、長期的にはイランの反米化・イスラーム化という自らの利益に反する結果を招いたという「意図せざる帰結」の典型例として国際政治学上重視される。'} },
+  { id:'iranian_revolution', name:'イラン革命', category:'revolution', lat:35.69, lng:51.39, start:1978, end:1979, region:'イラン',
+    desc:{background:'国王の急速な世俗的近代化政策への宗教勢力・伝統層の反発と、経済格差の拡大・秘密警察による抑圧への広範な国民的不満が、この革命の背景となった。', process:'亡命先のパリからホメイニー師が指導した大規模な民衆抗議運動が拡大し、国王は国外へ脱出、帰国したホメイニー師のもとイスラーム法学者による統治(ヴェラーヤテ・ファギーフ)を核とするイスラーム共和制が樹立された。', significance:'20世紀後半における最も重要な宗教的revolutionとして、世俗的な近代化を強権的に進めた王政が民衆蜂起によって打倒されイスラーム主義国家が誕生したという前例は、以後の中東・イスラーム世界全体に大きな政治的衝撃を与えた。', debate:'この革命を「西欧的近代化への宗教的反動」とみるか「独裁と対米従属への正当な民衆抵抗」とみるかで、この革命の性格づけそのものが今日まで国際的に大きく分かれている。'} },
+  { id:'iran_islamic_republic', name:'イラン=イスラーム共和国', category:'nation', lat:35.69, lng:51.39, start:1979, end:2026, region:'イラン',
+    relatedIds:['khomeini','hostage_crisis_tehran','iran_iraq_war'],
+    desc:{background:'イラン革命の成功により、ホメイニー師が提唱するイスラーム法学者による統治(ヴェラーヤテ・ファギーフ)という新たな統治理念に基づく国家建設が求められたことが背景となった。', process:'最高指導者(ホメイニー師、後にハーメネイー師)のもとで大統領・議会による共和政的要素とイスラーム法学者による監督機構(護憲評議会)を組み合わせた独自の統治体制を確立し、イラン・イラク戦争を戦い抜いた後、核開発問題をめぐり欧米との緊張と経済制裁が続いている。', significance:'選挙による共和政的要素と神権政治的要素を組み合わせた「イスラーム民主主義」の独自モデルとして、他のイスラーム主義運動にとっての重要な参照事例(ただしシーア派固有の統治理念のため他地域への直接適用には限界がある)となっている。', debate:'この統治体制を「民意を一定程度反映する多元的なイスラーム統治」とみるか「聖職者による事実上の独裁を選挙の外見で糊塗したもの」とみるかで、国際的な評価が大きく分かれている。'} },
+  { id:'khomeini', name:'ホメイニー(ルーホッラー=ホメイニー)', category:'person', parentId:'iran_islamic_republic', lat:35.69, lng:51.39, start:1902, end:1989, region:'イラン=イスラーム共和国',
+    desc:{background:'シーア派法学者としての長年の宗教的権威と、国王の世俗化政策・対米従属への一貫した批判が、亡命中も含め彼の指導力の背景となった。', process:'パリ亡命中にカセットテープを通じた説教でイラン国内の革命運動を指導し、帰国後は「イスラーム法学者による統治」を核とする新体制を確立し、アメリカ大使館人質事件・イラン・イラク戦争という試練を経て体制を固めた。', significance:'「最高指導者」という新たな地位を創設し宗教的権威と国家統治権を一体化させる統治モデルを確立した、20世紀最も影響力の大きい宗教指導者の一人である。', debate:'彼の統治理念(ヴェラーヤテ・ファギーフ)がシーア派伝統の中でどこまで正統性を持つ解釈か、それとも彼独自の革新的教義であったかについて、シーア派神学内部でも議論がある。'} },
+  { id:'hostage_crisis_tehran', name:'イラン米国大使館人質事件', category:'event', lat:35.69, lng:51.39, start:1979, end:1981, region:'イラン(テヘラン)',
+    desc:{background:'亡命中の国王のアメリカ入国(治療目的)を認めたことへのイラン国内の激しい反発が、この事件の直接的契機となった。', process:'急進派学生がアメリカ大使館を占拠し外交官ら52人を444日間にわたり人質にとり、カーター政権による軍事的救出作戦も失敗に終わった。', significance:'この長期化した危機はカーター大統領の再選失敗の一因ともなり、以後の米イラン関係を決定的に悪化させ今日まで続く断交状態の直接の起点となった。', debate:'この事件を「学生の自発的な革命的熱情」とみるか、新体制(ホメイニー派)による意図的な政治的道具化とみるかで、その性格づけが論じられる。'} },
+  { id:'iran_iraq_war', name:'イラン・イラク戦争', category:'war', lat:31.32, lng:47.65, start:1980, end:1988, region:'イラン・イラク国境地帯',
+    desc:{background:'イラン革命による地域の勢力均衡の変化に乗じ、フセイン政権のイラクがイラン領内の油田地帯(フーゼスターン)への野心と国境紛争(シャットゥルアラブ川)を背景に侵攻したことが開戦の契機となった。', process:'第一次世界大戦さながらの塹壕戦・化学兵器使用を伴う消耗戦が8年間続き、双方あわせて100万人規模ともされる犠牲者を出しながら国境線にほぼ変化のないまま1988年に停戦した。', significance:'冷戦下で米ソ双方がイラクを間接的に支援するなど国際的な思惑が絡み合った代理戦争的性格を持ち、この戦争での経験(化学兵器使用など)は後の湾岸戦争・イラク戦争にまで続くフセイン政権への国際的警戒の背景となった。', debate:'国際社会(特にアメリカ)がイラクによる化学兵器使用を黙認・支援した経緯は、後の湾岸戦争でこれを「大義」として非難した姿勢との整合性が厳しく問われる論点である。'} },
+
+  // ===================== イラク共和国(バアス党政権期) =====================
+  { id:'iraq_republic_baath', name:'イラク共和国(バアス党政権期)', category:'nation', lat:33.34, lng:44.39, start:1968, end:2003, region:'イラク',
+    relatedIds:['saddam_hussein','iran_iraq_war','gulf_war_1991','iraq_war_2003'],
+    desc:{background:'1958年の王政打倒後も相次いだ軍事クーデタによる政情不安が、汎アラブ社会主義を掲げるバアス党の台頭を許す土壌となった。', process:'バアス党が複数回のクーデタを経て権力を掌握し、党内の権力闘争を勝ち抜いたサダム=フセインが1979年に実権を完全掌握し、以後は個人崇拝と秘密警察による恐怖統治を特徴とする独裁体制を確立した。', significance:'石油収入を背景とした国家主導の近代化と、クルド人・シーア派への弾圧という二面性を持つ統治体制は、2003年のアメリカ主導のイラク戦争による政権崩壊まで四半世紀続いた。', debate:'バアス党の世俗的汎アラブ主義イデオロギーと、実際の統治における恐怖政治・個人崇拝との乖離をどう理解すべきか、イデオロギーと権力の道具化の関係が論じられる。'} },
+  { id:'saddam_hussein', name:'サダム=フセイン', category:'person', parentId:'iraq_republic_baath', lat:33.34, lng:44.39, start:1937, end:2006, region:'イラク',
+    desc:{background:'バアス党内での권力闘争を経て次第に実権を掌握し、1979年に正式に大統領・党書記長に就任したことが治世の背景となった。', process:'イラン・イラク戦争(化学兵器使用を含む)、クウェート侵攻(湾岸戦争)、国内のクルド人・シーア派への弾圧(ハラブジャ化学兵器攻撃など)を通じて強権的な統治を続けたが、2003年のアメリカ主導のイラク戦争により政権は崩壊し、後に戦争犯罪で処刑された。', significance:'冷戦期には反イラン・反イスラーム主義の砦として西側諸国から一定の支持を得ていたが、湾岸戦争以降は国際社会から「ならず者国家」の指導者として孤立を深め、大量破壊兵器問題は2003年イラク戦争の(結果的に誤りと判明した)開戦根拠となった。', debate:'彼の統治への評価は、世俗的な近代化と一定の社会インフラ整備という側面と、民族・宗派弾圧という残虐な側面のどちらを重視するかで大きく分かれ、彼の処刑後のイラクの混迷は「独裁の除去が必ずしも安定をもたらさない」という教訓として論じられる。'} },
+
+  // ===================== イスラエル建国とアラブ・イスラエル紛争 =====================
+  { id:'zionism', name:'シオニズム運動', category:'event', lat:31.78, lng:35.22, start:1897, end:1948, region:'ヨーロッパ・パレスチナ',
+    desc:{background:'19世紀ヨーロッパにおける反ユダヤ主義の高まり(ドレフュス事件など)が、テオドール=ヘルツルによるユダヤ人国家建設運動提唱の直接的背景となった。', process:'『ユダヤ人国家』の刊行と世界シオニスト機構の結成を通じてパレスチナへのユダヤ人入植を組織的に推進し、バルフォア宣言による国際的な支持獲得を経て、ホロコーストという未曾有の悲劇がこの運動への国際的共感を決定的に強めた。', significance:'1948年のイスラエル建国という形でこの運動の目標は実現したが、同時に同地に居住していたパレスチナ人アラブ住民の権利・存在をめぐる対立という、今日まで続く中東紛争の根源を生んだ。', debate:'シオニズムを「迫害されたユダヤ民族の正当な民族自決運動」とみるか「先住のパレスチナ人を無視した植民地主義的入植運動」とみるかは、パレスチナ問題全体の評価に直結する最も根本的な論争軸である。'} },
+  { id:'israel_founding', name:'イスラエル建国', category:'event', lat:32.08, lng:34.78, start:1948, end:1948, region:'パレスチナ',
+    desc:{background:'ホロコーストという未曾有の悲劇への国際的な同情と、シオニズム運動の組織的な入植活動の蓄積が、国連によるパレスチナ分割決議(1947年)を後押しした。', process:'国連分割決議に基づきユダヤ人指導部が独立を宣言し、直後にアラブ諸国連合軍との第一次中東戦争に突入したが、これに勝利して国連決議案よりも広い領土を実効支配することとなった。', significance:'ユダヤ人にとっては二千年来の悲願である国家再建の達成であったが、この過程で70万人以上のパレスチナ人が難民化(ナクバ=大災厄)し、以後今日まで続くパレスチナ難民問題の起点となった。', debate:'建国を「ユダヤ民族の歴史的権利の回復」とみるか、パレスチナ人にとっての「ナクバ(大災厄)」とみるかという評価の根本的対立は、この地域の紛争理解における最も先鋭な論争点である。'} },
+  { id:'arab_israeli_war_1948', name:'第1次中東戦争(パレスチナ戦争)', category:'war', lat:31.78, lng:35.22, start:1948, end:1949, region:'パレスチナ',
+    desc:{background:'国連分割決議へのアラブ側の不承認と、イスラエル建国宣言直後のアラブ諸国連合軍による侵攻が、この戦争の背景となった。', process:'当初劣勢と見られていたイスラエル軍が態勢を立て直し、国連決議案よりも広い領土を確保する形で1949年に休戦協定を締結、エジプトがガザ地区を、ヨルダンがヨルダン川西岸を占領する形で分割された。', significance:'この戦争でパレスチナ人70万人以上が難民化する「ナクバ(大災厄)」を経験し、以後周辺アラブ諸国の難民キャンプで生活する世代を超えた難民問題を生み出し、今日まで中東和平の最大の障害の一つであり続けている。', debate:'この難民化の経緯(自主的な避難かイスラエル側による組織的追放か)については、イスラエル人「新歴史家」による近年の実証研究が後者の要素を重視する立場を示すなど、歴史認識をめぐる激しい論争が続いている。'} },
+  { id:'egypt_republic', name:'エジプト共和国', category:'nation', lat:30.04, lng:31.24, start:1952, end:2026, region:'エジプト',
+    relatedIds:['nasser','sadat','hosni_mubarak','suez_crisis','six_day_war','yom_kippur_war','camp_david_accords','arab_spring'],
+    desc:{background:'パレスチナ戦争敗北による王政の権威失墜と、国王ファールーク1世の腐敗した統治への軍部の不満が、王政打倒運動の背景となった。', process:'自由将校団によるクーデタで王政を廃止し共和政を樹立し、ナセルの指導下でスエズ運河国有化・アラブ民族主義の盟主としての地位を確立、その後継サダトの代には対イスラエル講和(キャンプデービッド合意)へと路線転換した。', significance:'アラブ世界における最大の人口・軍事力を持つ国家として、汎アラブ主義の中心的な担い手から後にアメリカとの緊密な同盟関係への転換という、アラブ世界の政治的方向性の変遷を体現する存在であり続けている。', debate:'ナセルの汎アラブ社会主義路線とサダト以降の親米路線という180度の転換を、時代状況への合理的適応とみるか、理念の放棄とみるかで評価が分かれる。'} },
+  { id:'nasser', name:'ガマール=アブドゥル=ナーセル', category:'person', parentId:'egypt_republic', lat:30.04, lng:31.24, start:1918, end:1970, region:'エジプト共和国',
+    desc:{background:'自由将校団によるクーデタで王政を打倒した後、内部の権力闘争を勝ち抜いて実権を掌握したことが治世の背景となった。', process:'スエズ運河国有化を断行して英仏イスラエルの軍事介入(スエズ危機)を招いたが米ソの圧力で撃退に成功して国際的な威信を高め、汎アラブ主義・非同盟主義の盟主として活動したが、第三次中東戦争(六日間戦争)での壊滅的敗北により威信を大きく損なった。', significance:'アラブ民族主義・第三世界連帯の象徴的指導者として絶大な人気を誇ったが、その理想主義的な汎アラブ統合の試み(アラブ連合共和国など)は現実の国益対立の前に短命に終わった。', debate:'彼のカリスマ的指導力への評価と、六日間戦争での軍事的失策への批判との間で、その歴史的評価は今も大きく揺れ動いている。'} },
+  { id:'suez_crisis', name:'スエズ危機(第2次中東戦争)', category:'war', lat:30.58, lng:32.27, start:1956, end:1957, region:'エジプト(スエズ運河)',
+    desc:{background:'ナセルによるスエズ運河国有化宣言が、運河の主要株主であったイギリス・フランスの経済的・戦略的利益を直接脅かしたことが開戦の背景となった。', process:'英仏がイスラエルと共謀してエジプトへ軍事侵攻したが、アメリカ・ソ連双方がこれに強く反対する異例の共同歩調をとり、国際的圧力により英仏イスラエルは撤退を余儀なくされた。', significance:'この事件は旧宗主国イギリス・フランスの帝国的な単独軍事行動がもはや通用しない時代の到来を象徴し、以後の英仏の国際的影響力後退と、逆にアメリカ・ソ連が中東問題の主導権を握る冷戦構造への転換点となった。', debate:'英仏イスラエルの共謀を「時代錯誤な帝国主義の最後の発露」とみるこの通説的評価に対し、当時の冷戦下における戦略的計算の複雑さも重視すべきとする視点がある。'} },
+  { id:'six_day_war', name:'第3次中東戦争(六日間戦争)', category:'war', lat:31.78, lng:35.22, start:1967, end:1967, region:'シナイ半島・ゴラン高原・ヨルダン川西岸',
+    desc:{background:'エジプト・シリア・ヨルダンなどアラブ諸国の軍事的威嚇の高まりと国境紛争の緊張が、イスラエルによる先制攻撃の背景となった。', process:'イスラエル軍が緒戦での航空奇襲によりエジプト空軍を壊滅させ、わずか6日間でシナイ半島・ヨルダン川西岸(東エルサレム含む)・ゴラン高原を制圧する圧倒的勝利を収めた。', significance:'この占領地問題(特にヨルダン川西岸・ガザ地区の占領継続)は今日まで続くイスラエル・パレスチナ紛争の最大の争点であり続け、この戦争でのアラブ側の壊滅的敗北はアラブ民族主義の威信を大きく傷つけた。', debate:'この占領地の法的地位(国連決議242号が求める「占領地からの撤退」の解釈)をめぐる対立は、今日のイスラエル・パレスチナ紛争の国際法上の中心的論点であり続けている。'} },
+  { id:'yom_kippur_war', name:'第4次中東戦争(十月戦争)', category:'war', lat:31.78, lng:35.22, start:1973, end:1973, region:'シナイ半島・ゴラン高原',
+    desc:{background:'六日間戦争での屈辱的敗北の雪辱を期すエジプト・シリアが、ユダヤ教の贖罪日(ヨム・キプル)という奇襲のタイミングを選んで開戦したことが背景となった。', process:'緒戦でイスラエル軍は不意を突かれ大きな損害を受けたが、態勢を立て直して反撃に転じ最終的に軍事的優位を回復したものの、緒戦の苦戦は「無敵神話」を大きく揺るがした。', significance:'この戦争を機にOPEC諸国が石油戦略(禁輸・大幅値上げ)を発動して第一次石油危機を引き起こし、中東の地域紛争が世界経済全体を揺るがす構造を初めて明確に示した。', debate:'この緒戦の奇襲成功にもかかわらず最終的な軍事的劣勢を挽回できなかったエジプト側の判断が、結果的に対イスラエル講和路線(サダトのキャンプデービッド合意)への転換をどこまで準備したかが論じられる。'} },
+  { id:'camp_david_accords', name:'キャンプ・デーヴィッド合意とエジプト・イスラエル平和条約', category:'treaty', lat:30.04, lng:31.24, start:1978, end:1979, region:'エジプト・イスラエル',
+    desc:{background:'ヨム・キプル戦争後の相互不信と国力消耗が、サダト大統領による大胆な対イスラエル講和路線への転換を促した背景となった。', process:'サダトの電撃的なエルサレム訪問(1977年)を経て、アメリカ大統領カーターの仲介によりキャンプデービッドで集中協議が行われ、エジプトのシナイ半島返還とイスラエルとの国交正常化を定めた歴史的な和平条約が締結された。', significance:'アラブ諸国として初めてイスラエルとの正式な平和条約を締結した画期的な事例となったが、他のアラブ諸国からは「アラブの大義への裏切り」として激しい非難を浴び、エジプトはアラブ連盟から一時追放された。', debate:'この講和を「現実主義的な地域安定への貢献」と評価するか「パレスチナ問題を置き去りにした個別和平」と批判するかで、アラブ世界内部でも評価が大きく分かれた。'} },
+  { id:'sadat', name:'アンワル=サダト', category:'person', parentId:'egypt_republic', lat:30.04, lng:31.24, start:1918, end:1981, region:'エジプト共和国',
+    desc:{background:'ナセル死去による後継として、疲弊した経済とヨム・キプル戦争後の国際情勢の変化への対応を迫られたことが治世の背景となった。', process:'ヨム・キプル戦争緒戦での軍事的成功で一定の威信を回復した後、電撃的なエルサレム訪問という大胆な政策転換によりイスラエルとの歴史的和平(キャンプデービッド合意)を実現し、経済開放政策(インフィタート)も推進したが、この和平路線への反発からイスラーム過激派により1981年に暗殺された。', significance:'アラブ・イスラエル和平の先駆者としてノーベル平和賞を受賞したが、その暗殺は中東和平プロセスに内在する国内的リスク(イスラーム主義勢力の反発)を象徴する事件となった。', debate:'彼の対イスラエル和解路線を「歴史的な政治的勇気」と評価する国際的な見方と、「アラブの大義を裏切った」とするアラブ世界内の批判的な見方との間で、評価が今も分かれている。'} },
+  { id:'hosni_mubarak', name:'ホスニー=ムバーラク', category:'person', parentId:'egypt_republic', lat:30.04, lng:31.24, start:1928, end:2020, region:'エジプト共和国',
+    desc:{background:'サダト暗殺という緊急事態の中、副大統領として権力を継承したことが治世の背景となった。', process:'30年近くにわたり非常事態法を維持した強権的な統治を続け、対イスラエル和平・親米路線は継続したが、経済格差の拡大と汚職・言論統制への国民的不満が蓄積し、2011年のアラブの春の民衆デモにより退陣を余儀なくされた。', significance:'その長期政権の崩壊はチュニジアに端を発する「アラブの春」の中でも最も象徴的な事例の一つとなり、中東における長期独裁体制の脆弱性を国際的に印象づけた。', debate:'彼の親米・対イスラエル和平路線の維持という「地域安定への貢献」と、国内の抑圧的統治のどちらを重視して評価すべきかが論じられる。'} },
+  { id:'oslo_accords', name:'オスロ合意', category:'treaty', lat:31.78, lng:35.22, start:1993, end:1993, region:'パレスチナ(ヨルダン川西岸・ガザ)',
+    desc:{background:'第一次インティファーダ(パレスチナ人の民衆蜂起)の長期化と、冷戦終結後の国際情勢の変化が、イスラエル・PLO間の直接交渉という画期的な展開を可能にした背景となった。', process:'ノルウェーの仲介による秘密交渉を経て、イスラエルとパレスチナ解放機構(PLO)が相互承認し、ヨルダン川西岸・ガザ地区における暫定的なパレスチナ自治政府樹立で合意した。', significance:'「土地と平和の交換」という枠組みで恒久的な二国家解決への道筋を示した歴史的合意として国際的に高く評価されたが、最終地位交渉(エルサレムの帰属・入植地・難民の帰還権)は先送りされ、以後の交渉は行き詰まりを見せている。', debate:'この合意が真の和平への一歩であったか、それとも占領を実質的に固定化する枠組みにすぎなかったかについて、パレスチナ側内部でも評価が大きく分かれている。'} },
+  { id:'abraham_accords', name:'アブラハム合意', category:'treaty', lat:24.45, lng:54.38, start:2020, end:2020, region:'アラブ首長国連邦・バーレーンなど',
+    desc:{background:'イラン封じ込めという地域的な戦略的利害の共有が、イスラエルと一部アラブ諸国(UAE・バーレーンなど)の関係正常化を後押しした背景となった。', process:'アメリカ・トランプ政権の仲介のもと、パレスチナ問題の解決を前提条件とせずにイスラエルとUAE・バーレーン・モロッコ・スーダンとの国交正常化が実現した。', significance:'従来「パレスチナ問題解決が先」とされてきたアラブ諸国とイスラエルの関係正常化の順序を覆す画期的な外交的転換となり、中東の地域秩序における新たな地政学的枠組み(対イラン包囲網)の形成を示した。', debate:'この合意を「地域安定への現実的な前進」とみるか「パレスチナ問題を置き去りにする新たな『裏切り』」とみるかで、パレスチナ側及びアラブ世論の評価は厳しく分かれている。'} },
+  { id:'gaza_war_2023', name:'ガザ戦争(2023年〜)', category:'war', lat:31.50, lng:34.47, start:2023, end:2025, region:'ガザ地区・イスラエル',
+    desc:{background:'ガザ地区の長期封鎖とヨルダン川西岸での入植地拡大への不満、およびイスラエル・サウジアラビア間の関係正常化交渉の進展が、この軍事衝突の複合的な背景となった。', process:'ハマスによる大規模な越境攻撃と多数の民間人殺害・人質拉致を受け、イスラエルはガザ地区への大規模な軍事作戦を展開し、多数のパレスチナ人民間人犠牲者を出す人道危機を引き起こした。', significance:'国際社会における人道法違反疑惑をめぐる評価の対立が先鋭化し、国際司法裁判所へのジェノサイド提訴を含め、パレスチナ問題が改めて国際政治の最重要課題として浮上する契機となった。', debate:'イスラエルの軍事行動を自衛権の行使とみるか均衡を欠いた過剰な報復とみるか、そしてハマスの越境攻撃の性格づけ(テロ行為か抵抗権の行使か)をめぐり、国際世論は根本的に分裂している。'} },
+
+  // ===================== 湾岸戦争・シリア・アラブの春・現代 =====================
+  { id:'gulf_war_1991', name:'湾岸戦争', category:'war', lat:29.38, lng:47.98, start:1990, end:1991, region:'クウェート・イラク',
+    desc:{background:'イラン・イラク戦争で疲弊した経済を立て直すため、フセイン政権が石油資源をめぐりクウェートへの野心を強めたことが侵攻の背景となった。', process:'イラク軍がクウェートを電撃的に占領・併合を宣言したが、国連安保理決議に基づきアメリカ主導の多国籍軍が「砂漠の嵐作戦」で短期間のうちにイラク軍を撃退した。', significance:'冷戦終結後初の大規模な国際協調型の軍事行動として、国連安保理決議に基づく多国籍軍編成という「新世界秩序」の理念を体現する事例となった。', debate:'戦争終結時にフセイン政権打倒まで進まなかった判断を、国際法上の委任範囲の遵守として評価するか、後の混乱(2003年イラク戦争)を招いた不徹底な結末として批判するかで議論がある。'} },
+  { id:'iraq_war_2003', name:'イラク戦争', category:'war', lat:33.34, lng:44.39, start:2003, end:2011, region:'イラク',
+    desc:{background:'9・11同時多発テロ後の「テロとの戦い」の文脈で、フセイン政権による大量破壊兵器保有疑惑がアメリカの主要な開戦根拠とされたことが背景となった。', process:'国連安保理の明確な武力行使容認決議を得られないままアメリカ・イギリス主導の有志連合が侵攻しフセイン政権を短期間で打倒したが、大量破壊兵器は結局発見されず、その後は宗派対立(スンナ派・シーア派)の激化と武装勢力の台頭により長期の占領統治の混迷を招いた。', significance:'開戦根拠の誤り(大量破壊兵器不在)が判明したことでアメリカの対外軍事介入の正当性・情報機関の信頼性に深刻な打撃を与え、この統治の失敗は後のISIS台頭の土壌を作る一因ともなった。', debate:'この戦争の正当性(国際法上の合法性、開戦根拠の正確性)をめぐる論争は21世紀の国際政治における最も重要な論争の一つであり続けており、「国家建設」の困難さを示す典型例として今も参照される。'} },
+  { id:'arab_spring', name:'アラブの春', category:'revolution', lat:36.81, lng:10.18, start:2010, end:2012, region:'チュニジア・エジプト・リビア・シリアなど中東・北アフリカ各国',
+    desc:{background:'長期独裁政権下での若年層の失業率の高さ・経済格差・言論統制への蓄積した不満と、SNSを通じた情報拡散の容易化が、この一連の民主化運動の背景となった。', process:'チュニジアでの一青年の焼身自殺を発端に、エジプト・リビア・イエメン・シリアなど中東・北アフリカ各地に民衆蜂起の波が急速に広がり、複数の長期独裁政権が崩壊したが、その後の帰結は国によって大きく異なりリビア・シリア・イエメンでは内戦へと転落した。', significance:'一部で民主化を実現した(チュニジア)一方、多くの国では内戦・軍事政権復活・権威主義体制の強化という形で「民主化の冬」を迎え、単純な民主化の物語では説明できない多様な帰結を示す事例となった。', debate:'この運動の帰結の多様性(成功例・内戦化・権威主義復活)を分けた要因が、各国の軍・部族・宗派構成の違いに求められるか、外部勢力の介入の有無に求められるかが比較政治学上の重要な論点である。'} },
+  { id:'assad_family_dynasty', name:'アサド家', category:'dynasty', lat:33.51, lng:36.29, start:1971, end:2024, region:'シリア',
+    relatedIds:['hafez_al_assad','bashar_al_assad','syrian_civil_war'],
+    desc:{background:'バアス党内の権力闘争を制したハーフィズ=アル=アサドが、少数派アラウィー派出身ながら軍事力を背景に実権を掌握したことが王朝的支配の背景となった。', process:'ハーフィズが強権的な世俗的独裁体制を確立し、その死後は息子バッシャールが権力を継承したが、2011年のアラブの春を機に発生した反政府デモへの武力弾圧が泥沼の内戦へと発展した。', significance:'共和政国家でありながら事実上の世襲統治(「共和政的王朝」)を実現した事例として、この統治構造の脆弱性がシリア内戦という未曾有の人道危機を招く一因となった。', debate:'少数派(アラウィー派)による多数派(スンナ派)統治という宗派的権力構造が、この長期独裁とその後の内戦の根本的要因としてどこまで決定的であったかが論じられる。'} },
+  { id:'hafez_al_assad', name:'ハーフィズ=アサド', category:'person', parentId:'assad_family_dynasty', lat:33.51, lng:36.29, start:1930, end:2000, region:'シリア(アサド家)',
+    desc:{background:'軍のクーデタを通じてバアス党内の権力闘争を制したことが、彼の30年に及ぶ長期統治の背景となった。', process:'少数派アラウィー派出身ながら軍・治安機関を掌握して強権的な世俗的独裁体制を確立し、対イスラエル強硬路線を維持する一方、国内の反体制派(特にムスリム同胞団)への弾圧(ハマー虐殺など)を徹底した。', significance:'宗派・部族・地域の複雑なモザイク国家シリアを強権によって統合し続け、この統治モデルは息子バッシャールに引き継がれたが、その抑圧的性格は後の内戦の火種を残すこととなった。', debate:'彼の統治を「複雑な多宗派国家を安定させた現実主義的統治」と評価するか「恐怖政治による表面的安定にすぎなかった」と評価するかで、後のシリア内戦の原因分析にも関わる評価が分かれる。'} },
+  { id:'bashar_al_assad', name:'バッシャール=アサド', category:'person', parentId:'assad_family_dynasty', lat:33.51, lng:36.29, start:1965, end:2024, region:'シリア(アサド家)',
+    desc:{background:'本来医師を志していたが兄の事故死により後継者として政治の道に進むことになった経緯が、父の死後の政権継承の背景となった。', process:'当初は改革派としての期待を集めたが実際には父の強権的統治を継承し、2011年のアラブの春を機に発生した反政府デモへの武力弾圧が内戦へと発展、ロシア・イランの軍事支援を受けて政権を維持し続けたが、2024年末に反体制派の攻勢により政権は崩壊し国外へ逃亡した。', significance:'内戦は推定50万人以上の死者と国民の半数近くが避難民となる未曾有の人道危機を招き、化学兵器使用疑惑を含め国際的な戦争犯罪追及の対象ともなった。', debate:'当初の「改革派」への期待がなぜ裏切られたのか、権威主義体制における個人の意思と構造的な統治システムの制約との関係がどう働いたかが論じられる。'} },
+  { id:'syrian_civil_war', name:'シリア内戦', category:'war', lat:33.51, lng:36.29, start:2011, end:2024, region:'シリア全土',
+    desc:{background:'アラブの春の波及によるアサド政権への抗議デモへの武力弾圧が、この内戦の直接的な発端となった。', process:'反体制派・クルド人勢力・イスラーム過激派(ISISを含む)・政府軍という複数の勢力が入り乱れる複雑な内戦に発展し、ロシア・イランが政府軍を、アメリカ・トルコ・湾岸諸国が反体制派をそれぞれ支援する国際的な代理戦争の様相を呈し、2024年末についに政権が崩壊した。', significance:'21世紀最大級の人道危機として推定50万人以上の死者と1000万人を超える難民・避難民を生み、この難民流出は欧州における難民政策・排外主義の高まりという政治的影響も及ぼした。', debate:'国際社会の介入のあり方(限定的な軍事支援にとどめたことの是非)や、ロシア・イランの介入継続が内戦を長期化させた主因かどうかが、国際政治学上の重要な論点である。'} },
+  { id:'isis_islamic_state', name:'「イスラーム国」(ISIL/ISIS)の台頭と崩壊', category:'war', lat:36.34, lng:43.13, start:2014, end:2019, region:'イラク・シリア',
+    desc:{background:'イラク戦争後の宗派対立(スンナ派の疎外)とシリア内戦の混乱という二重の権力空白が、この過激派組織台頭の温床となった。', process:'イラク・シリア両国にまたがる広大な地域を制圧し「カリフ制国家」の樹立を宣言、SNSを駆使した過激な宣伝戦術で世界中から外国人戦闘員を集める一方、支配地域では住民への過酷な統治と大量虐殺・性奴隷制度などの人道に対する罪を行ったが、国際的な有志連合の軍事作戦により2019年までに支配領域の大半を喪失した。', significance:'SNSを駆使した過激派の国際的な人材募集・宣伝という新たなテロの形態を世界に示し、以後の対テロ対策における情報戦・オンライン対策の重要性を国際社会に痛感させた。', debate:'この組織の急速な台頭を可能にした要因を、イラク戦争後の統治失敗という外的要因に求めるか、過激なイデオロギー自体の訴求力に求めるかで議論があり、その残存勢力の脅威は今も完全には払拭されていない。'} },
+
+  // ===================== 古代インド =====================
+  { id:'indus_valley_civilization', name:'インダス文明', category:'nation', lat:27.33, lng:68.14, start:-3300, end:-1300, region:'インダス川流域(現パキスタン・北西インド)',
+    desc:{background:'インダス川流域の肥沃な氾濫原における農業生産力の高さが、モヘンジョダロ・ハラッパーなど計画都市の形成を可能にする経済的基盤となった。', process:'整然とした格子状の街路・排水システムを備えた高度な都市計画を持ち、メソポタミアとの交易を行っていたことが印章の出土から確認されているが、文字(インダス文字)は未解読のままであり、前1900年頃気候変動や河川流路の変化により都市文明は急速に衰退・放棄された。', significance:'エジプト・メソポタミアと並ぶ世界最古級の都市文明として、その高度な衛生・排水設備は同時代の他文明を凌駕する水準にあったと評価される。', debate:'インダス文字が未解読であるため王権や宗教の実態が不明であり、この文明とその後のヴェーダ文化(アーリヤ人)との連続性・断絶性については「アーリヤ人侵入説」対「土着発展説」という根強い論争が続いている。'} },
+  { id:'vedic_period', name:'ヴェーダ時代(アーリヤ人の移住と定着)', category:'event', lat:30.90, lng:75.85, start:-1500, end:-600, region:'パンジャーブ地方〜ガンジス川流域',
+    desc:{background:'インダス文明衰退後、中央アジア方面からアーリヤ人と呼ばれる集団がインド亜大陸北西部に移住・定着したとされることが、この時代の宗教・社会形成の背景となった。', process:'サンスクリット語による聖典『リグ・ヴェーダ』をはじめとするヴェーダ文献群が編纂され、祭祀を中心とする宗教体系とヴァルナ(後のカースト制度の原型)と呼ばれる身分階層秩序が形成された。', significance:'この時代に形成された宗教思想・社会制度(ヴァルナ制)はヒンドゥー教の直接の原型となり、以後3000年以上にわたるインド社会の基層構造を規定し続けている。', debate:'アーリヤ人の「侵入」が軍事的征服を伴うものであったか、より緩やかな移住・文化的融合であったかについては、遺伝学的研究の進展も踏まえて現在も活発な論争が続いている。'} },
+  { id:'maurya_empire', name:'マウリヤ朝', category:'nation', lat:25.61, lng:85.14, start:-321, end:-185, region:'インド亜大陸(パータリプトラを都に北インド中心)',
+    relatedIds:['chandragupta_maurya','ashoka','kalinga_war'],
+    desc:{background:'アレクサンドロス大王の遠征がインダス川流域にまで及んだことで生じた政治的混乱に乗じ、チャンドラグプタ=マウリヤが勢力を拡大したことが建国の背景となった。', process:'北インドの大半を統一し孫のアショーカ王の代にカリンガ征服を経て仏教への深い帰依へ転じ、インド亜大陸のほぼ全域を統一する史上最大級の帝国を築いたが、アショーカ死後は急速に分裂・弱体化した。', significance:'インド亜大陸を史上初めてほぼ統一した帝国として、アショーカ王による仏教の国家的保護は仏教が南アジア・東南アジアへ広く伝播する決定的な契機となった。', debate:'アショーカ死後の急速な崩壊の要因を、彼の仏教的な非暴力志向が軍事的統制の弛緩を招いたとする見方と、単に広大すぎる版図の構造的な統治の困難によるものとする見方とで議論がある。'} },
+  { id:'chandragupta_maurya', name:'チャンドラグプタ(マウリヤ朝)', category:'person', parentId:'maurya_empire', lat:25.61, lng:85.14, start:-340, end:-297, region:'マウリヤ朝',
+    desc:{background:'アレクサンドロス大王の遠征とその後の混乱によりインダス川流域の政治秩序が動揺していたことが、彼の台頭の背景となった。', process:'宰相カウティリヤ(チャーナキヤ)の助言のもとナンダ朝を打倒しマウリヤ朝を建国し、アレクサンドロスの後継者セレウコス1世との戦いに勝利して北西インドの領土を確保した。', significance:'インド亜大陸の大部分を統一した史上初の帝国を築き上げ、晩年はジャイナ教に帰依して王位を退き苦行の末に没したとされる。', debate:'彼に仕えたとされる宰相カウティリヤの著作とされる政治指南書『実利論(アルタシャーストラ)』の成立年代・実際の著者については、後世の編纂物である可能性も含め史料批判上の議論がある。'} },
+  { id:'ashoka', name:'アショーカ王', category:'person', parentId:'maurya_empire', lat:20.27, lng:85.83, start:-304, end:-232, region:'マウリヤ朝',
+    desc:{background:'祖父チャンドラグプタが築いた帝国基盤の上に、南インドの独立勢力カリンガ王国への征服戦争を決断したことが治世の転機の背景となった。', process:'カリンガ征服での凄惨な殺戮への深い後悔から仏教に帰依し、以後は非暴力(ダルマ)を統治理念に掲げて各地に勅令を刻んだ石柱・磨崖碑を建て、仏典結集の後援や仏教僧団のスリランカ・中央アジアへの派遣を行った。', significance:'仏教を国家的に保護した最初の大帝国の王として、この保護がなければ仏教はインド国内の一地方宗教にとどまっていた可能性が高く、南アジア・東南アジア全域への仏教伝播の決定的な契機を作った。', debate:'カリンガ征服後の「回心」の劇的な物語がどこまで史実か、後世の仏教側史料による理想化・脚色がどの程度含まれるかについて、史料批判上の検討が必要である。'} },
+  { id:'kalinga_war', name:'カリンガ戦争', category:'war', lat:20.27, lng:85.83, start:-262, end:-261, region:'カリンガ(現オリッサ州)',
+    desc:{background:'北インドの大半を統一したマウリヤ帝国にとって、独立を保っていた南東部の有力勢力カリンガ王国の征服は、帝国統一の最終段階として位置づけられていた。', process:'アショーカ王自らが指揮した征服戦争は凄惨を極め、勅令碑文によれば10万人以上が殺害され15万人以上が捕虜として連行されたとされる。', significance:'この戦争の惨禍への深い後悔がアショーカ王を仏教への帰依と非暴力(ダルマ)統治への転換に導いたとされ、以後の彼の統治理念と仏教政策の全ての出発点となった画期的な事件である。', debate:'アショーカ王自身の勅令に記された犠牲者数がどこまで史実に基づく数字か、後世への教訓として意図的に誇張された可能性も含め史料批判上の議論がある。'} },
+  { id:'gupta_empire', name:'グプタ朝', category:'nation', lat:25.61, lng:85.14, start:320, end:550, region:'北インド(パータリプトラを都に)',
+    relatedIds:['chandragupta_i','samudragupta','chandragupta_ii','nalanda','huna_invasions'],
+    desc:{background:'クシャーナ朝衰退後の北インドの政治的空白の中、チャンドラグプタ1世が有力な王国との婚姻同盟を通じて勢力を拡大したことが建国の背景となった。', process:'サムドラグプタ・チャンドラグプタ2世の代に北インドの大半を統一する最盛期を築き、数学(ゼロの概念の確立)・天文学・サンスクリット文学(カーリダーサ)が花開く「インドの黄金時代」を現出したが、5世紀後半のフン族(エフタル)の侵入により急速に衰退した。', significance:'この時代に確立された十進法とゼロの概念は後にアラビア世界を経て西欧に伝わり(「アラビア数字」の実際の起源)、世界の数学・科学史に計り知れない影響を残した。', debate:'「黄金時代」という評価は主に上層階級の文化的達成に基づくものであり、この繁栄が社会全体(特に下層カースト)にどこまで及んでいたかについては史料的制約から評価が分かれる。'} },
+  { id:'chandragupta_i', name:'チャンドラグプタ1世', category:'person', parentId:'gupta_empire', lat:25.61, lng:85.14, start:319, end:335, region:'グプタ朝',
+    desc:{background:'リッチャヴィ族という有力な王家との婚姻同盟が、彼の勢力拡大と帝国建設の決定的な背景となった。', process:'この婚姻同盟を通じて政治的・軍事的基盤を強化し、マガダ地方を中心にグプタ朝の実質的な建国者としての地位を確立した。', significance:'この婚姻同盟という手法は、以後の子サムドラグプタによる大規模な征服事業の基盤を提供し、グプタ朝の勢力拡大の出発点となった。', debate:'この婚姻同盟の政治的意義(単なる縁組か、意図的な王朝戦略か)についての史料は限られており、その実態解明が課題となっている。'} },
+  { id:'samudragupta', name:'サムドラグプタ', category:'person', parentId:'gupta_empire', lat:25.61, lng:85.14, start:335, end:375, region:'グプタ朝',
+    desc:{background:'父チャンドラグプタ1世が築いた婚姻同盟による勢力基盤の上に、さらなる領土拡大を目指したことが治世の背景となった。', process:'北インド全域と南インドの一部にまで軍事遠征を行い、征服した南インドの王たちを臣従させつつも直接統治は行わない緩やかな覇権体制を築いた。', significance:'「インドのナポレオン」とも称される軍事的才能により帝国の最大版図を実現し、詩人・音楽家としての才能も持つ「文武両道」の王として碑文(アラーハーバード碑文)に称えられている。', debate:'南インドへの遠征が実効支配を伴うものであったか、儀礼的な服属関係にとどまるものであったかについて、碑文の記述の解釈をめぐり議論がある。'} },
+  { id:'chandragupta_ii', name:'チャンドラグプタ2世(ヴィクラマーディティヤ)', category:'person', parentId:'gupta_empire', lat:25.61, lng:85.14, start:380, end:415, region:'グプタ朝',
+    desc:{background:'父サムドラグプタが築いた広大な版図と軍事的威信の上に、さらなる文化的洗練を追求する治世が可能になったことが背景となった。', process:'西方のシャカ族(サカ人)王朝を征服して領土を拡大する一方、宮廷には「九宝(ナヴァラトナ)」と呼ばれる9人の学者・詩人を擁し、この時代に中国の仏僧法顕がインドを訪れ仏教研究の記録を残した。', significance:'グプタ朝の最盛期を体現する治世として、この時代のサンスクリット文学・彫刻美術・天文学の発展は「インドの古典時代」の頂点と評価される。', debate:'法顕の旅行記に描かれる当時のインド社会の様子(仏教の隆盛、寛容な統治)がどこまで正確な同時代の実態を反映しているか、外国人観察者の記録の史料的価値が論じられる。'} },
+  { id:'nalanda', name:'ナーランダー僧院大学', category:'event', lat:25.14, lng:85.44, start:427, end:1200, region:'マガダ地方(現ビハール州)',
+    desc:{background:'グプタ朝の仏教保護政策のもと、仏教研究の一大拠点となる学問機関の設立が求められたことが背景となった。', process:'最盛期には数千人の学僧が学ぶ国際的な仏教大学として発展し、中国から玄奘・義浄ら著名な求法僧が訪れて長期間学び、仏教の哲学・論理学・医学・天文学など幅広い学問が教授された。', significance:'世界最古級の国際的な高等教育機関として、その学術的成果は東アジア・チベット・東南アジアへの仏教伝播に決定的な役割を果たしたが、13世紀初頭にイスラーム軍(ゴール朝)の侵攻により破壊され焼失した。', debate:'この破壊がインドにおける仏教衰退の決定的な転換点であったとする見方が有力だが、それ以前からのヒンドゥー教の復興による仏教の相対的衰退という長期的トレンドとの関係が論じられる。'} },
+  { id:'huna_invasions', name:'エフタル(白色フン族)の侵入', category:'war', lat:33.94, lng:67.71, start:450, end:528, region:'中央アジア・北西インド',
+    desc:{background:'中央アジアの遊牧民フン族(エフタル、「白いフン」とも呼ばれる)が西進する中、インド北西部への侵入を繰り返したことが背景となった。', process:'グプタ朝の軍事力を著しく消耗させ帝国の中央集権的統治を弱体化させ、最終的には北インドが多数の地方勢力に分裂する政治的混乱を招いた。', significance:'グプタ朝の黄金時代を終焉させる決定的な外的要因となり、以後の北インドは統一的な大帝国が長く不在となる分裂期に入った。', debate:'この侵入とほぼ同時期にヨーロッパでもフン族(アッティラ)が西ローマ帝国を揺るがしていたことから、両者の関係(同一の遊牧民集団の東西分岐か)についてユーラシア史規模での議論がある。'} },
+  { id:'harsha_vardhana', name:'ハルシャ王(ハルシャ=ヴァルダナ)', category:'person', lat:27.05, lng:79.92, start:590, end:647, region:'北インド(カナウジを都に)',
+    desc:{background:'グプタ朝崩壊後の北インドの政治的分裂状態の中、有力な地方王国の後継者として台頭したことが治世の背景となった。', process:'北インドの広範な地域を再統一し仏教を篤く保護して中国僧玄奘の長期滞在・厚遇でも知られ、詩人・劇作家としても活動した文武両道の王であったが、彼の死後は再び急速に分裂状態に戻った。', significance:'グプタ朝崩壊後の北インドにおける最後の大規模な統一王朝として、彼の宮廷を訪れた玄奘の記録(『大唐西域記』)は当時のインド社会を知る最重要の一次史料となっている。', debate:'彼の死後直ちに帝国が瓦解したことは、この統一が個人のカリスマ性に依存する脆弱な統治構造であったことを示しており、中央集権的制度の未整備という古代インド国家に共通する構造的課題を論じる好例となる。'} },
+  { id:'chola_empire', name:'チョーラ朝', category:'nation', lat:10.79, lng:79.14, start:848, end:1279, region:'南インド(タミル地方)',
+    relatedIds:['rajendra_chola_i'],
+    desc:{background:'南インドのタミル地方における豊かな稲作生産力と海上交易の伝統が、この王朝の経済的・軍事的発展の基盤となった。', process:'ラージャラージャ1世・ラージェーンドラ1世の代に南インド全域と海を越えたスリランカ・東南アジア(シュリーヴィジャヤ)への遠征を行う強力な海洋帝国を築き、精緻な地方行政制度(村落自治)と壮麗なヒンドゥー教寺院建築(ブリハディーシュヴァラ寺院)で知られた。', significance:'インド史上稀な海洋進出型の帝国として、東南アジアとの交易・文化的関係を深めタミル文化圏を海外に拡大させ、村落レベルの自治制度は古代インドの高度な行政能力を示す事例として評価される。', debate:'シュリーヴィジャヤ遠征の主目的を交易路の確保という経済的動機に求めるか、純粋な領土的覇権の追求に求めるかで、この稀有な海洋遠征の性格づけが論じられる。'} },
+  { id:'rajendra_chola_i', name:'ラージェンドラ・チョーラ1世', category:'person', parentId:'chola_empire', lat:10.79, lng:79.14, start:971, end:1044, region:'チョーラ朝',
+    desc:{background:'父ラージャラージャ1世が築いた海軍力と南インド支配の基盤の上に、さらなる対外拡張を志向したことが治世の背景となった。', process:'スリランカを征服し、さらに海を越えてガンジス川流域への遠征(「ガンジスの勝利者」の称号を得た)や東南アジアのシュリーヴィジャヤ王国への大規模な海上遠征を行った。', significance:'インド亜大陸の枠を超えて東南アジアにまで軍事的影響力を及ぼした稀有な事例として、この時代のタミル文化の東南アジアへの伝播(碑文・建築様式)を促進した。', debate:'シュリーヴィジャヤ遠征後もこの地域を恒久的に領有した形跡がないことから、この遠征の実態を一時的な威力偵察・交易路確保のための懲罰的遠征とみるか、本格的な征服意図によるものとみるかで議論がある。'} },
+  { id:'ghaznavid_invasions', name:'ガズナ朝のインド侵攻', category:'war', lat:20.89, lng:70.40, start:1000, end:1027, region:'北インド・グジャラート地方',
+    desc:{background:'アフガニスタンを拠点とするガズナ朝が、インド亜大陸の豊かな富(特に寺院に蓄積された金銀財宝)に着目したことが、度重なる侵攻の背景となった。', process:'マフムード=ガズナヴィーが17回にわたりインドへ侵攻し、特にソームナート寺院の破壊・略奪で知られる大規模な収奪遠征を繰り返したが、恒久的な領土支配よりも略奪と撤退を基本パターンとした。', significance:'この侵攻はインド亜大陸へのイスラーム勢力の本格的な軍事的進出の先駆けとなり、以後のデリー=スルタン朝建国への道を開いた歴史的な転換点である。', debate:'これらの侵攻を主に宗教的動機(偶像破壊)によるものとみるか、純粋な経済的略奪を目的としたものとみるかで、この時代の征服行動の性格づけが論じられる。'} },
+
+  // ===================== デリー=スルタン朝・ヴィジャヤナガル王国 =====================
+  { id:'delhi_sultanate', name:'デリー=スルタン朝', category:'nation', lat:28.61, lng:77.21, start:1206, end:1526, region:'北インド(デリーを都に)',
+    relatedIds:['qutb_al_din_aibak','alauddin_khalji','muhammad_bin_tughlaq','battle_of_panipat_1526'],
+    desc:{background:'ゴール朝の将軍クトゥブッディーン=アイバクが北インド征服後に自立を図ったことが建国の背景となった。', process:'奴隷王朝・ハルジー朝・トゥグルク朝など複数の王朝が交代しながら約320年にわたり北インドを統治し、イスラーム建築(クトゥブ・ミナールなど)と行政制度をインドにもたらしたが、ティムールの侵攻(1398年)による大打撃を経て弱体化し、最終的にムガル帝国のバーブルにより滅ぼされた。', significance:'インド亜大陸北部における最初の本格的なイスラーム王朝として、以後のムガル帝国に至るインド・イスラーム文化の融合(インド・イスラーム建築様式など)の礎を築いた。', debate:'この王朝の統治(ヒンドゥー教寺院の破壊や人頭税ジズヤの賦課)を宗教的不寛容の表れとみるか、当時の統治慣行として一定の現地慣習との共存も図られていたとみるかで評価が分かれる。'} },
+  { id:'qutb_al_din_aibak', name:'クトゥブッディーン=アイバク', category:'person', parentId:'delhi_sultanate', lat:28.61, lng:77.21, start:1150, end:1210, region:'デリー=スルタン朝(奴隷王朝)',
+    desc:{background:'ゴール朝の将軍(元奴隷軍人=マムルーク)としてインド遠征を指揮した経験が、主君の死後の自立の背景となった。', process:'ゴール朝の君主ムハンマド=ゴーリーの死後、インド領を継承する形でデリーを都に自立し、デリー=スルタン朝(奴隷王朝)を開いた。', significance:'インド亜大陸北部における最初の本格的なイスラーム王朝の創始者として、彼が建設に着手したクトゥブ・ミナールは現在も世界遺産として残る。', debate:'奴隷出身者(マムルーク)が最高権力者にまで上り詰めるこの統治構造が、イスラーム世界に広く見られる現象(マムルーク朝など)としてどう理解されるべきかが論じられる。'} },
+  { id:'alauddin_khalji', name:'アラーウッディーン=ハルジー', category:'person', parentId:'delhi_sultanate', lat:28.61, lng:77.21, start:1266, end:1316, region:'デリー=スルタン朝(ハルジー朝)',
+    desc:{background:'デリー=スルタン朝内での権力闘争を勝ち抜き、モンゴル軍の度重なる侵攻という外的脅威に対処する必要があったことが治世の背景となった。', process:'モンゴル軍の侵攻を複数回撃退する一方、南インドへの積極的な遠征で領土を大きく拡大し、市場統制・価格統制という当時としては先進的な経済政策を導入して軍事費を賄った。', significance:'モンゴルの脅威を退けつつデリー=スルタン朝の最大版図を実現し、その統制経済政策はイスラーム世界でも稀な事例として経済史上注目される。', debate:'彼の統制経済政策が実際にどこまで持続的な効果を持ったか、単なる戦時の非常措置にとどまったかについて経済史上の評価が分かれる。'} },
+  { id:'muhammad_bin_tughlaq', name:'ムハンマド=ビン=トゥグルク', category:'person', parentId:'delhi_sultanate', lat:28.61, lng:77.21, start:1290, end:1351, region:'デリー=スルタン朝(トゥグルク朝)',
+    desc:{background:'先代諸王が築いた広大な版図の統治をさらに合理化しようとする野心的な構想が、彼の急進的な政策の背景となった。', process:'首都をデリーから南方のダウラターバードへ強制的に移転させる政策や、銅貨を金貨と等価とする通貨改革を断行したが、いずれも十分な準備・住民の合意なく実行されたため大混乱を招き失敗に終わった。', significance:'「賢明だが常軌を逸した王」として、その野心的だが性急な改革の失敗は、理念先行の政策が現実の統治にもたらす破綻の典型例として歴史的に頻繁に言及される。', debate:'彼の政策を単なる「狂気の沙汰」として片付けるか、当時としては先見的だが時期尚早であった改革構想として再評価すべきかで、歴史家の間で評価が分かれる。'} },
+  { id:'vijayanagara_empire', name:'ヴィジャヤナガル王国', category:'nation', lat:15.34, lng:76.46, start:1336, end:1646, region:'南インド(ハンピを都に)',
+    desc:{background:'デリー=スルタン朝の南インドへの進出に対抗するため、ヒンドゥー教徒の諸勢力が結集して建国したことが背景となった。', process:'南インドの大部分を統一しイスラーム勢力(バフマニー朝など)との抗争を繰り返しながら、都ハンピを中心に壮麗な寺院建築と国際交易(スパイス・繊維)で繁栄を築いたが、1565年のターリコータの戦いでの敗北により急速に衰退した。', significance:'南インドにおけるヒンドゥー教文化の最後の大帝国として、その建築・彫刻はドラヴィダ様式の集大成とされ、この時代の繁栄は後世「黄金時代」として理想化されている。', debate:'この帝国を「ヒンドゥー対イスラームの対立軸」で単純化して理解すべきか、実際には複雑な同盟関係(イスラーム勢力とも協力関係を持つ場合があった)を含む政治的実態があったとみるべきかが論じられる。'} },
+  { id:'battle_of_talikota', name:'ターリコータの戦い', category:'war', lat:16.48, lng:76.32, start:1565, end:1565, region:'デカン高原',
+    desc:{background:'ヴィジャヤナガル王国の急速な勢力拡大が、周辺のイスラーム諸侯国(デカン=スルタン朝群)の警戒感と一時的な連合結成を促したことが背景となった。', process:'通常は互いに抗争していた複数のイスラーム系デカン諸侯国が一時的に連合してヴィジャヤナガル軍と激突し、ヴィジャヤナガル軍は壊滅的な敗北を喫した。', significance:'この敗北により王国は都ハンピを含む中枢部を略奪・破壊され、以後急速に衰退し南インドにおけるヒンドゥー教勢力の政治的優位は事実上終焉した。', debate:'この戦いの結果を「ヒンドゥー・イスラーム対立の決定的瞬間」として単純化する見方に対し、実際には複雑な同盟関係や内部の裏切りが絡む戦争であったことをどこまで重視すべきかが論じられる。'} },
+
+  // ===================== ムガル帝国 =====================
+  { id:'mughal_empire', name:'ムガル帝国', category:'nation', lat:27.18, lng:78.02, start:1526, end:1857, region:'インド亜大陸(アグラ・デリーを都に)',
+    relatedIds:['babur','akbar','shah_jahan','aurangzeb','battle_of_panipat_1526','taj_mahal'],
+    desc:{background:'中央アジアの遊牧民ティムールの子孫バーブルが、中央アジアでの領土喪失を経てインドへの進出を図ったことが建国の背景となった。', process:'パーニーパットの戦いでデリー=スルタン朝を破って建国し、アクバルの代に宗教融和政策により最盛期の基盤を固め、シャー=ジャハーンの壮麗な建築事業(タージ=マハル)を経て、アウラングゼーブの厳格なイスラーム化政策への反発から諸勢力(マラーター王国など)が台頭し急速に衰退、最終的に1857年のインド大反乱後にイギリスにより完全に廃止された。', significance:'インド・イスラーム文化とペルシア・中央アジア文化が融合した独自の宮廷文化・建築様式(ムガル様式)を生み出し、その繁栄は当時の世界経済において最大級の生産力を誇ったとされる。', debate:'この帝国の衰退の要因を、アウラングゼーブの宗教的不寛容政策(非ムスリムへのジズヤ復活)に求めるか、広大すぎる版図の統治コスト増大という構造的問題に求めるかで議論が分かれる。'} },
+  { id:'babur', name:'バーブル', category:'person', parentId:'mughal_empire', lat:27.18, lng:78.02, start:1483, end:1530, region:'ムガル帝国',
+    desc:{background:'中央アジアのティムール朝の血を引きながら故地フェルガナでの領土争いに敗れ、新天地を求めてインドへの遠征を志したことが建国の背景となった。', process:'パーニーパットの戦いで数的に劣勢ながら火器(大砲・銃)を効果的に用いてデリー=スルタン朝の大軍を撃破し、ムガル帝国の礎を築いたが、即位後わずか数年で没した。', significance:'中央アジアの軍事技術(火器)をインドに持ち込むことで、以後300年以上続くムガル帝国の礎を築き、その回想録『バーブル・ナーマ』は当時の中央アジア・インド社会を知る貴重な一次史料となっている。', debate:'火器という新技術の導入がこの戦いの勝敗にどこまで決定的であったか、それとも巧みな戦術・地形利用の要素も同等に重要であったかが軍事史上論じられる。'} },
+  { id:'battle_of_panipat_1526', name:'第1次パーニーパットの戦い', category:'war', lat:29.39, lng:76.97, start:1526, end:1526, region:'北インド(パーニーパット)',
+    desc:{background:'デリー=スルタン朝(ロディー朝)内部の権力争いに乗じ、バーブルがインド遠征の好機を捉えたことが背景となった。', process:'数的に劣勢なバーブル軍が、オスマン帝国から学んだとされる火器(マスケット銃・大砲)と荷車を用いた防御陣形を効果的に運用し、ロディー朝の大軍(象部隊を含む)を撃破した。', significance:'この勝利によりムガル帝国建国の道が開かれ、以後300年以上に及ぶインド史上最も重要な王朝の一つの出発点となった画期的な戦いである。', debate:'この戦術的勝利における火器使用の革新性を、当時のインドの軍事技術水準との対比でどこまで決定的な要因として評価すべきかが軍事史研究上の論点となる。'} },
+  { id:'akbar', name:'アクバル', category:'person', parentId:'mughal_empire', lat:27.18, lng:78.02, start:1542, end:1605, region:'ムガル帝国',
+    desc:{background:'父フマーユーンの代に一時失われた帝国領土を回復する必要があったことと、多様な宗教・民族から成るインド社会を統治する現実的な必要性が、彼の治世の政策形成の背景となった。', process:'軍事的拡張により帝国領土を大きく広げる一方、非ムスリムへの人頭税(ジズヤ)廃止やヒンドゥー教徒有力者(ラージプート諸侯)との婚姻同盟を通じた融和策を進め、諸宗教の要素を融合した独自の宗教「ディーネ・イラーヒー」も提唱した。', significance:'宗教融和政策によりムガル帝国の統治基盤を安定させ、この統治モデルは「寛容な帝国」の代表例として評価され、後継者たちの統治理念にも大きな影響を残した。', debate:'「ディーネ・イラーヒー」が実際にどこまで組織的な新宗教として機能したか、それとも彼個人の宗教的関心の表明にとどまったかについて、史料的評価が分かれる。'} },
+  { id:'shah_jahan', name:'シャー=ジャハーン', category:'person', parentId:'mughal_empire', lat:27.18, lng:78.02, start:1592, end:1666, region:'ムガル帝国',
+    desc:{background:'父ジャハーンギールの治世で安定した帝国基盤の上に、王朝の威信を示す壮大な建築事業への意欲が、治世の背景となった。', process:'最愛の妃ムムターズ=マハルの死を悼みタージ=マハルを建設させるなど壮麗な建築事業を進め帝国の文化的最盛期を築いたが、晩年は息子たちの間の後継争いに巻き込まれ、勝利した息子アウラングゼーブにより幽閉されて没した。', significance:'タージ=マハルをはじめとするムガル建築の傑作群は今日世界的な観光資源・文化遺産となっており、この時代の建築的達成はインド・イスラーム文化の頂点と評価される。', debate:'壮大な建築事業への莫大な財政支出が、帝国の財政基盤にどこまで長期的な負担を残したか、後の衰退との因果関係が経済史上議論される。'} },
+  { id:'taj_mahal', name:'タージ=マハルの造営', category:'event', lat:27.17, lng:78.04, start:1632, end:1653, region:'アグラ',
+    desc:{background:'シャー=ジャハーンの最愛の妃ムムターズ=マハルが出産に伴う合併症で若くして死去したことが、この霊廟建設の直接的な動機となった。', process:'ペルシア・インド・中央アジアの建築様式を融合させ、白大理石と precious stone による象嵌細工を用いた対称性の美を追求する設計のもと、約20年の歳月をかけて建設された。', significance:'「愛の記念碑」として世界的に最も著名な建造物の一つとなり、ムガル建築の最高傑作として1983年にユネスコ世界遺産に登録された。', debate:'膨大な建設費用が帝国財政に与えた影響と、この建築的偉業の文化的価値のどちらに重きを置いて評価すべきかという論点は、壮大な建築事業一般の評価軸として繰り返し議論される。'} },
+  { id:'aurangzeb', name:'アウラングゼーブ', category:'person', parentId:'mughal_empire', lat:27.18, lng:78.02, start:1618, end:1707, region:'ムガル帝国',
+    desc:{background:'父シャー=ジャハーンの晩年に発生した後継争いを勝ち抜き、父を幽閉して即位したことが治世の背景となった。', process:'版図をインド亜大陸のほぼ全域にまで拡大する一方、厳格なイスラーム法(シャリーア)に基づく統治を志向して非ムスリムへの人頭税(ジズヤ)を復活させヒンドゥー教寺院の破壊も行ったため、マラーター王国をはじめとする諸勢力の反発と反乱を招いた。', significance:'版図的には帝国最大を実現したが、その宗教的不寛容政策と度重なる軍事遠征による財政負担は帝国の統治基盤を著しく弱体化させ、彼の死後の急速な帝国衰退の直接的要因となった。', debate:'彼の統治を「イスラーム法への忠実な回帰」と評価するか「先代アクバルが築いた宗教融和路線の破壊」と評価するかで、ムガル帝国衰退の要因分析における評価が大きく分かれる。'} },
+  { id:'maratha_empire', name:'マラーター王国(マラーター同盟)', category:'nation', lat:18.52, lng:73.86, start:1674, end:1818, region:'デカン高原西部(現マハーラーシュトラ州)',
+    relatedIds:['shivaji','third_battle_panipat'],
+    desc:{background:'デカン高原西部の丘陵地帯という地理的条件を活かしたゲリラ戦術の伝統と、ヒンドゥー教徒としてのアイデンティティ意識が、この王国建国の背景となった。', process:'シヴァージーが建国しアウラングゼーブの軍と長期にわたり抗争を続け、その死後は緩やかな連合体(マラーター同盟)としてムガル帝国衰退後のインド亜大陸に急速に勢力を拡大し一時は北インドの大半を影響下に置いたが、第三次パーニーパットの戦いでの大敗と内部対立により弱体化し、最終的にイギリス東インド会社との戦争(マラーター戦争)を経て19世紀初頭に解体した。', significance:'ムガル帝国衰退後のインド亜大陸における最大の在地勢力として、イギリスによるインド支配確立以前の最後の有力な抵抗勢力であった。', debate:'この勢力を統一的な「帝国」とみるか、緩やかな諸侯連合(同盟)にすぎなかったとみるかで、その統治構造の性格づけが論じられる。'} },
+  { id:'shivaji', name:'シヴァージー', category:'person', parentId:'maratha_empire', lat:18.52, lng:73.86, start:1630, end:1680, region:'マラーター王国',
+    desc:{background:'父の所領を継承しつつ、ムガル帝国とビジャープル王国という二大勢力の狭間で自立を模索したことが建国の背景となった。', process:'巧みなゲリラ戦術と山岳要塞の活用により周農の勢力を打ち破って独自の王国を樹立し、ムガル皇帝アウラングゼーブの大軍にも屈することなく抵抗を続けた。', significance:'ヒンドゥー教国家再興の英雄として、後のインド民族主義運動においてもヒンドゥー・ナショナリズムの象徴的存在として繰り返し参照される重要な歴史的人物となっている。', debate:'彼を「ヒンドゥー・ナショナリズムの先駆者」として顕彰する近代以降の政治的利用と、実際の同時代における彼の統治理念(宗教融和的な側面も指摘される)との乖離が論じられる。'} },
+  { id:'third_battle_panipat', name:'第3次パーニーパットの戦い', category:'war', lat:29.39, lng:76.97, start:1761, end:1761, region:'北インド(パーニーパット)',
+    desc:{background:'マラーター同盟が北インドへの勢力拡大を進める中、アフガニスタンのドゥッラーニー朝アフマド=シャーがこれに対抗する軍事行動を起こしたことが背景となった。', process:'マラーター軍とアフガン軍がパーニーパットで激突し、マラーター側は補給線の途絶と同盟内の足並みの乱れもあり壊滅的な敗北を喫した。', significance:'この敗北によりマラーター同盟の北インドにおける覇権的地位は大きく後退し、この政治的空白が結果的にイギリス東インド会社の勢力拡大を容易にする一因となった。', debate:'この敗北がなければインド亜大陸の統一的な在地勢力(マラーター)による統治が実現し、イギリスの完全な植民地化を防げた可能性があるという「if」の議論が、インド近代史の分岐点として論じられる。'} },
+
+  // ===================== イギリス植民地支配とインド独立運動 =====================
+  { id:'east_india_company', name:'イギリス東インド会社', category:'nation', lat:22.57, lng:88.36, start:1600, end:1858, region:'インド全域(カルカッタを拠点に)',
+    desc:{background:'ヨーロッパにおける香辛料・繊維製品需要の高まりを背景に、イギリス商人がアジア交易への参入を求めて設立した勅許会社であることが背景となった。', process:'当初は交易拠点(商館)の設置にとどまっていたが、プラッシーの戦い(1757年)での勝利を機にベンガル地方の徴税権を獲得し、以後インド亜大陸の広範囲を軍事力・外交手腕により実質的に支配下に置く「会社による統治」を確立したが、1857年のインド大反乱を機にイギリス本国政府が直接統治(インド帝国)に乗り出し会社は解散された。', significance:'一私企業が広大な亜大陸を事実上統治するという世界史上稀有な事例として、この「会社植民地主義」のあり方は近代帝国主義の特異な形態を示す重要な研究対象である。', debate:'私企業による統治という形態が、国家による直接統治よりも収奪的であったか、あるいは一定の現地慣行との共存を可能にしたかについて、経済史・植民地史上の評価が分かれる。'} },
+  { id:'battle_of_plassey', name:'プラッシーの戦い', category:'war', lat:23.80, lng:88.26, start:1757, end:1757, region:'ベンガル地方(プラッシー)',
+    desc:{background:'ベンガル太守とイギリス東インド会社との貿易・関税をめぐる対立が、この戦いの直接的な背景となった。', process:'ロバート=クライヴ率いる会社軍が、ベンガル太守軍内部の有力武将ミール=ジャアファルを買収して寝返らせるという謀略を用い、数的に劣勢ながら勝利を収めた。', significance:'この勝利により会社はベンガル地方の徴税権を実質的に掌握し、以後インド亜大陸における本格的な領土的支配拡大の出発点となった、イギリスのインド支配史上最も重要な戦いである。', debate:'この勝利が正面からの軍事的優位によるものではなく買収・謀略によるものであったことは、イギリスのインド支配の起源における「公正さ」の欠如を象徴する事例としてしばしば批判的に言及される。'} },
+  { id:'battle_of_buxar', name:'ブクサールの戦い', category:'war', lat:25.57, lng:83.98, start:1764, end:1764, region:'ビハール地方(ブクサール)',
+    desc:{background:'プラッシーの戦い後の会社の勢力拡大に対し、ムガル皇帝・ベンガル太守・アワド太守の連合勢力がこれに対抗しようとしたことが背景となった。', process:'会社軍がこの三者連合軍を打ち破り、この勝利によりムガル皇帝から正式にベンガル・ビハール・オリッサの徴税権(ディーワーニー)を認めさせた。', significance:'この勝利によって会社の支配は名目上もムガル皇帝の権威によって正当化される形となり、以後の東インド会社によるインド統治の法的基盤を確立する画期的な戦いとなった。', debate:'この勝利によって会社が獲得した徴税権が、その後のベンガル大飢饉(1770年)における会社の収奪的な徴税政策とどう関連していたかが、植民地統治の経済的帰結として論じられる。'} },
+  { id:'indian_rebellion_1857', name:'インド大反乱(セポイの反乱)', category:'revolution', lat:28.98, lng:77.71, start:1857, end:1858, region:'北インド一帯',
+    desc:{background:'東インド会社軍のインド人傭兵(セポイ)への新型銃の薬包(牛・豚の脂が塗布されているとの噂)への宗教的反発が、この大反乱の直接的な発端となった。', process:'デリー・ラクナウなど北インド各地で反乱が広がり一時は名目的にムガル皇帝を擁立する動きも見せたが、統一的な指導体制の欠如もあり会社軍・イギリス本国軍により1年余りで鎮圧された。', significance:'この反乱を機にイギリス本国政府は東インド会社を解散させインドを直接統治する「インド帝国」体制に移行し、名目上存続していたムガル帝国も完全に廃止された。', debate:'この反乱を「単なる傭兵の反乱(セポイの乱)」とみるイギリス側の伝統的な呼称に対し、インド側では「第一次インド独立戦争」として広範な民族的抵抗運動と再評価する見方が対立し続けている。'} },
+  { id:'british_raj', name:'イギリス領インド帝国', category:'nation', lat:28.61, lng:77.21, start:1858, end:1947, region:'インド亜大陸全域',
+    relatedIds:['indian_national_congress','partition_of_bengal_1905','gandhi','jinnah','salt_march','quit_india_movement','indian_independence_partition'],
+    desc:{background:'1857年の大反乱を機に東インド会社による統治の限界が露呈し、イギリス本国政府による直接統治への転換が図られたことが背景となった。', process:'ヴィクトリア女王を「インド皇帝」とする直接統治体制のもと鉄道・電信網の整備や近代教育制度を導入する一方、飢饉への対応の遅れや経済的収奪(綿花・アヘンなどの一次産品輸出への従属構造)により多くの犠牲者を出し、20世紀にはインド国民会議・ムスリム連盟を中心とする独立運動が高まった。', significance:'近代インフラの整備は独立後のインドの経済的基盤の一部となったが、この統治下での度重なる大飢饉(推定数千万人規模の犠牲)は植民地統治の収奪的性格の象徴として今日まで厳しく問われている。', debate:'イギリスの統治が近代化に貢献したとする見方(鉄道・教育制度)と、収奪的な経済構造・飢饉対応の不作為による甚大な人的犠牲を重視する見方との間で、植民地統治の功罪評価が根本的に対立している。'} },
+  { id:'indian_national_congress', name:'インド国民会議の結成', category:'event', lat:19.08, lng:72.88, start:1885, end:1947, region:'インド全域(ボンベイで結成)',
+    desc:{background:'イギリス統治下で近代教育を受けたインド人エリート層が、統治への参加拡大や不公正な政策への異議申し立ての場を求めたことが結成の背景となった。', process:'当初は穏健な請願運動として出発したが、ベンガル分割(1905年)への反発を機に自治要求がより急進化し、ガンディーの指導下で非暴力・非協力運動(サティヤーグラハ)を軸とする大衆運動組織へと発展した。', significance:'インド独立運動の中心的な政治組織として、独立後も長くインドの支配的政党であり続け、その活動はアジア・アフリカの他の反植民地運動にも大きな影響を与えた。', debate:'この組織が当初主にヒンドゥー教徒エリート層を中心としていたことが、後のムスリム連盟の分離主義的傾向とインド分割(パーティション)を招く一因となったかどうかが論じられる。'} },
+  { id:'partition_of_bengal_1905', name:'ベンガル分割令', category:'event', lat:23.81, lng:90.41, start:1905, end:1911, region:'ベンガル地方',
+    desc:{background:'ベンガル州の広大な人口・行政負担を口実に、イギリス総督カーゾンがヒンドゥー教徒とムスリムの居住地域を分割する統治改編を進めたことが背景となった。', process:'この分割は「分割統治」の意図(民族運動の分断)が透けて見えるとしてベンガルのヒンドゥー教徒を中心に激しい反発(スワデーシー運動=国産品愛用運動)を招き、大規模な抗議運動の末に1911年に分割は撤回された。', significance:'この抗議運動の成功はインド独立運動における大衆動員の有効性を実証する重要な先例となったが、同時にこの分割によりムスリムを中心とする独自の政治的結集(ムスリム連盟結成)も促され、後の宗教別分離の萌芽ともなった。', debate:'イギリスの意図を「行政効率化」の名目とみるか「分割統治による民族運動分断」の意図的策略とみるかで、この政策の評価が分かれる。'} },
+  { id:'gandhi', name:'ガンディー(マハトマ=ガンディー)', category:'person', lat:23.06, lng:72.58, start:1869, end:1948, region:'インド(アフマダーバードを拠点に)',
+    desc:{background:'南アフリカでの人種差別体験を通じて非暴力抵抗(サティヤーグラハ)の思想と実践手法を確立したことが、帰国後のインド独立運動指導の背景となった。', process:'塩税に対する抗議行動である「塩の行進」など数々の非暴力・非協力運動を組織してインド国民会議を大衆運動組織へと変貌させ、第二次世界大戦中の「クイット・インディア運動」でも指導的役割を果たしたが、独立直後にヒンドゥー・ムスリム融和を訴えていたことへの反発から急進的ヒンドゥー主義者により暗殺された。', significance:'非暴力抵抗という思想・戦術は世界中の公民権運動・反植民地運動(キング牧師など)に大きな影響を与え、「マハトマ(偉大なる魂)」として世界的に尊敬される20世紀最も影響力の大きい思想家・運動家の一人となった。', debate:'非暴力抵抗が独立達成の決定的要因であったとする見方に対し、第二次世界大戦によるイギリスの国力消耗という国際情勢の変化もまた同等に重要であったとする見方があり、独立達成の主要因についての評価が分かれる。'} },
+  { id:'salt_march', name:'塩の行進(ダンディー行進)', category:'event', lat:21.05, lng:72.81, start:1930, end:1930, region:'グジャラート地方(アフマダーバード〜ダンディー)',
+    desc:{background:'イギリス植民地政府による塩の専売制度と課税が、貧困層を含む全インド国民に等しく影響する不公正な政策として広く認識されていたことが背景となった。', process:'ガンディーが数十人の同志と共に約380キロメートルを24日間かけて徒歩で行進し、海岸で自ら塩を製造するという象徴的な法律違反行為を行い、これが全国的な市民的不服従運動へと波及した。', significance:'この運動はメディア(国際的な報道)を通じてイギリス統治の不当性を世界に印象づけ、非暴力・非協力運動の有効性を実証する象徴的な出来事として、ガンディーの指導力を国際的に確立した。', debate:'この運動の直接的な政治的成果(塩税制度自体は短期的には変わらなかった)と、その象徴的・宣伝的効果(国際世論への訴求力)のどちらをより重視して評価すべきかが論じられる。'} },
+  { id:'jinnah', name:'ジンナー(ムハンマド=アリー=ジンナー)', category:'person', parentId:'pakistan_republic', lat:24.86, lng:67.01, start:1876, end:1948, region:'全インド=ムスリム連盟→パキスタン',
+    desc:{background:'当初はインド国民会議にも所属しヒンドゥー・ムスリム融和を志向していたが、会議派の運動戦術(ガンディーの宗教的色彩を帯びた大衆動員)との路線対立から次第に距離を置くようになったことが、彼の政治的立場変化の背景となった。', process:'ムスリム連盟の指導者として当初は自治拡大の枠内での協調を模索したが、次第にヒンドゥー教徒主体の統一インドではムスリムの権利が保障されないとの危機感を強め、独自のムスリム国家(パキスタン)建国を要求する「二民族論」を掲げるに至った。', significance:'パキスタンの建国の父として、彼の主導した分離独立要求は最終的にインド・パキスタン分割という現実を生み出し、南アジアの地政学的構造を根本的に規定する結果となった。', debate:'彼の分離独立要求が当初から独立国家建設を意図したものか、統一インド内でのムスリムの自治権拡大を求める交渉戦術であったのが後に後戻りできなくなったのかについて、歴史家の間で解釈が分かれている。'} },
+  { id:'quit_india_movement', name:'クイット=インディア運動(インドを立ち去れ運動)', category:'revolution', lat:19.08, lng:72.88, start:1942, end:1942, region:'インド全域',
+    desc:{background:'第二次世界大戦においてインドの参戦がインド人自身の同意なしに決定されたことへの反発と、イギリスの戦時中の国力消耗という好機認識が、この運動の背景となった。', process:'ガンディーとインド国民会議が「イギリスは直ちにインドを立ち去れ」と要求する大規模な市民的不服従運動を開始したが、イギリス植民地政府は指導部を一斉に逮捕し武力で徹底的に弾圧した。', significance:'この運動自体は短期的には鎮圧されたが、戦後のイギリスの国力衰退と国際世論の変化とも相まって、独立への機運を決定的に不可逆なものとした。', debate:'この運動の弾圧の過酷さ(投獄・武力鎮圧)が、戦後のイギリスにおける「もはや統治コストに見合わない」という判断にどこまで直接的に影響したかが論じられる。'} },
+  { id:'indian_independence_partition', name:'インド独立と印パ分離独立', category:'event', lat:28.61, lng:77.21, start:1947, end:1947, region:'インド亜大陸全域',
+    desc:{background:'ムスリム連盟による分離国家(パキスタン)建国要求と、ヒンドゥー・ムスリム両教徒間の宗教的緊張の高まりが、この分割という選択の背景となった。', process:'イギリスの急速な撤退方針(モウントバッテン総督による前倒しされた独立日程)のもと、宗教別の境界線画定が拙速に進められ、独立と同時に大規模な住民移動(ヒンドゥー教徒・シク教徒はインドへ、ムスリムはパキスタンへ)が発生し、この過程で推定100万人規模の虐殺と1500万人規模の難民が生じた。', significance:'20世紀最大級の人口移動と流血を伴ったこの分割は、以後のインド・パキスタン間の複数回の戦争とカシミール紛争という長期の地域紛争の直接的起源となった。', debate:'この分割の悲劇的結果の責任を、拙速な境界画定を急いだイギリスの撤退政策に求めるか、ヒンドゥー・ムスリム両指導者間の政治的妥協の失敗に求めるかで、この分割の歴史的責任をめぐる評価が分かれている。'} },
+  { id:'nehru', name:'ネルー(ジャワハルラール=ネルー)', category:'person', parentId:'india_republic', lat:28.61, lng:77.21, start:1889, end:1964, region:'インド共和国',
+    desc:{background:'インド国民会議の中でガンディーの後継者として広範な支持を集めていたことが、独立後の初代首相就任の背景となった。', process:'世俗主義・非同盟外交・計画経済(混合経済モデル)を国是に掲げ、多民族・多宗教国家インドの民主的統合を主導し、非同盟諸国会議の中心的指導者としても国際的な存在感を高めたが、中印国境紛争(1962年)での敗北は威信に打撃を与えた。', significance:'世界最大の民主主義国家としてのインドの基本的な国家理念(世俗主義・民主政・非同盟)を確立した「近代インドの建築家」として、その理念は今日まで(近年の変化はありつつも)インドの国是の基盤であり続けている。', debate:'彼の掲げた社会主義的計画経済路線が、インドの経済成長を長期にわたり遅らせた要因であったかどうかについて、1991年の経済自由化以降の視点から批判的な再評価が進んでいる。'} },
+
+  // ===================== 現代の印パ関係とバングラデシュ =====================
+  { id:'india_republic', name:'インド共和国', category:'nation', lat:28.61, lng:77.21, start:1947, end:2026, region:'インド',
+    relatedIds:['nehru','indira_gandhi','india_pakistan_war_1947','india_pakistan_war_1965','bangladesh_liberation_war','india_nuclear_tests','kargil_war'],
+    desc:{background:'独立とインド・パキスタン分割という激動を経て、多民族・多宗教・多言語からなる世界最大の民主主義国家の建設が求められたことが背景となった。', process:'1950年に共和国憲法を施行し世俗主義・議会制民主主義・連邦制を国是として採用し、社会主義的な計画経済から1991年の経済自由化を経て高度経済成長路線に転換、核保有国としても国際的地位を確立し、近年はヒンドゥー・ナショナリズムを掲げるBJPが政権を担っている。', significance:'世界最大の人口を擁する民主主義国家として、その多様性を包摂しながら民主的な政権交代を維持し続けている点で、比較政治学上「多様性における統一」の重要な事例と評価される。', debate:'近年のヒンドゥー・ナショナリズムの台頭(BJP政権下での世俗主義原則の後退傾向)が、建国以来の国是(世俗主義)をどこまで変容させつつあるかが、現在進行形の重要な政治的論点となっている。'} },
+  { id:'pakistan_republic', name:'パキスタン', category:'nation', lat:33.68, lng:73.05, start:1947, end:2026, region:'パキスタン',
+    relatedIds:['jinnah','india_pakistan_war_1947','india_pakistan_war_1965','bangladesh_liberation_war'],
+    desc:{background:'ムスリム連盟によるムスリムのための独立国家建設要求が、インド分割という形で実現したことが建国の背景となった。', process:'建国当初から東西に地理的に分断された国土(東パキスタン=現バングラデシュ)という構造的課題を抱え、たびたびの軍事クーデタによる文民統治の中断を経験し、1971年には東西の対立が激化しバングラデシュ独立戦争により東パキスタンが分離独立した。', significance:'「イスラームのための国家」という建国理念のもと核保有国としての地位も確立したが、軍部の政治的影響力の強さと文民統治の不安定さが今日まで続く同国政治の基本的な特徴となっている。', debate:'建国理念(イスラーム国家)と実際の統治(軍部主導の世俗的統治と宗教勢力の緊張)との間の一貫した緊張関係が、この国の政治的不安定性の根本的要因としてどう評価されるべきかが論じられる。'} },
+  { id:'india_pakistan_war_1947', name:'第1次印パ戦争(第1次カシミール戦争)', category:'war', lat:34.08, lng:74.80, start:1947, end:1948, region:'カシミール地方',
+    desc:{background:'藩王国カシミールの帰属をめぐり、ヒンドゥー教徒の藩王とムスリムが多数を占める住民との間で意見の相違があったことが、この戦争の直接的な背景となった。', process:'パキスタン側の非正規部族民兵の侵入を受けたカシミール藩王がインドへの帰属を決定し、これに応じてインド軍が介入したことで両国間の全面的な軍事衝突に発展し、国連の仲介による停戦ラインが暫定的な実効支配線として設定された。', significance:'この戦争により生じたカシミール紛争は未解決のまま今日まで両国間の最大の懸案として残り続け、以後複数回の印パ戦争の火種となっている。', debate:'カシミール藩王の帰属決定の正統性(住民投票を経ない決定)をめぐる法的・政治的論争は、この紛争の国際法上の解決を困難にしている根本的な要因である。'} },
+  { id:'india_pakistan_war_1965', name:'第2次印パ戦争', category:'war', lat:32.00, lng:74.50, start:1965, end:1965, region:'カシミール・パンジャーブ地方国境',
+    desc:{background:'未解決のカシミール問題をめぐる緊張の継続と、パキスタンによる同地域への軍事的浸透工作(ジブラルタル作戦)が、この戦争の直接的な引き金となった。', process:'カシミールをめぐり本格的な軍事衝突に発展したが決定的な戦況の変化はなく、ソ連の仲介によるタシケント宣言により停戦・現状復帰が合意された。', significance:'この戦争は冷戦下の大国(米ソ)がそれぞれ介入を控えつつソ連が仲介役を担うという、南アジアにおける新たな国際関係の力学を示す事例となった。', debate:'決定的な軍事的決着がつかないまま終結したこの戦争が、根本問題(カシミール帰属)を全く解決せず、むしろ両国間の対立構造を固定化させただけではないかという評価がある。'} },
+  { id:'bangladesh_liberation_war', name:'バングラデシュ独立戦争(第3次印パ戦争)', category:'war', lat:23.81, lng:90.41, start:1971, end:1971, region:'東パキスタン(現バングラデシュ)',
+    desc:{background:'地理的に分断された東西パキスタンの間の経済的格差と、東パキスタン(ベンガル人)への西パキスタン主導の政治・軍事エリートによる抑圧的統治への不満が、独立運動の背景となった。', process:'東パキスタンでの選挙結果を西パキスタン側が無視したことへの抗議運動に対しパキスタン軍が凄惨な弾圧(推定数十万人規模の虐殺とされる)を行い、これを受けてインドが軍事介入し東パキスタン独立勢力を支援、パキスタン軍の降伏によりバングラデシュの独立が達成された。', significance:'この戦争は単一の宗教(イスラーム)を国是とする建国理念だけでは民族・言語・地域の相違を超えた国家統合が困難であることを示す事例として、国民国家建設論において重要な教訓を提供している。', debate:'パキスタン軍による虐殺行為(ジェノサイドと認定すべきかの議論を含む)への国際的な対応の遅れ・不十分さは、大国の地政学的思惑(冷戦下でのアメリカのパキスタン支持)が人道的介入をどこまで妨げるかという問題を提起する。'} },
+  { id:'bangladesh_republic', name:'バングラデシュ', category:'nation', lat:23.81, lng:90.41, start:1971, end:2026, region:'バングラデシュ',
+    desc:{background:'バングラデシュ独立戦争でのパキスタンからの分離独立達成が、建国の直接的背景となった。', process:'独立当初は深刻な貧困・自然災害・政情不安(度重なるクーデタ)に見舞われたが、近年は縫製産業を中心とする輸出主導型の経済成長や、マイクロファイナンス(グラミン銀行)に代表される貧困削減の取り組みで国際的に注目されている。', significance:'「開発の実験室」とも呼ばれ、世界最貧国の一つからの脱却を目指す発展途上国の経済発展モデルとして、国際開発研究上重要な事例となっている。', debate:'縫製産業依存の経済成長モデルが、労働環境問題(ラナ・プラザ崩落事故など)を伴いながらも持続可能な発展をもたらし得るかについて、開発経済学上の議論が続いている。'} },
+  { id:'indira_gandhi', name:'インディラ=ガンディー', category:'person', parentId:'india_republic', lat:28.61, lng:77.21, start:1917, end:1984, region:'インド共和国',
+    desc:{background:'ネルーの娘という血統的背景と、党内の権力闘争を勝ち抜いた政治的手腕が、首相就任の背景となった。', process:'バングラデシュ独立戦争でのパキスタンへの勝利や「緑の革命」による食糧自給達成など実績を残す一方、1975年には反対派弾圧を伴う非常事態宣言を発令し民主的統治を一時中断、シク教徒の分離独立運動拠点(黄金寺院)への軍事作戦の報復として1984年にシク教徒の護衛官により暗殺された。', significance:'「インドの鉄の女」として強力な指導力を発揮したが、非常事態宣言という権威主義的統治への傾斜は、世界最大の民主主義国家における民主制の脆弱性を示す重要な事例として記憶されている。', debate:'非常事態宣言を、国内の政治的混乱への必要な秩序回復措置とみるか、権力保持のための民主制の一時的破壊とみるかで評価が分かれる。'} },
+  { id:'india_nuclear_tests', name:'インドの核実験', category:'event', lat:26.91, lng:71.92, start:1974, end:1998, region:'ラージャスターン州(ポカラン)',
+    desc:{background:'中国の核保有(1964年)とパキスタンとの度重なる軍事対立が、インドによる核開発の安全保障上の動機となった。', process:'1974年に「平和的核爆発」と称する最初の核実験を行い、1998年には複数回の核実験を実施して正式に核保有国であることを宣言し、これに対抗してパキスタンも同年に核実験を実施した。', significance:'南アジアにおける核保有国同士の対峙という新たな安全保障環境を生み出し、この地域における核抑止と紛争の危険性という国際政治学上の重要な研究対象となっている。', debate:'核不拡散条約(NPT)体制の外側での事実上の核保有国化を国際社会がどう扱うべきか(事実上の黙認)は、核不拡散体制の実効性を問う重要な事例として論じられる。'} },
+  { id:'kargil_war', name:'カルギル紛争', category:'war', lat:34.55, lng:76.13, start:1999, end:1999, region:'カシミール地方(カルギル)',
+    desc:{background:'カシミール実効支配線を越えたパキスタン軍(正規軍と民兵を偽装した部隊)の越境浸透が、この紛争の直接的契機となった。', process:'インド軍が高地の要衝を奪還すべく激しい山岳戦を展開し、国際世論(特にアメリカ)の圧力もありパキスタンは部隊撤退に応じ、インドが実効支配線を回復する形で終結した。', significance:'両国が核保有国となって以降初めての本格的な軍事衝突として、核保有国間でも限定的な通常戦争が発生し得ることを示す「核の安定・不安定パラドックス」の重要な実証事例となった。', debate:'核保有国同士の紛争がエスカレーションをどこまで抑制する効果を持つか(あるいは逆に限定戦争を誘発しやすくするか)についての国際安全保障論上の議論において、この戦争は頻繁に参照される。'} },
+
+  // ===================== アフガニスタン史 =====================
+  { id:'durrani_empire', name:'ドゥッラーニー朝(アフガン王国)', category:'nation', lat:31.61, lng:65.71, start:1747, end:1823, region:'アフガニスタン',
+    relatedIds:['ahmad_shah_durrani'],
+    desc:{background:'ペルシアのナーディル=シャー暗殺後の権力空白の中、その部将であったアフマド=シャーがアフガン諸部族の支持を得たことが建国の背景となった。', process:'パシュトゥーン人諸部族を統合してアフガニスタン最初の統一国家を樹立し、インド北西部への遠征(第三次パーニーパットの戦いでのマラーター同盟撃破)を行うなど最盛期には広大な版図を築いたが、彼の死後は部族間対立により急速に分裂・弱体化した。', significance:'現代アフガニスタンの直接の起源となる国家であり、パシュトゥーン人を中心とする多部族国家という統治構造上の課題は今日のアフガニスタンにも通じる歴史的な特徴を成している。', debate:'部族連合的な統治構造がこの国家の急速な拡大を可能にした一方、同じ構造が持続的な中央集権化を妨げたのではないかという、アフガニスタン国家形成史における構造的問題が論じられる。'} },
+  { id:'ahmad_shah_durrani', name:'アフマド=シャー=ドゥッラーニー', category:'person', parentId:'durrani_empire', lat:31.61, lng:65.71, start:1722, end:1772, region:'ドゥッラーニー朝',
+    desc:{background:'ペルシアのナーディル=シャーに仕える武将としての軍事的経験が、その暗殺後にアフガン諸部族を統合する自立の背景となった。', process:'カンダハールを都にドゥッラーニー朝を建国し、インド方面への複数回の遠征(パーニーパットの戦いでのマラーター同盟撃破を含む)により広大な版図を一代で築き上げた。', significance:'「アフガニスタン建国の父」として今日でも国民的英雄とされ、彼が築いた版図(現在のアフガニスタン・パキスタン北西部を含む)は現代アフガニスタンの領域的基盤の直接の起源となっている。', debate:'彼の死後の急速な帝国分裂は、部族連合的な統治構造がカリスマ的指導者の個人的権威に過度に依存していたことを示しており、アフガニスタン国家建設における構造的脆弱性の先例として論じられる。'} },
+  { id:'first_anglo_afghan_war', name:'第1次アフガン戦争', category:'war', lat:34.53, lng:69.17, start:1839, end:1842, region:'アフガニスタン',
+    desc:{background:'ロシアの中央アジアへの南下政策(「グレート・ゲーム」)を警戒したイギリスが、アフガニスタンを親英政権のもとに置こうとしたことが開戦の背景となった。', process:'イギリス軍は一時カブールを占領し親英派の王を擁立したが、現地住民の激しい抵抗により撤退を強いられ、退却する軍勢はほぼ全滅するという壊滅的な敗北を喫した。', significance:'「帝国の墓場」としてのアフガニスタンという後世繰り返し言及されるイメージの原点となり、大国による軍事介入の困難さを象徴する初期の代表的事例となった。', debate:'この撤退時の壊滅がイギリス軍の戦術的失策によるものか、アフガン地形・民衆の組織的抵抗という構造的要因によるものかで、軍事史上の評価が分かれる。'} },
+  { id:'second_anglo_afghan_war', name:'第2次アフガン戦争', category:'war', lat:34.53, lng:69.17, start:1878, end:1880, region:'アフガニスタン',
+    desc:{background:'ロシアの影響力拡大への警戒が再燃し、アフガニスタンの外交を制御下に置く必要性をイギリスが再認識したことが開戦の背景となった。', process:'イギリス軍が再度侵攻し軍事的には勝利を収めたが、直接統治の困難さを踏まえ、外交権をイギリスが掌握し内政には介入しない「保護国」的な統治形態(ガンダマク条約)で決着した。', significance:'この結果、アフガニスタンは完全な植民地化を免れつつも外交的自律性を制限される緩衝国としての地位を確立し、この構造は英露の勢力均衡(グレート・ゲーム)における重要な地政学的解決策となった。', debate:'この「保護国化」を、完全な植民地化に比べ相対的にアフガニスタンの自律性を尊重した現実的解決策とみるか、実質的な主権制限にすぎなかったとみるかで評価が分かれる。'} },
+  { id:'third_anglo_afghan_war', name:'第3次アフガン戦争', category:'war', lat:34.53, lng:69.17, start:1919, end:1919, region:'アフガニスタン',
+    desc:{background:'第一次世界大戦後の国際情勢の変化とアフガニスタン国内の民族主義的機運の高まりが、完全な独立回復を求める機運の背景となった。', process:'アフガニスタン側からの短期間の軍事行動を経て、イギリスは大戦後の疲弊もあり交渉に応じ、ラワルピンディー条約によりアフガニスタンの完全な外交的独立が認められた。', significance:'この勝利によりアフガニスタンは名実ともに完全な主権国家としての地位を回復し、この独立達成日(8月19日)は現在も同国の独立記念日として祝われている。', debate:'軍事的には限定的な衝突にとどまったこの戦争が、なぜ完全独立という大きな外交的成果につながったのか、第一次大戦後の国際情勢変化の影響がどこまで決定的であったかが論じられる。'} },
+  { id:'soviet_afghan_war', name:'ソ連=アフガン戦争', category:'war', lat:34.53, lng:69.17, start:1979, end:1989, region:'アフガニスタン',
+    desc:{background:'共産主義政権(人民民主党)の急進的な社会改革への農村部・イスラーム勢力の反発と内部の権力闘争激化が、ソ連による軍事介入の直接的契機となった。', process:'ソ連軍が侵攻して傀儡政権を支援したが、アメリカ・パキスタン・サウジアラビアなどの支援を受けたイスラーム系ゲリラ(ムジャヒディーン)の頑強な抵抗に苦しみ、10年に及ぶ消耗戦の末1989年に撤退した。', significance:'この戦争でのソ連の敗北は財政的・軍事的消耗を通じてソ連崩壊の一因ともなり、同時にこの戦争を通じて国際的ネットワークを築いたイスラーム過激派勢力(アルカイダの前身となる人脈)の形成にもつながった。', debate:'アメリカによるムジャヒディーンへの軍事支援(冷戦下の対ソ戦略)が、結果的に後の国際テロ組織台頭の土壌を作ったという「意図せざる帰結」は、冷戦期代理戦争の長期的リスクを考える上で重要な教訓とされる。'} },
+  { id:'first_taliban_regime', name:'ターリバーン政権(第1次)', category:'event', lat:34.53, lng:69.17, start:1996, end:2001, region:'アフガニスタン',
+    desc:{background:'ソ連撤退後のムジャヒディーン諸勢力間の内戦による社会の荒廃と無秩序状態が、厳格なイスラーム法解釈を掲げるタリバンの台頭を可能にする土壌となった。', process:'パキスタンの支援も受けつつ急速に勢力を拡大し首都カブールを制圧して国土の大半を支配下に置き、女性教育の禁止など極めて厳格なイスラーム法解釈に基づく統治を行いアルカイダの活動拠点提供も行ったが、9・11同時多発テロ後のアメリカ主導の軍事作戦により2001年に政権は崩壊した。', significance:'国際的にほとんど承認されない孤立した統治でありながら国内の治安回復(一定の秩序確立)には一定の実績を上げたとされ、この二面性は権威主義的統治の評価における複雑さを示す事例である。', debate:'内戦の混乱に比して一定の治安回復をもたらした側面と、女性の権利をはじめとする深刻な人権侵害のどちらを重視して評価すべきかという問題が、この政権の評価をめぐり継続的に論じられている。'} },
+  { id:'taliban_return_2021', name:'ターリバーンの政権奪還', category:'event', lat:34.53, lng:69.17, start:2021, end:2026, region:'アフガニスタン',
+    desc:{background:'20年に及ぶアメリカの駐留とアフガニスタン政府軍への軍事支援にもかかわらず、汚職と統治の正統性の弱さが政府軍・行政の実効的な自立を妨げていたことが背景となった。', process:'アメリカ軍の完全撤退決定を受け、アフガニスタン政府軍がほとんど抵抗することなく各地で崩壊し、タリバンは驚くべき速さで首都カブールを含む全土を再制圧した。', significance:'20年間・2兆ドル以上を投じたとされる「国家建設(ネーション=ビルディング)」の試みが実質的な失敗に終わったことを象徴する事例として、大国による対外軍事介入の限界を厳しく問う結果となった。', debate:'政府軍の急速な崩壊の要因を、汚職・士気の低さという内的要因に求めるか、性急な米軍撤退という外的要因に求めるかで、この「国家建設」失敗の責任論が国際的に議論されている。'} },
+
+  // ===================== スリランカ史 =====================
+  { id:'anuradhapura_kingdom', name:'アヌラーダプラ王国', category:'nation', lat:8.31, lng:80.41, start:-377, end:1017, region:'スリランカ',
+    relatedIds:['dutugemunu'],
+    desc:{background:'スリランカ島に北インドから移住したとされるシンハラ人が、アヌラーダプラを中心に定住したことが建国の背景となった。', process:'インドから伝わった仏教を早期に国教として受容し(伝説では阿育王の子が仏教をもたらしたとされる)、大規模な灌漑用貯水池(タンク)の建設による稲作農業を発展させたが、南インドの諸王朝(チョーラ朝など)の度重なる侵攻を受け11世紀に都はポロンナルワへ移された。', significance:'スリランカにおける仏教国家としてのアイデンティティの原点であり、上座部仏教の経典(パーリ語聖典)の書写・保存にも重要な役割を果たし、この仏教的国家理念は今日のスリランカのシンハラ仏教徒中心の国家観にも影響を残している。', debate:'南インドからの度重なる侵攻という圧力が、この王国の仏教的アイデンティティをかえって強化したのかどうか、対外的脅威と宗教的結束の関係が論じられる。'} },
+  { id:'dutugemunu', name:'ドゥッタガーマニ', category:'person', parentId:'anuradhapura_kingdom', lat:8.31, lng:80.41, start:-161, end:-137, region:'アヌラーダプラ王国',
+    desc:{background:'南インド系のタミル人王エーラーラによるアヌラーダプラ支配という状況が、シンハラ人による王権回復運動の背景となった。', process:'エーラーラ王を打倒してシンハラ人による統治を回復し、この過程を仏教年代記『マハーワンサ』は仏教護持のための正義の戦いとして記述している。', significance:'シンハラ仏教ナショナリズムにおける英雄的な統一者として理想化され、この物語は現代のスリランカ民族紛争(シンハラ人対タミル人)においてもしばしば政治的に参照される歴史的記憶となっている。', debate:'『マハーワンサ』の記述がどこまで史実を反映し、どこまで後世の宗教的・民族的正統化のための脚色であるかは、この年代記を史料として用いる際の重要な史料批判上の課題である。'} },
+  { id:'polonnaruwa_kingdom', name:'ポロンナルワ王国', category:'nation', lat:7.94, lng:81.00, start:1055, end:1232, region:'スリランカ',
+    desc:{background:'アヌラーダプラが南インド勢力の度重なる侵攻にさらされ防衛上の弱点を露呈したことが、より内陸に位置するポロンナルワへの遷都の背景となった。', process:'パラークラマバーフ1世の代に大規模な灌漑事業(パラークラマ・サムドラ貯水池)と仏教の再興・統合を進めて最盛期を築いたが、その死後は再び南インド勢力の圧力と内紛により衰退し、13世紀以降は都はさらに南西部へ移された。', significance:'「一滴の水も無駄に海に流してはならない」という灌漑理念に象徴される高度な水利技術は、スリランカの伝統的な農業文明の到達点として評価される。', debate:'この時代の繁栄が持続的な制度に基づくものか、パラークラマバーフ1世個人の統治能力に強く依存していたかについて、その死後の急速な衰退との関連で議論される。'} },
+  { id:'colonial_ceylon', name:'植民地時代のセイロン(ポルトガル・オランダ・イギリス)', category:'event', lat:6.93, lng:79.85, start:1505, end:1948, region:'スリランカ(セイロン)',
+    desc:{background:'ポルトガル・オランダによる沿岸部支配を経て、ナポレオン戦争期にイギリスがオランダから沿岸部を奪取し、さらに内陸のキャンディ王国も征服したことが背景となった。', process:'紅茶・ゴム・ココナッツなどプランテーション農業を主要産業として発展させ、労働力として南インドからタミル人が大量に移入されたが、この人口移動が後のシンハラ人・タミル人間の民族対立の重要な歴史的要因となった。', significance:'この時代に移入されたタミル人労働者(「インド・タミル人」)は、独立後のスリランカにおいて既存の「スリランカ・タミル人」とも異なる複雑な民族的立場に置かれ、市民権をめぐる長期的な政治問題を生んだ。', debate:'プランテーション労働力としての計画的な移民導入政策が、独立後の深刻な民族紛争の歴史的起源としてどこまで直接的な責任を負うべきかが論じられる。'} },
+  { id:'sri_lanka_independence', name:'セイロン(スリランカ)独立', category:'event', lat:6.93, lng:79.85, start:1948, end:1948, region:'スリランカ',
+    desc:{background:'インドの独立運動の高まりとイギリスの脱植民地化政策の進展が、スリランカ(セイロン)独立達成の国際的背景となった。', process:'インドやアフリカ諸国と異なり比較的平和的な交渉を通じて独立を達成し、当初はイギリス連邦内の自治領としての地位からスタートしたが、独立後まもなくシンハラ語を唯一の公用語とする政策(シンハラ・オンリー法)がタミル人の反発を招いた。', significance:'この言語政策をめぐる対立は、以後数十年に及ぶスリランカ内戦(シンハラ人対タミル人)という深刻な民族紛争の重要な歴史的起点となった。', debate:'比較的平和的な独立達成にもかかわらず、その後深刻な民族紛争に陥った要因を、植民地期の人口移動政策(構造的要因)に求めるか、独立後の政治指導者の言語政策判断(政策的要因)に求めるかで議論がある。'} },
+  { id:'sri_lankan_civil_war', name:'スリランカ内戦', category:'war', lat:9.66, lng:80.02, start:1983, end:2009, region:'スリランカ北部・東部',
+    desc:{background:'シンハラ人優遇の言語・教育政策への少数派タミル人の疎外感の蓄積が、タミル人分離独立運動の背景となった。', process:'タミル・イーラム解放のトラ(LTTE)が独立国家建設を掲げて武装闘争を展開し、自爆テロという戦術を広く用いたことでも知られる26年に及ぶ内戦となったが、2009年に政府軍がLTTE最高指導者を殺害し軍事的に完全制圧した。', significance:'内戦終結時の政府軍による攻勢では多数の民間人犠牲者が出たとされ、国連による戦争犯罪調査要求など国際的な人権問題として今も対応が問われ続けている。', debate:'内戦終結時の政府軍の作戦を「テロ組織の完全排除に必要な措置」とみるか「民間人を巻き込んだ深刻な人道法違反」とみるかで、国際的な評価が大きく分かれている。'} },
+
+  // ===================== ネパール史 =====================
+  { id:'shah_dynasty_nepal', name:'シャハ王朝(ネパール王国)', category:'nation', lat:27.70, lng:85.32, start:1768, end:2008, region:'ネパール',
+    relatedIds:['prithvi_narayan_shah','rana_regime'],
+    desc:{background:'ネパール中西部の小国ゴルカの王プリトビ=ナラヤン=シャハが、カトマンズ盆地の統一を志向したことが建国の背景となった。', process:'カトマンズ盆地の複数の小王国を征服して統一しネパール王国を樹立し、以後18世紀後半にはイギリス東インド会社との戦争(グルカ戦争)を経て国境を確定させたが、19世紀半ばには実権が世襲宰相(ラナ家)に奪われ王は名目的存在に転じ、20世紀後半には民主化運動と共産主義勢力(毛沢東主義派)との内戦を経て2008年に王政は完全廃止された。', significance:'南アジアで唯一ヨーロッパ列強の直接植民地支配を受けなかった王国として独自の歴史的経路をたどったが、この独立維持の代償として国内の近代化は大きく遅れた。', debate:'植民地化を免れたことを「独立維持の成功」と評価すべきか、それによる近代化の遅れという代償を重視すべきかで、この国の歴史的評価が分かれる。'} },
+  { id:'prithvi_narayan_shah', name:'プリトビ=ナラヤン=シャハ', category:'person', parentId:'shah_dynasty_nepal', lat:27.70, lng:85.32, start:1723, end:1775, region:'シャハ王朝',
+    desc:{background:'小国ゴルカの王として、カトマンズ盆地の分立する小王国群を統一する野心を抱いたことが建国事業の背景となった。', process:'巧みな外交と軍事戦略によりカトマンズ盆地の主要な小王国を次々と征服し、現在のネパールの領域的基盤となる統一王国を樹立した。', significance:'「ネパール建国の父」として今日でも国民的に敬愛され、彼が確立した統一国家の枠組みは現在のネパールの国家的アイデンティティの直接の起源となっている。', debate:'彼が唱えたとされる「四つのカーストと三十六の民族(チャール・ジャート・オ・タティース・ヴァルナ)」という多民族統合理念が、実際にどこまで統治の実践に反映されていたかが論じられる。'} },
+  { id:'rana_regime', name:'ラナ家による専制(ラナ体制)', category:'event', lat:27.70, lng:85.32, start:1846, end:1951, region:'ネパール',
+    desc:{background:'宮廷内の権力闘争(コート・マサジャンド事件)を通じてジャンガ=バハドゥル=ラナが実権を掌握したことが、この百年以上に及ぶ支配の背景となった。', process:'国王を名目的存在に留めたまま世襲の宰相職を確立し、鎖国的な孤立政策により外部世界との交流をほぼ遮断する統治を続けたが、インド独立とそれに触発された国内の民主化運動の高まりにより1951年に王政復古(実権回復)というクーデタ的な政変で終焉を迎えた。', significance:'百年以上にわたる鎖国的統治はネパールの近代化を大きく遅らせる結果となり、20世紀半ばの「開国」時点で同国はアジアでも最も近代化が遅れた国の一つとなっていた。', debate:'この鎖国的統治が意図的な近代化の忌避によるものか、当時の地政学的状況(英領インドとチベット・清朝の間での緩衝国的地位の維持戦略)による必要な政策であったかで評価が分かれる。'} },
+  { id:'nepal_civil_war', name:'ネパール内戦(人民戦争)', category:'war', lat:28.20, lng:83.99, start:1996, end:2006, region:'ネパール',
+    desc:{background:'王政復古後も続く深刻な貧困と農村部の疎外感、既存の議会制民主主義への幻滅が、毛沢東主義を掲げる共産党勢力の武装蜂起の背景となった。', process:'ネパール共産党(毛沢東主義派)が農村部を拠点にゲリラ戦を展開し、王政・政府軍との間で約10年に及ぶ内戦が続いたが、2006年の和平合意により毛派は武装解除し合法政党として政治参加する道を選んだ。', significance:'この内戦を経て2008年には王政が完全に廃止され共和政へ移行し、かつての武装ゲリラ組織が選挙を通じて政権を担うに至るという、武装闘争から民主的政治参加への移行の一事例となった。', debate:'毛派の武装闘争から合法的政治参加への転換が、真の民主的統合を意味するのか、単なる権力獲得手段の変更にすぎないのかで評価が分かれる。'} },
+  { id:'nepal_republic_2008', name:'ネパール連邦民主共和制への移行', category:'event', lat:27.70, lng:85.32, start:2008, end:2008, region:'ネパール',
+    desc:{background:'10年に及ぶ内戦とそれに続く大規模な民主化要求運動(2006年の「人民運動」)が、王政廃止の直接的な背景となった。', process:'制憲議会選挙を経て240年続いたシャハ王朝による王政を正式に廃止し連邦民主共和国を樹立し、旧共産ゲリラ(毛派)も選挙を通じて政権を担う一員となったが、新憲法制定の遅延や政情の不安定さが続いている。', significance:'武装闘争を経験した勢力が最終的に選挙を通じた政権参加という形に着地した点で、内戦から民主的統合への移行の一つのモデルケースとして注目される。', debate:'王政廃止後も続く政治的不安定さ(頻繁な首相交代)が、共和政移行そのものの問題か、より根本的な民族・地域間の統合課題の反映かが論じられる。'} },
+
+  // ===================== ブータン・モルディブ =====================
+  { id:'bhutan_wangchuck', name:'ワンチュク王朝(ブータン王国)', category:'nation', lat:27.47, lng:89.64, start:1907, end:2026, region:'ブータン',
+    desc:{background:'ブータン国内の複数の地方領主(ペンロプ)間の権力争いを勝ち抜いたウゲン=ワンチュクが、統一王権樹立を志向したことが建国の背景となった。', process:'イギリスとの良好な関係を維持しながら統一世襲王政を樹立し、以後の国王たちは国民総幸福量(GNH)という独自の開発理念を掲げ、外部世界との交流を慎重かつ段階的に開放する方針をとってきた。', significance:'経済成長至上主義とは異なる開発理念(GNH)を国是に掲げる稀有な事例として、国際的な開発論・幸福度研究において注目される独自の国家運営モデルを提示している。', debate:'GNHという理念を、伝統文化と環境保護を重視する先進的な開発モデルとして評価するか、実際には国内の少数民族(ネパール系住民)への同化政策・排除と併存する理念にすぎないと批判するかで評価が分かれる。'} },
+  { id:'maldives_islamization', name:'モルディブのイスラーム化', category:'event', lat:4.18, lng:73.51, start:1153, end:1153, region:'モルディブ',
+    desc:{background:'インド洋交易路の要衝に位置するモルディブ諸島に、アラブ商人らを通じてイスラームが伝わったことが、この宗教的転換の背景となった。', process:'12世紀に王がイスラームに改宗したとされ、以後仏教国からイスラーム国家へと国家的アイデンティティが根本的に転換し、現在まで続くイスラーム王政・共和政の宗教的基盤が確立された。', significance:'南アジア地域における数少ない完全なイスラーム国家として、他の南アジア諸国(ヒンドゥー教・仏教が優勢)とは一線を画す独自の宗教的アイデンティティを持つ国家となった。', debate:'改宗以前の仏教文化の痕跡(考古学的発見)が、この国の歴史叙述において公式にどこまで認知・保存されるべきかについて、宗教的アイデンティティと歴史的多様性の関係が論じられる。'} },
+
+  // ===================== 文化史(思想・学問・宗教の広がり) =====================
+  { id:'zoroaster', name:'ザラスシュトラ(ゾロアスター)', category:'person', lat:36.27, lng:59.61, start:-1000, end:-900, region:'古代イラン・中央アジア(生没年・出身地には諸説あり)',
+    desc:{background:'古代イランの多神教的な自然崇拝と動物供犠を伴う伝統的祭祀への疑問が、彼の新たな宗教思想形成の背景となったとされる。', process:'善神アフラ=マズダーへの信仰と、自由意志に基づく善悪の選択という倫理的一神教的思想を説き、この教えは聖典『アヴェスター』にまとめられ、後のアケメネス朝・サーサーン朝ペルシアで国家的宗教として確立された。', significance:'最後の審判・天国と地獄・救世主の到来といった終末論的教義は、ユダヤ教・キリスト教・イスラームの終末論形成に影響を与えたとする説が有力であり、世界宗教史上の重要な思想的源流の一つと位置づけられる。', debate:'彼の実在した年代については紀元前1000年頃から前600年頃まで諸説あり、確定的な史料が乏しいため、その生涯の史実性そのものが古代宗教史研究における未解決の課題となっている。'} },
+  { id:'al_khwarizmi', name:'フワーリズミー', category:'person', lat:33.34, lng:44.39, start:780, end:850, region:'アッバース朝(バグダード・知恵の館)',
+    desc:{background:'アッバース朝カリフ、マームーンによる「知恵の館」での学術振興政策が、彼の数学・天文学研究の背景となった。', process:'インドから伝わった十進法・ゼロの概念を体系化し方程式の解法を論じた著作『代数学の書(アルジャブラ)』を著し、天文表の作成や地理学の著作も残した。', significance:'彼の名(アル=フワーリズミー)はラテン語化されて「アルゴリズム」の語源となり、その著作名(アルジャブラ)は「代数学(algebra)」の語源ともなるなど、数学史上決定的な影響を残した。', debate:'彼の業績がインド数学(特にゼロの概念)からの継承にどこまで依存しているか、彼自身の独創的貢献がどこにあったかについて、数学史上の評価が論じられる。'} },
+  { id:'ibn_sina_avicenna', name:'イブン=シーナー(アヴィケンナ)', category:'person', lat:39.78, lng:64.42, start:980, end:1037, region:'サーマーン朝→各地(中央アジア・イラン)',
+    desc:{background:'サーマーン朝の宮廷図書館へのアクセスを得た若き日の学習環境が、彼の百科全書的な学識形成の背景となった。', process:'医学書『医学典範(カーヌーン)』を著してギリシア・インド・イスラームの医学知識を体系化し、哲学ではアリストテレス思想とイスラーム神学を融合させる独自の存在論を展開した。', significance:'『医学典範』は以後500年近くにわたりヨーロッパの大学医学部でも標準的教科書として用いられ、イスラーム世界のみならず西欧医学史にも計り知れない影響を残した。', debate:'彼の哲学(特に「必然存在」概念)がイスラーム正統派神学(特にガザーリーによる批判)とどこまで整合的であったか、哲学と信仰の関係をめぐる論争が中世イスラーム思想史の重要なテーマとなっている。'} },
+  { id:'ferdowsi', name:'フィルドゥシー', category:'person', lat:36.30, lng:59.60, start:940, end:1020, region:'サーマーン朝→ガズナ朝(イラン)',
+    desc:{background:'イスラーム化が進む中でペルシア語・ペルシア文化の独自性が失われることへの危機感が、彼の壮大な叙事詩編纂の動機となったとされる。', process:'約30年の歳月をかけてイランの神話・伝説・歴史を韻文で綴る民族叙事詩『シャー・ナーメ(王書)』を完成させ、アラビア語の語彙をほぼ用いない純粋なペルシア語での作詩にこだわった。', significance:'この作品はペルシア語の文学的地位を確立し、イスラーム化後もペルシア人としての民族的・文化的アイデンティティを保持する上で決定的な役割を果たした、イラン文化史上最重要の文学作品である。', debate:'アラビア語彙を意図的に排除したこの言語的純粋主義が、当時すでに進んでいたイスラーム化・アラビア語の影響拡大への一種の文化的抵抗であったのかどうかが論じられる。'} },
+  { id:'omar_khayyam', name:'ウマル=ハイヤーム', category:'person', lat:36.21, lng:58.49, start:1048, end:1131, region:'セルジューク朝(イラン)',
+    desc:{background:'セルジューク朝の宮廷における学術奨励政策が、彼の数学・天文学研究の背景となった。', process:'3次方程式の幾何学的解法を含む代数学の業績を残し、当時最も精密とされた太陽暦(ジャラーリー暦)の作成にも携わる一方、四行詩集『ルバイヤート』で人生の無常と享楽を謳う詩人としても知られた。', significance:'19世紀にエドワード=フィッツジェラルドによる英訳『ルバイヤート』がヴィクトリア朝イギリスで大流行し、西欧世界にペルシア詩を広く知らしめる契機となった。', debate:'フィッツジェラルドの英訳が原詩にどこまで忠実か、それとも彼自身の創作的解釈が色濃く反映された「翻訳という名の創作」であるかについて、比較文学上の議論がある。'} },
+  { id:'rumi', name:'ルーミー', category:'person', lat:37.87, lng:32.48, start:1207, end:1273, region:'ルーム=セルジューク朝(アナトリア・コンヤ)',
+    desc:{background:'モンゴルの侵攻による混乱を避けて中央アジアからアナトリアへ一家で移住したことが、彼の生涯の転機の背景となった。', process:'神秘主義者シャムス=タブリーズィーとの出会いを機にスーフィズム(イスラーム神秘主義)の詩的境地を深め、代表作『精神的マスナヴィー』で神との合一を求める神秘主義思想を詩的言語で表現し、旋回舞踊(セマー)で知られるメヴレヴィー教団の思想的基盤を築いた。', significance:'その詩は今日世界で最も広く読まれる詩人の一人として英語圏でもベストセラーとなっており、宗教・文化の垣根を越えて愛と精神性を謳う普遍的なメッセージが世界的な支持を集めている。', debate:'現代の欧米での受容(特にイスラーム的文脈を薄めた「精神性の詩人」としての消費のされ方)が、彼の思想の本来のイスラーム神秘主義的文脈からどこまで切り離されているかという「文化的専有」の問題が論じられる。'} },
+  { id:'sufism', name:'スーフィズム(イスラーム神秘主義)の発展', category:'event', lat:37.87, lng:32.48, start:800, end:1300, region:'イスラーム世界全域',
+    desc:{background:'ウマイヤ朝期の世俗化・物質的繁栄への反発から、より内面的・神秘主義的な信仰実践を求める禁欲主義的傾向が生まれたことが起源とされる。', process:'神との合一を求める瞑想・詩・音楽・舞踊を伴う独自の修行体系を発展させ、各地に教団(タリーカ)を形成して民衆への布教活動を積極的に行い、正統派神学(特にガザーリーによる統合の試み)との調和も図られた。', significance:'インド・東南アジア・アフリカなど周辺地域へのイスラーム布教において、教義よりも情緒的・体験的な信仰実践を重視するスーフィー教団が果たした役割は決定的に大きく、イスラームの世界宗教化における重要な担い手となった。', debate:'スーフィズムを正統的なイスラームの一部とみるか、一部の伝統主義的・原理主義的立場(ワッハーブ派など)が批判するように逸脱した異端的実践とみるかは、イスラーム内部における今日まで続く神学的論争である。'} },
+  { id:'ibn_battuta', name:'イブン=バットゥータ', category:'person', lat:28.61, lng:77.21, start:1304, end:1368, region:'各地を旅した(モロッコ出身)',
+    desc:{background:'メッカ巡礼という宗教的義務の遂行が、彼の生涯にわたる大規模な旅行の出発点となった。', process:'北アフリカから中東・中央アジア・インド・東南アジア・中国にまで及ぶ約30年間の旅を続け、各地のイスラーム王朝の宮廷に仕えながら見聞を記録した旅行記『諸都市の新奇と旅の驚異を見る者への贈物(リフラ)』を残した。', significance:'14世紀のイスラーム世界の広がりとその内部の多様性・交流の実態を伝える最重要の一次史料として、同時代のマルコ=ポーロの記録と並び中世グローバル世界を知る貴重な窓を提供している。', debate:'彼の旅行記の記述のうちどこまでが実際の体験に基づき、どこまでが伝聞や誇張・脚色を含むかについては、史料批判上の検討が今も続けられている。'} },
+  { id:'ibn_khaldun', name:'イブン=ハルドゥーン', category:'person', parentId:'mamluk_sultanate', lat:30.04, lng:31.24, start:1332, end:1406, region:'マムルーク朝(晩年をカイロで過ごす、出身はチュニス)',
+    desc:{background:'北アフリカ(マグリブ)における王朝の興亡が激しい政治的環境で、外交官・法官として実務経験を積んだことが、彼の歴史理論構築の背景となった。', process:'著作『歴史序説(ムカッディマ)』で王朝の興亡を説明する社会学的理論(「アサビーヤ=集団的結束力」の生成と衰退の周期モデル)を展開し、経済・人口・気候などの要因を統合的に分析する画期的な歴史叙述の方法論を確立した。', significance:'近代社会学・歴史学の先駆者として西欧でも高く評価されており、その循環的な王朝興亡理論は前近代世界における国家形成理論の重要な先駆的業績とされる。', debate:'彼の「アサビーヤ」理論が遊牧民社会(マグリブの部族社会)に特有の現象の一般化にすぎないのか、より普遍的な国家形成理論として妥当性を持つのかについて、比較歴史社会学上の議論がある。'} },
+  { id:'silk_road', name:'シルクロード(オアシスの道)交易網', category:'event', lat:39.65, lng:66.96, start:-200, end:1500, region:'ユーラシア大陸横断交易路(中央アジア・中東経由)',
+    desc:{background:'中国の絹をはじめとする東方の物産への西方世界の強い需要と、中央アジアのオアシス都市群が仲介交易で利益を得られる地理的条件が、この交易網形成の背景となった。', process:'中国・中央アジア・インド・ペルシア・地中海世界を結ぶ陸路・海路の交易網として、絹のみならず香辛料・宝石・技術(製紙法など)・宗教(仏教・マニ教・ネストリウス派キリスト教・イスラーム)の伝播を媒介し、モンゴル帝国による「パクス=モンゴリカ」の時代に最盛期を迎えたが、大航海時代の海上交易路開拓により相対的に重要性を低下させた。', significance:'前近代世界における最も重要な文明間交流のネットワークとして、技術・宗教・文化の伝播を通じてユーラシア大陸全体の歴史的発展を結びつけた点で、グローバル・ヒストリー研究における最重要の分析対象の一つである。', debate:'「シルクロード」という呼称・概念自体が19世紀ドイツの地理学者による後世の命名であり、当時の人々がこれを単一の統一的な「道」として認識していたわけではないという史学史上の重要な指摘がある。'} },
+  { id:'guru_nanak', name:'グル=ナーナク(シク教の成立)', category:'person', lat:31.45, lng:73.70, start:1469, end:1539, region:'パンジャーブ地方',
+    desc:{background:'ヒンドゥー教とイスラームが共存し互いに影響し合っていた15世紀のパンジャーブ地方の宗教的環境が、彼の新たな宗教思想形成の背景となった。', process:'唯一神への帰依と偶像崇拝の否定、カースト制度の否定、平等主義(共同炊事=ランガルの実践)を説く新たな宗教(シク教)を創始し、各地を旅して教えを広め、以後グル(師)の系譜による指導体制を確立した。', significance:'ヒンドゥー教とイスラームの要素を融合しつつ独自の一神教的信仰体系を築いたシク教は、以後インド・パンジャーブ地方における重要な宗教的・政治的アイデンティティとして発展し、現在も世界的規模の信仰共同体を形成している。', debate:'シク教をヒンドゥー教とイスラームの「融合宗教」とみるか、両者とは独立した独自の啓示に基づく宗教とみるかについて、宗教学上の位置づけをめぐる議論がある。'} },
+  { id:'bhakti_movement', name:'バクティ運動', category:'event', lat:25.32, lng:82.99, start:1200, end:1700, region:'インド各地',
+    desc:{background:'イスラーム支配の拡大とヒンドゥー教内部のカースト制度・儀礼中心主義への民衆の疎外感が、より個人的で情緒的な信仰実践を求める運動の背景となった。', process:'南インドに起源を持ち各地に広まったこの運動は、カースト・性別を問わない神への直接的な愛と献身(バクティ)を強調し、地方語(サンスクリット語ではなく各地の俗語)による賛歌・詩を通じて民衆に広く浸透し、カビール・ミーラーバーイーなど多くの著名な詩人聖者を生んだ。', significance:'この運動は民衆レベルでのヒンドゥー教の再活性化を促すとともに、地方語文学の発展を大きく促進し、地域を超えたヒンドゥー教徒の宗教的一体感の醸成にも寄与した。', debate:'この運動がカースト制度への実質的な挑戦であったか、それとも既存の社会秩序を維持したまま精神的な平等のみを説く限定的な改革にとどまったかについて、社会史上の評価が分かれる。'} },
+];
+
+/* =========================================================================
+   カテゴリ設定
+   ========================================================================= */
+const CATEGORY_CONFIG = {
+  person:     { label:'人物',       color:'#c0554a' },
+  nation:     { label:'国家',       color:'#3f7ea6' },
+  dynasty:    { label:'王朝',       color:'#8259ac' },
+  event:      { label:'事件・出来事', color:'#c99a4a' },
+  war:        { label:'戦争・戦い',  color:'#8a3a3a' },
+  revolution: { label:'革命',       color:'#3f8f74' },
+  treaty:     { label:'条約',       color:'#7a6a52' },
+};
+
+/* =========================================================================
+   年号の表示フォーマット
+   ========================================================================= */
+function formatYear(y){
+  y = Math.round(y);
+  if(y < 0) return `紀元前${Math.abs(y)}年`;
+  if(y === 0) return `紀元1年`;
+  return `西暦${y}年`;
+}
+function formatYearShort(y){
+  y = Math.round(y);
+  if(y < 0) return `前${Math.abs(y)}`;
+  return `${y}`;
+}
+
+/* =========================================================================
+   地図の初期化
+   ========================================================================= */
+const map = L.map('map', {
+  center:[27, 58],
+  zoom:3,
+  minZoom:2,
+  maxZoom:12,
+  worldCopyJump:true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19,
+}).addTo(map);
+
+const markerLayer = L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 11,
+  iconCreateFunction: function(cluster){
+    return L.divIcon({
+      html: `<div class="cluster-badge">${cluster.getChildCount()}</div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: L.point(32, 32),
+    });
+  },
+}).addTo(map);
+const markerById = {}; // id -> {marker, entry}
+
+/* =========================================================================
+   フィルタ状態
+   ========================================================================= */
+const activeCategories = new Set(Object.keys(CATEGORY_CONFIG));
+let searchTerm = '';
+
+/* =========================================================================
+   サイドバー: フィルタリスト生成
+   ========================================================================= */
+const filterListEl = document.getElementById('filterList');
+Object.entries(CATEGORY_CONFIG).forEach(([key, cfg])=>{
+  const count = historicalData.filter(d=>d.category===key).length;
+  const row = document.createElement('label');
+  row.className = 'filter-row';
+  row.innerHTML = `
+    <input type="checkbox" data-cat="${key}" checked>
+    <span class="swatch" style="background:${cfg.color}"></span>
+    <span class="fname">${cfg.label}</span>
+    <span class="fcount">${count}</span>
+  `;
+  filterListEl.appendChild(row);
+});
+filterListEl.addEventListener('change', (e)=>{
+  const cb = e.target;
+  if(cb.type !== 'checkbox') return;
+  const cat = cb.dataset.cat;
+  if(cb.checked) activeCategories.add(cat);
+  else activeCategories.delete(cat);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = true;
+    activeCategories.add(cb.dataset.cat);
+  });
+  updateMap();
+});
+document.getElementById('selectNoneBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+  });
+  activeCategories.clear();
+  updateMap();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  updateMap();
+});
+
+/* =========================================================================
+   詳細パネル
+   ========================================================================= */
+const detailPanel = document.getElementById('detailPanel');
+const detailContent = document.getElementById('detailContent');
+
+let currentDetailEntry = null;
+
+function getCurrentYear(){
+  return parseInt(document.getElementById('yearSlider').value, 10);
+}
+
+// entry(国家・王朝・事件など)に紐づく人物、および entry.relatedIds で明示的に
+// リンクされた国家・王朝(同盟/敵対関係)・事件・戦争・革命・条約などを、
+// 年代に関わらず全て取得(古い順)。表示中のジャンルでフィルタする。
+function getRelatedItems(entry){
+  if(activeCategories.size === 0) return null;
+
+  const byParent = historicalData.filter(p => p.category === 'person' && p.parentId === entry.id);
+
+  const explicitIds = entry.relatedIds || [];
+  const byExplicit = explicitIds
+    .map(id => historicalData.find(d => d.id === id))
+    .filter(Boolean);
+
+  const merged = [...byParent];
+  for(const item of byExplicit){
+    if(item.id !== entry.id && !merged.some(m => m.id === item.id)) merged.push(item);
+  }
+
+  return merged
+    .filter(d => activeCategories.has(d.category))
+    .sort((a,b)=> a.start - b.start);
+}
+
+function showDetail(entry, parentEntry){
+  currentDetailEntry = entry;
+  const cfg = CATEGORY_CONFIG[entry.category];
+
+  const backHtml = parentEntry
+    ? `<button class="back-btn" data-back-id="${parentEntry.id}">← ${parentEntry.name} に戻る</button>`
+    : '';
+
+  let relatedHtml = '';
+  {
+    const related = getRelatedItems(entry);
+    if(related !== null){
+      if(related.length > 0){
+        const items = related.map(p => {
+          const pCfg = CATEGORY_CONFIG[p.category];
+          return `
+          <li class="person-list-item" data-person-id="${p.id}">
+            <span class="person-name"><span class="related-cat-badge" style="background:${pCfg.color}">${pCfg.label}</span>${p.name}</span>
+            <span class="person-years">${formatYear(p.start)} 〜 ${formatYear(p.end)}</span>
+          </li>`;
+        }).join('');
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語(${related.length}件・古い順)</h4>
+            <ul>${items}</ul>
+          </div>`;
+      } else {
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語</h4>
+            <div class="related-persons-empty">関連する用語データはありません。</div>
+          </div>`;
+      }
+    }
+  }
+
+  const metaLabel = entry.category === 'person' ? '活躍した年代(生没年)' : '時期';
+
+  detailContent.innerHTML = `
+    ${backHtml}
+    <span class="detail-badge" style="background:${cfg.color}">${cfg.label}</span>
+    <h3>${entry.name}</h3>
+    <div class="detail-meta">
+      <div>${metaLabel}: ${formatYear(entry.start)} 〜 ${formatYear(entry.end)}</div>
+      <div>地域: ${entry.region || '—'}</div>
+    </div>
+    ${renderDesc(entry.desc)}
+    ${relatedHtml}
+  `;
+  detailPanel.classList.remove('hidden');
+}
+
+const DESC_SECTION_CONFIG = [
+  { key:'background',    label:'背景(なぜ起きたか)',           cls:'sec-background' },
+  { key:'process',       label:'経過(何が決定的だったか)',       cls:'sec-process' },
+  { key:'significance',  label:'意義・影響(何を変えたか)',       cls:'sec-significance' },
+  { key:'debate',        label:'論点・史学上の論争',             cls:'sec-debate' },
+];
+
+function renderDesc(desc){
+  if(!desc) return '';
+  if(typeof desc === 'string'){
+    return `<p>${desc}</p>`;
+  }
+  const sections = DESC_SECTION_CONFIG
+    .filter(sec => desc[sec.key])
+    .map(sec => `
+      <div class="desc-section ${sec.cls}">
+        <span class="desc-label">${sec.label}</span>
+        <p class="desc-text">${desc[sec.key]}</p>
+      </div>`)
+    .join('');
+  return `<div class="desc-sections">${sections}</div>`;
+}
+
+// 動的に生成される「戻る」ボタン・人物リスト項目のクリックをイベント委譲で処理
+detailContent.addEventListener('click', (e)=>{
+  const personItem = e.target.closest('.person-list-item');
+  if(personItem){
+    const person = historicalData.find(d => d.id === personItem.dataset.personId);
+    if(person) showDetail(person, currentDetailEntry);
+    return;
+  }
+  const backBtn = e.target.closest('.back-btn');
+  if(backBtn){
+    const parent = historicalData.find(d => d.id === backBtn.dataset.backId);
+    if(parent) showDetail(parent);
+    return;
+  }
+});
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailPanel.classList.add('hidden');
+});
+
+/* =========================================================================
+   マーカー描画・年代フィルタリング
+   ========================================================================= */
+function createMarker(entry){
+  const cfg = CATEGORY_CONFIG[entry.category];
+  const marker = L.circleMarker([entry.lat, entry.lng], {
+    radius:7,
+    weight:2,
+    color:'#f3ecdc',
+    fillColor:cfg.color,
+    fillOpacity:0.92,
+  });
+  marker.bindTooltip(entry.name, {
+    permanent:true,
+    direction:'right',
+    offset:[9,0],
+    className:'entry-label',
+  });
+  marker.on('click', ()=> showDetail(entry));
+  return marker;
+}
+
+function updateMap(){
+  const year = parseInt(document.getElementById('yearSlider').value, 10);
+  document.getElementById('yearDisplay').textContent = formatYear(year);
+
+  markerLayer.clearLayers();
+  let visibleCount = 0;
+  const term = searchTerm.toLowerCase();
+
+  historicalData.forEach(entry=>{
+    if(!activeCategories.has(entry.category)) return;
+    if(year < entry.start || year > entry.end) return;
+    if(term && !entry.name.toLowerCase().includes(term)) return;
+    // 国家・王朝に紐づく人物は、そのピンをクリックした先の一覧からのみ表示する
+    if(entry.category === 'person' && entry.parentId) return;
+    const marker = createMarker(entry);
+    markerLayer.addLayer(marker);
+    visibleCount++;
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+/* =========================================================================
+   年表(タイムライン)スライダー
+   ========================================================================= */
+const yearSlider = document.getElementById('yearSlider');
+yearSlider.addEventListener('input', updateMap);
+
+// 目盛り(500年刻み)を生成
+const ticksEl = document.getElementById('ticks');
+const MIN_YEAR = -3500, MAX_YEAR = 2026;
+for(let y = MIN_YEAR; y <= MAX_YEAR; y += 500){
+  const pct = (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+  const tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = pct + '%';
+  tick.textContent = formatYearShort(y);
+  ticksEl.appendChild(tick);
+}
+
+/* =========================================================================
+   再生(自動再生)機能
+   ========================================================================= */
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+let playing = false;
+let playTimer = null;
+
+function startPlaying(){
+  playing = true;
+  playBtn.textContent = '⏸ 停止';
+  playTimer = setInterval(()=>{
+    const step = parseInt(speedSelect.value, 10);
+    let v = parseInt(yearSlider.value, 10) + step;
+    if(v > MAX_YEAR){ v = MIN_YEAR; }
+    yearSlider.value = v;
+    updateMap();
+  }, 180);
+}
+function stopPlaying(){
+  playing = false;
+  playBtn.textContent = '▶ 再生';
+  clearInterval(playTimer);
+}
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlaying();
+  else startPlaying();
+});
+
+/* =========================================================================
+   初期描画
+   ========================================================================= */
+updateMap();
+
+</script>
+</body>
+</html>

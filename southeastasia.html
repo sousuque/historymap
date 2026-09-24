@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東南アジア史地図 — 世界史探究</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+<style>
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
+
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
+
+    --header-h:68px;
+    --footer-h:104px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
+
+  a{color:var(--gold-strong);}
+
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
+
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ---------- Header ---------- */
+  #app-header{
+    height:var(--header-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
+
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
+
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
+
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
+
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
+
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+  }
+  .entry-label::before{ display:none; }
+
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
+
+  /* Detail panel */
+  #detailPanel{
+    width:340px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-340px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .desc-sections{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .desc-section{
+    padding-left:12px;
+    border-left:3px solid var(--line-parchment);
+  }
+  .desc-section.sec-background{ border-left-color:#3f7ea6; }
+  .desc-section.sec-process{ border-left-color:#c99a4a; }
+  .desc-section.sec-significance{ border-left-color:#3f8f74; }
+  .desc-section.sec-debate{ border-left-color:#8a3a3a; }
+  .desc-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .desc-section.sec-background .desc-label{ color:#3f7ea6; }
+  .desc-section.sec-process .desc-label{ color:#a67c2e; }
+  .desc-section.sec-significance .desc-label{ color:#2f7358; }
+  .desc-section.sec-debate .desc-label{ color:#8a3a3a; }
+  .desc-text{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    margin:0;
+  }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
+
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
+
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
+
+  /* Footer timeline */
+  #timeline{
+    height:var(--footer-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
+
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
+
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <header id="app-header">
+    <div>
+      <h1>東南アジア史 地図で学ぶ世界史</h1>
+      <p class="subtitle">紀元前1000年 〜 西暦2030年 ・ 高校世界史探究 学習用(ベトナム・カンボジア・タイ・ミャンマー・インドネシア)</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">紀元前500年</span>
+    </div>
+  </header>
+
+  <div id="main">
+
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
+
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
+
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: ナポレオン、フランス革命">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-1000" max="2030" step="1" value="1300">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   東南アジア史 地図アプリ — データ本体
+   -------------------------------------------------------------------------
+   ジャンル(category)は以下の7種:
+     person     人物
+     nation     国家
+     dynasty    王朝
+     event      事件・出来事
+     war        戦争・戦い
+     revolution 革命
+     treaty     条約
+
+   各エントリの形式:
+   {
+     id:       一意の文字列ID
+     name:     表示名(日本語)
+     category: 上記7種のいずれか
+     lat, lng: 地図上の座標(代表都市・場所)
+     start:    存在/在位/発生開始年(西暦。紀元前はマイナスで表現。例: 紀元前500年 = -500)
+     end:      終了年(単発の出来事は start と同じか、数年程度の幅を持たせる)
+     region:   地域・国名の補助タグ
+     desc:     詳細説明文
+   }
+
+   ★ データは今後、国・地域ごとに分割して追加していきます。
+     新しいブロックを追加する際は、この配列に要素を push する形で
+     どんどん拡張できます(下記はコメントで地域ごとに区切り済み)。
+   ========================================================================= */
+
+const historicalData = [
+
+
+  // ===================== ベトナム(古代〜北属期) =====================
+  { id:"dongson_culture", name:"東山文化(ドンソン文化)", category:"event", lat:19.8, lng:105.77, start:-1000, end:-200, region:"ベトナム北部(紅河流域)", desc:{background:'紅河デルタの肥沃な沖積地で水稲耕作が発達し、余剰生産力を背景に青銅器製作を担う専門集団と首長層が形成されたことが、独自の青銅器文化興隆の土台となった。', process:'紀元前1000年頃から前2世紀頃にかけて、精緻な幾何学文様と船・鳥・人物像を刻む大型銅鼓(ドンソン銅鼓)の製作が最盛期を迎え、その分布は東南アジア島嶼部にまで広がった。', significance:'銅鼓は権威の象徴として周辺の諸首長国にも伝播し、東南アジア全域における「青銅器・鉄器時代文明圏」の存在を示す代表的物証となった。', debate:'担い手を後のベトナム人(雒越)の直接の祖先とみなすベトナム側の民族史観に対し、中国南部からインドネシアに及ぶより広域的な文化複合の一部と位置づける東南アジア史研究の立場もあり、国民国家史との整合が論点となる。'} },
+  { id:"van_lang", name:"文郎国(ヴァンラン)", category:"nation", lat:21.3, lng:105.4, start:-2879, end:-258, region:"ベトナム北部", desc:{background:'紅河流域における水稲耕作社会の発達と、部族連合を束ねる世襲的首長権力の形成が、伝説的な建国神話を生む基盤となった。', process:'雄王(フンヴオン)18代の統治が伝えられるが、史料は後世(15世紀の『大越史記全書』など)の編纂にもとづく伝承であり、前258年に蜀の泮に滅ぼされたとされる。', significance:'近代以降のベトナム民族主義において「最初の独立国家」として国民統合の象徴に押し上げられ、雄王の命日は現在も国家的な追悼行事(雄王忌)として祝われている。', debate:'考古学的実証を欠く伝承がどこまで史実を反映するか、また植民地期・独立期を通じてこの神話が政治的にどう利用・再構築されてきたかが、近代国民国家形成史の観点から論じられる。'} },
+  { id:"au_lac", name:"甌雒国(アウラック)", category:"nation", lat:21.05, lng:105.87, start:-257, end:-207, region:"ベトナム北部(古螺)", desc:{background:'文郎国の内部統合が弱まる一方、南方から軍事力を蓄えた蜀勢力が北進する圧力にさらされたことが政権交代の背景となった。', process:'蜀の泮(安陽王)が文郎国を征服して建国し、都・古螺(コーロア)に螺旋状の防御城壁と濠を築いて中国南下勢力への備えとしたが、南越の趙佗の侵攻を受けて前207年頃に滅亡した。', significance:'古螺城の高度な築城・青銅鋳造技術(銅鼓・銅鏃の大量出土)は、中国支配以前のベトナム北部が独自の高度な物質文化を有していたことを示す重要な考古学的証拠となっている。', debate:'「神弩(魔法の弩)」伝説に象徴される建国譚の史実性と、実際の対外関係(特に南越との関係)の実態との乖離をどう解釈するかが論点となる。'} },
+  { id:"nam_viet", name:"南越国", category:"nation", lat:23.13, lng:113.26, start:-204, end:-111, region:"中国南部〜ベトナム北部(番禺=広州)", desc:{background:'秦の急速な瓦解により南方派遣軍を握っていた趙佗が中央の統制を離れ、独自の地域政権樹立を志向したことが建国の直接的契機となった。', process:'趙佗は広東・広西からベトナム北部にかけてを統合し「南越武帝」を称して独立王朝を築いたが、5代を経て前111年に前漢武帝の遠征軍により滅ぼされた。', significance:'南越の滅亡以後ベトナムは約1000年にわたる中国の直接統治下(北属期)に組み込まれ、漢字・儒教・律令制度の浸透という長期的な中国化(シニサイゼーション)の起点となった。', debate:'南越を「中国王朝の亜流」とみるか「独自の南方国家(百越系文化を基盤とする地域政権)」とみるかで、中国史とベトナム史のいずれの文脈に位置づけるべきかが史学上争われている。'} },
+  { id:"chinese_domination_vn", name:"中国支配時代(北属期)", category:"event", lat:21.03, lng:105.85, start:-111, end:938, region:"ベトナム北部(交趾)", relatedIds:["trung_sisters_revolt"], desc:{background:'前漢による南越併合以降、中国歴代王朝がベトナム北部を郡県制に組み込み直接統治を継続する政策をとったことが、長期支配の制度的背景となった。', process:'郡県制のもとで中国式官僚制・儒教・漢字が導入される一方、徴姉妹の反乱(40-43年)をはじめとする幾度もの武装抵抗が発生し、938年の呉権による白藤江の戦いでの南漢軍撃退によって独立が回復された。', significance:'約1000年に及ぶ中国支配は儒教・仏教・漢字文化をベトナムに深く根付かせる一方、繰り返された抵抗の記憶は後世のベトナム人の強烈な独立志向・民族的アイデンティティ形成の原点となった。', debate:'この時代を単純な「異民族支配」と捉えるか、中国文化の受容を通じた国家形成・文明化の過程として積極的に評価するかで、ベトナム史学と中国中心史観との間に評価の相違がある。'} },
+  { id:"trung_sisters_revolt", name:"徴姉妹(チュン姉妹)の反乱", category:"war", lat:21.03, lng:105.85, start:40, end:43, region:"ベトナム北部", desc:{background:'後漢の太守蘇定による過酷な統治と、現地の土着首長層(徴側の夫を含む)への弾圧が住民の反発を招いたことが蜂起の直接的背景となった。', process:'徴側・徴弐姉妹が交趾郡の諸城を糾合して大反乱を起こし一時独立を達成したが、後漢の名将馬援の大軍による鎮圧を受け姉妹は敗死(あるいは入水自殺)した。', significance:'ベトナム史上最初期の大規模な民族的抵抗運動として記憶され、両姉妹は現在も国家的英雄として祀られ、独立と女性の指導性を象徴する存在となっている。', debate:'反乱の主因を苛政への反発とみるか、母系的な土着首長制と中国的父系官僚制との衝突とみるかで解釈が分かれ、ジェンダー史の観点からも近年再評価が進んでいる。'} },
+
+  // ===================== 占城(チャンパ) =====================
+  { id:"champa_kingdom", name:"占城(チャンパ)", category:"nation", lat:13.77, lng:109.22, start:192, end:1832, region:"ベトナム中南部沿岸(インドラプラ・ヴィジャヤなど)", desc:{background:'インド洋交易路上に位置する地理的条件から、チャム人社会は早くからインド文化(ヒンドゥー教・サンスクリット)を受容し、海洋交易国家としての性格を強めた。', process:'ミーソン聖域の造営など独自の宗教建築を発展させつつ、北の大越(ベトナム)、西のクメール帝国と長期にわたり抗争を繰り返し、大越の「南進」政策の圧力を受けて1471年に王都ヴィジャヤが陥落、以後衰退の一途をたどり19世紀前半に阮朝により完全併合された。', significance:'1000年以上続いたチャンパの興亡は、東南アジア大陸部における「インド化」海洋国家の典型例であるとともに、ベトナム史における南進(ナムティエン)のカウンターパートとして頻繁に論じられる。', debate:'チャンパを単一の統一王国とみるか、複数の港市国家が緩やかに連合した政体とみるかで見解が分かれ、また現存するチャム族の民族的連続性と歴史的記憶の継承のあり方も論点となっている。'} },
+
+  // ===================== ベトナム(独立王朝) =====================
+  { id:"ngo_dynasty", name:"呉朝(ゴー朝)", category:"dynasty", lat:21.03, lng:105.85, start:939, end:965, region:"ベトナム北部(古螺)", desc:{background:'唐末から五代十国期にかけての中国側の混乱により、ベトナム北部に対する中央統制力が著しく弱まったことが自立の好機となった。', process:'豪族出身の呉権が938年、白藤江に鉄杭を仕掛ける戦術で南漢の水軍を撃破し、独立を宣言して王朝を開いたが、彼の死後は各地の豪族(十二使君)が割拠する内乱状態に陥った。', significance:'約1000年に及んだ中国の直接支配(北属期)に終止符を打ち、ベトナム独立国家史の出発点となった画期的事件として位置づけられる。', debate:'白藤江の戦いの戦術(潮の干満と杭を利用した水軍戦法)は後の陳興道による対モンゴル戦でも再現されたとされ、この「型」がベトナム軍事史上どこまで意図的に継承された伝統かが議論される。'} },
+  { id:"dinh_dynasty", name:"丁朝", category:"dynasty", lat:20.25, lng:105.92, start:968, end:980, region:"ベトナム(華閭=ホアルー)", desc:{background:'呉朝滅亡後の十二使君の乱という国内分裂状況が、強力な統一権力の出現を求める土壌を生んだ。', process:'丁部領が武力で諸勢力を平定して統一を回復し、国号を「大瞿越」と定め皇帝を称して宋に朝貢しつつも独立王朝としての体裁を整えたが、丁部領父子の暗殺という内紛により短期間で瓦解した。', significance:'「大瞿越」という独自の国号と皇帝号の採用は、中国の冊封体制に形式的に服しつつ内実では対等の君主権を主張する、後のベトナム王朝に共通する二重外交の先例となった。', debate:'宋への朝貢と皇帝号自称という一見矛盾する対外姿勢を、従属とみるか実質的な独立の表明とみるかは、東アジア冊封体制論における重要な論点である。'} },
+  { id:"early_le_dynasty", name:"前黎朝", category:"dynasty", lat:20.25, lng:105.92, start:980, end:1009, region:"ベトナム(華閭=ホアルー)", desc:{background:'丁朝の混乱に乗じ、幼少の丁朝皇帝を補佐する立場にあった将軍黎桓が実権を掌握したことが王朝交代の直接的要因となった。', process:'黎桓は侵攻してきた宋の遠征軍を撃退して独立を確固たるものとしたが、後継者争いの末に部将の李公蘊へ禅譲する形で王朝は交代した。', significance:'対宋防衛の成功は独立国家としての軍事的正統性を確立し、以後200年に及ぶ李朝の長期安定政権への移行を準備した。', debate:'黎桓から李公蘊への権力移譲を穏当な「禅譲」とみるか事実上の簒奪とみるかで史料解釈が分かれる。'} },
+  { id:"ly_dynasty", name:"李朝(リー朝)", category:"dynasty", lat:21.03, lng:105.85, start:1009, end:1225, region:"ベトナム(昇龍=ハノイ)", relatedIds:["ly_cong_uan"], desc:{background:'前黎朝末期の混乱の中、仏教僧院を後ろ盾とする李公蘊が広い支持基盤を得て実権を握ったことが建国の背景となった。', process:'都を地の利に優れた昇龍(ハノイ)へ移し、科挙制度・律令体制を整備するとともに、1075-77年の対宋戦争(李常傑の先制攻撃を含む)で独立を防衛したが、13世紀初頭に外戚の陳氏へ実権を奪われた。', significance:'約200年に及ぶ長期安定統治により中国式官僚制と仏教・儒教・道教が共存する国家文化の基盤が確立し、以後の歴代王朝の統治モデルとなった。', debate:'李朝の統治体制を「中国化の完成」と評価するか、仏教勢力の強い影響下にある独自の東南アジア型王権とみるかで解釈が分かれる。'} },
+  { id:"ly_cong_uan", name:"李公蘊(リー・コン・ウアン)", category:"person", parentId:"ly_dynasty", lat:21.03, lng:105.85, start:974, end:1028, region:"李朝", desc:{background:'仏教僧院で教育を受け、前黎朝の軍instructor営で頭角を現した経歴が、広範な政治・宗教勢力からの支持獲得を可能にした。', process:'前黎朝の武将から禅譲を受けて即位すると、狭隘で洪水の被害を受けやすい華閭(ホアルー)から、竜が昇天する瑞兆が見られたとされる昇龍(ハノイ)へ遷都し、都城の整備を進めた。', significance:'この遷都は単なる地理的移動にとどまらず、以後1000年近くにわたりハノイがベトナムの政治的中心であり続ける歴史的起点となった。', debate:'遷都の詔(遷都詔)に示された「竜が昇る地」という瑞祥言説を、王権の正統性を演出する政治的レトリックとしてどう読み解くかが論じられる。'} },
+  { id:"tran_dynasty", name:"陳朝(チャン朝)", category:"dynasty", lat:21.03, lng:105.85, start:1225, end:1400, region:"ベトナム(昇龍)", relatedIds:["tran_hung_dao", "mongol_invasion_vietnam"], desc:{background:'李朝末期に外戚として台頭した陳氏が、皇室の血統的弱体化に乗じて実権を掌握したことが王朝交代の背景となった。', process:'陳興道の指揮のもと三度にわたるモンゴル(元)の侵攻を撃退して国威を高め、チャンパとの抗争を通じ南方への領土拡大(南進)も進めたが、14世紀末に外戚の胡季犛に実権を奪われて滅亡した。', significance:'東南アジアで数少ない対モンゴル勝利国となったことは、当時世界最強とされたモンゴル帝国に対する抵抗の稀有な成功例として世界史的にも重要視される。', debate:'三度の勝利の要因を陳興道個人の軍事的才覚に帰すか、気候・地形・補給線といった構造的条件に求めるかで評価が分かれる。'} },
+  { id:"tran_hung_dao", name:"陳興道(チャン・フン・ダオ)", category:"person", parentId:"tran_dynasty", lat:21.03, lng:105.85, start:1228, end:1300, region:"陳朝", desc:{background:'陳朝皇族の一員として軍事的訓練を受け、モンゴルという未曾有の強大な外敵に対処する国家的危機が、その指導力を要請する背景となった。', process:'三度の元軍侵攻に対し、都からの一時撤退と焦土作戦、ゲリラ戦を組み合わせた持久戦術をとり、特に白藤江の戦いでは干満差を利用した水中の杭でモンゴル艦隊を壊滅させた。', significance:'この勝利により陳朝は独立を守り抜き、陳興道は今日に至るまでベトナムで最も尊崇される軍事的英雄として国民的記憶に刻まれている。', debate:'白藤江の戦法は呉権の故事を意図的に再現したものか、地形条件から独立に発見された戦術かをめぐり、ベトナム軍事史における「伝統の創造」の問題として論じられる。'} },
+  { id:"mongol_invasion_vietnam", name:"元のベトナム侵攻(三度の撃退)", category:"war", lat:20.9, lng:106.7, start:1258, end:1288, region:"ベトナム北部(白藤江など)", desc:{background:'フビライ・ハンが南宋征服後、東南アジア全域への朝貢要求と支配拡大を図る中で、服属を拒んだ陳朝ベトナムが標的とされた。', process:'陳朝は正面決戦を避けて都からの計画的撤退と焦土作戦をとり、雨季の疫病や補給難に苦しむモンゴル軍を消耗させたのち、白藤江の戦いで水軍による奇襲により艦隊を壊滅させた。', significance:'東南アジアの中でモンゴルの本格的征服を三度にわたり退けた稀有な事例として、陳朝ベトナムの国際的地位と国威を大きく高めた。', debate:'モンゴル軍の敗因を熱帯気候への不適応とみるか、陳朝側の戦略的巧緻さに帰すかで力点の置き方が分かれ、後のジャワ遠征失敗とも比較される。'} },
+  { id:"ming_occupation_vietnam", name:"明の占領(第四次北属期)", category:"event", lat:21.03, lng:105.85, start:1407, end:1427, region:"ベトナム北部", desc:{background:'陳朝を簒奪した胡朝(胡季犛)の統治の正統性の弱さと国内の不満が、明による軍事介入を招く隙を生んだ。', process:'明は「陳朝復興」を名目に出兵・占領し中国式の郡県制と文化の強制移植を図ったが、過酷な統治への反発から各地で抵抗が起こり、黎利率いる藍山蜂起が10年に及ぶ抗戦の末に1427年これを撃退した。', significance:'明支配への抵抗経験は民族的団結の記憶として蓄積され、独立回復後の黎朝によるベトナム国家再建の正統性の源泉ともなった。', debate:'明の統治を単なる軍事占領とみるか、儒教的制度・文化を強制的に移植する「文明化」の試みとみるかで、明代対外政策研究の中で評価が分かれる。'} },
+  { id:"le_loi", name:"黎利(レ・ロイ)", category:"person", parentId:"le_dynasty", lat:21.03, lng:105.85, start:1385, end:1433, region:"ベトナム(昇龍=タンロン)", desc:{background:'明の過酷な統治と重税、伝統文化の抑圧に対する広範な民衆の不満が、地方豪族黎利による蜂起を可能にする社会的基盤となった。', process:'1418年に藍山(ラムソン)で挙兵し、当初は劣勢であったが軍師阮廌の智略も得て徐々に勢力を拡大、10年に及ぶ抵抗戦の末に明軍を包囲・撃退し、1428年に皇帝に即位した。', significance:'黎利による独立回復は、国号を再び「大越」と定めた黎朝(後黎朝)の建国につながり、ベトナム史上最も長期にわたる王朝の礎を築いた。', debate:'黎利の勝因を軍事的才覚とみるか、阮廌の起草した檄文に代表される民心収攬の巧みさ(「心攻」戦略)に求めるかで力点が分かれる。'} },
+  { id:"le_dynasty", name:"黎朝(後黎朝)", category:"dynasty", lat:21.03, lng:105.85, start:1428, end:1789, region:"ベトナム(昇龍=タンロン)", relatedIds:["trinh_nguyen_conflict"], desc:{background:'明支配からの独立回復という強い正統性を背景に、黎朝は中央集権的な国家体制の再構築を志向した。', process:'聖宗の治世に科挙制度と儒教統治理念の整備、法典『国朝刑律(黎朝刑律)』の制定、チャンパへの大規模な南進を進めて最盛期を迎えたが、16世紀以降は皇帝が実権を失い、莫氏の簒奪や鄭氏・阮氏という二大権門による南北分裂の下で名目的存在と化した。', significance:'約360年に及ぶベトナム史上最長の王朝であり、聖宗期に確立された儒教的統治理念と法典は、以後のベトナム国家統治の規範として長く影響を残した。', debate:'後半期の皇帝の形骸化を王朝の「衰退」と単純に評価するか、実権者(鄭氏・阮氏)による地域的統治の実質的発展とみるかで評価が分かれる。'} },
+  { id:"trinh_nguyen_conflict", name:"鄭氏・阮氏の南北分裂", category:"event", lat:20.85, lng:106.68, start:1533, end:1789, region:"ベトナム(北部=鄭氏、中南部=阮氏)", desc:{background:'黎朝皇帝の権威が形骸化する中、北部を掌握した鄭氏と、中南部に自立の基盤を築いた阮氏という二大権門の対立が先鋭化したことが分裂の背景となった。', process:'両者は黎朝皇帝を名目上の共通の主君として奉じつつ長期の軍事的対峙を続け、この間阮氏はメコンデルタ方面への南進を積極的に進めた。', significance:'阮氏の南進政策により今日のベトナム南部の版図が形成され、現在のベトナムの国土の骨格を決定づけた点で長期的影響が大きい。', debate:'この分裂状態を「国家の弱体化」とみるか、南北それぞれの地域が独自に発展する契機とみるかで評価が分かれ、後の南北分断(1954年以降)との歴史的類比がしばしば論じられる。'} },
+
+  // ===================== ベトナム(西山朝・阮朝・仏領期) =====================
+  { id:"tay_son_dynasty", name:"西山朝(タイソン朝)", category:"dynasty", lat:13.78, lng:109.22, start:1778, end:1802, region:"ベトナム中部(帰仁)", relatedIds:["nguyen_hue"], desc:{background:'阮氏支配下の重税と官僚の腐敗に対する農民の不満が高まったことが、西山地方における反乱勃発の社会的背景となった。', process:'西山三兄弟(阮岳・阮侶・阮恵)が農民反乱を起こして急速に勢力を拡大し、鄭氏・阮氏双方を打倒してベトナムを一時的に統一、さらに侵攻してきたシャム軍・清軍も撃退したが、指導者阮恵の急死後に内紛で急速に弱体化した。', significance:'農民反乱を出自としながら国家統一と対外防衛を成し遂げた稀有な事例であり、ベトナム史上における「下からの革命」の象徴として評価される。', debate:'西山朝を単なる短命な簒奪王朝とみるか、旧秩序を打破した進歩的な社会変革運動とみるかで、伝統的王朝史観と近代ベトナムのナショナリズム史観との間に評価の相違がある。'} },
+  { id:"nguyen_hue", name:"阮恵(グエン・フエ、光中帝)", category:"person", parentId:"tay_son_dynasty", lat:13.78, lng:109.22, start:1753, end:1792, region:"西山朝", desc:{background:'西山蜂起の中で軍事的才能を発揮し、鄭氏・阮氏という既存の二大権門への民衆の不満を追い風に台頭したことが背景にある。', process:'鄭氏・阮氏政権を打倒した後、清の乾隆帝が送った大軍をゴック・ホイの戦い(1789年)で奇襲的な急襲により撃破し、光中帝として即位したが、統一事業半ばで39歳で急死した。', significance:'清軍撃退は東南アジアが再び中国の直接支配下に入ることを防いだ画期的勝利であり、阮恵は今日もベトナムの軍事的英雄として高く評価されている。', debate:'急死がなければベトナム統一と近代化改革がどこまで進んだかという「if」の議論が、後継の阮朝(保守的な清朝モデル採用)との対比でしばしば論じられる。'} },
+  { id:"nguyen_dynasty", name:"阮朝(グエン朝)", category:"dynasty", lat:16.47, lng:107.58, start:1802, end:1945, region:"ベトナム(順化=フエ)", relatedIds:["gia_long", "french_indochina_conquest"], desc:{background:'西山朝内部の混乱に乗じ、旧阮氏の末裔阮福暎がフランス人宣教師らの支援も得て勢力を回復したことが建国の背景となった。', process:'西山朝を倒してベトナムを再統一し、清の冊封を受けて国号を「越南」と定め儒教的中央集権体制を整備したが、19世紀後半にはフランスの軍事的圧力に屈して保護国化が進み、1885年以降は事実上フランス領インドシナに組み込まれた。', significance:'ベトナム最後の王朝として統一国家の枠組みを整えた一方、その保守的な鎖国政策と西洋近代化への対応の遅れが、結果的に植民地化を招いた要因として厳しく問われている。', debate:'阮朝を「植民地化を招いた無策な保守王朝」と断罪する見方に対し、限られた国力の中での現実的な対外戦略であったとする再評価もあり、タイのラーマ王朝との対比で論じられることが多い。'} },
+  { id:"gia_long", name:"阮福暎(嘉隆帝)", category:"person", parentId:"nguyen_dynasty", lat:16.47, lng:107.58, start:1762, end:1820, region:"阮朝", desc:{background:'西山朝との20年に及ぶ抗争の中、フランス人宣教師ピニョーの仲介による軍事的・技術的支援を得たことが勢力回復の重要な契機となった。', process:'西山朝を打倒してベトナムを再統一し、清の冊封を受けて国号を「越南」に改め、フエを都に清朝の律令制度にならった統治機構を整備した。', significance:'南北に分裂していたベトナムを史上初めて現在の領域とほぼ一致する形で統一し、阮朝250年余りの統治の礎を築いた。', debate:'フランスの軍事支援を受けて即位した経緯が、後の19世紀フランスによる介入の口実(宣教師保護など)を準備したのではないかという、植民地化の遠因としての評価が論じられる。'} },
+  { id:"french_indochina_conquest", name:"フランスのインドシナ進出", category:"event", lat:10.82, lng:106.63, start:1858, end:1887, region:"ベトナム(サイゴンなど)", desc:{background:'阮朝によるキリスト教弾圧と、ナポレオン3世期フランスの積極的な海外進出政策が結びつき、軍事介入の口実と動機を提供した。', process:'ダナン・サイゴンへの軍事侵攻に始まり、阮朝は段階的に領土割譲と保護国化を強いられ、清仏戦争(1884-85年)でベトナムに対する清の宗主権も否定されて完全な植民地支配下に置かれた。', significance:'この過程で確立された保護国体制は仏領インドシナ連邦へと発展し、以後約80年に及ぶフランス植民地支配の枠組みを決定づけた。', debate:'征服の主要因を宗教的口実(布教保護)とみるか、東アジア市場・資源をめぐる列強間の帝国主義競争の一環とみるかで力点が分かれる。'} },
+  { id:"french_indochina", name:"仏領インドシナ", category:"nation", lat:10.82, lng:106.63, start:1887, end:1954, region:"ベトナム・カンボジア・ラオス(サイゴン→ハノイ)", desc:{background:'ベトナム・カンボジア・ラオスという地理的にも文化的にも多様な地域を、フランスが単一の植民地行政単位として統合しようとしたことが特徴的な背景である。', process:'プランテーション経済(ゴム・米)の導入と鉄道・港湾整備が進む一方、過酷な搾取と収奪が現地住民の困窮を招き、20世紀に入るとこれに対する民族独立運動が各地で高まった。', significance:'植民地期に整備されたインフラと行政単位は独立後の3国(ベトナム・カンボジア・ラオス)の国境線・経済構造に長く影響を残し、同時に育まれた反植民地運動は東南アジア随一の激しい独立戦争(第一次インドシナ戦争)へとつながった。', debate:'フランス統治を「近代化への貢献」とみる旧植民地史観に対し、収奪的経済構造による現地社会の疲弊を強調する批判的研究が現在の主流であり、評価は大きく分かれる。'} },
+
+  // ===================== ベトナム(独立運動・現代) =====================
+  { id:"ho_chi_minh", name:"ホー・チ・ミン", category:"person", parentId:"dem_republic_vietnam", lat:21.03, lng:105.85, start:1890, end:1969, region:"ベトナム(ハノイ)", desc:{background:'植民地下ベトナムの貧困と抑圧を目の当たりにした青年期の経験が、フランス・ソ連・中国を渡り歩く中で共産主義思想への傾倒を促した。', process:'1941年にベトナム独立同盟会(ベトミン)を組織して抗日・抗仏闘争を指導し、1945年8月革命を経てベトナム民主共和国の独立を宣言、以後は北ベトナムの指導者としてベトナム戦争(抗米救国戦争)を主導した。', significance:'南北統一を見ることなく1969年に死去したが、統一後にサイゴンが彼の名にちなみホーチミン市と改称されるなど、ベトナムにおける独立・統一運動の最大の象徴的指導者として位置づけられている。', debate:'その思想的性格を純粋な共産主義国際主義者とみるか、民族独立を第一義とするナショナリストとみるかで評価が分かれ、この論点は冷戦期の米国側の認識(ドミノ理論)とも密接に関わる。'} },
+  { id:"viet_minh", name:"ベトナム独立同盟(ベトミン)", category:"nation", lat:21.03, lng:105.85, start:1941, end:1954, region:"ベトナム北部", desc:{background:'日本占領下での旧仏印統治機構の弱体化と、独立を求める広範な民族的機運の高まりが、統一戦線結成の好機となった。', process:'ホー・チ・ミンが中国国境地帯で結成した抗日・抗仏民族統一戦線で、日本の敗戦直後の権力の空白に乗じて八月革命を成功させ独立を宣言し、その後は独立を認めないフランスとの第一次インドシナ戦争を戦い抜いた。', significance:'共産主義勢力と非共産勢力を糾合する統一戦線戦術の成功例として、以後の南ベトナム解放民族戦線などの組織モデルにも影響を与えた。', debate:'統一戦線内における共産党の主導権の実態(表向きの多党連合か事実上の共産党支配か)をめぐり、当時の非共産系ナショナリストの評価も含め議論が続く。'} },
+  { id:"dem_republic_vietnam", name:"ベトナム民主共和国(北ベトナム)", category:"nation", lat:21.03, lng:105.85, start:1945, end:1976, region:"ベトナム北部(ハノイ)", desc:{background:'日本の降伏という権力の空白と、独立を求める民族的機運の高まりが、ベトミン主導の建国を可能にした。', process:'第一次インドシナ戦争でフランスからの独立を確定させた後、1954年のジュネーブ協定による南北分断以降は北緯17度線以北を実効支配し、ベトナム戦争では南ベトナム解放民族戦線を支援して南北統一を目指した。', significance:'1975年のサイゴン陥落と翌年の南北統一を経てベトナム社会主義共和国に発展的に統合され、東南アジアにおける社会主義国家建設の主要な事例となった。', debate:'北ベトナムの統治を「民族解放の正統な担い手」とみるか「ソ連・中国の後ろ盾を得た共産主義独裁」とみるかは、冷戦の解釈枠組みそのものに関わる根本的論点である。'} },
+  { id:"first_indochina_war", name:"第一次インドシナ戦争", category:"war", lat:21.38, lng:103.02, start:1946, end:1954, region:"ベトナム(ディエンビエンフー)", relatedIds:["dien_bien_phu", "geneva_accords"], desc:{background:'独立を宣言したベトミンに対し、フランスが植民地権益の回復を図り再侵攻したことが開戦の直接的契機となった。', process:'当初優勢であったフランス軍は中国の支援を受けたベトミン軍のゲリラ戦に次第に苦戦し、1954年のディエンビエンフーの戦いでの大敗を機に戦争継続を断念、ジュネーブ協定によりフランスはインドシナから撤退した。', significance:'第二次世界大戦後最初の大規模な脱植民地化戦争としてアジア・アフリカの独立運動に大きな影響を与え、南北ベトナム分断という戦後東南アジア最大の国際問題の起点ともなった。', debate:'フランスの敗北を軍事的失策とみるか、植民地体制そのものの構造的限界(現地民の支持喪失)とみるかで評価が分かれる。'} },
+  { id:"dien_bien_phu", name:"ディエンビエンフーの戦い", category:"war", lat:21.38, lng:103.02, start:1954, end:1954, region:"ベトナム北西部(ディエンビエンフー)", desc:{background:'フランス軍がベトミン軍の補給路を断つべく北西部の要衝に強固な要塞を築いたが、周囲の山岳地形を軽視したことが誤算の背景となった。', process:'ボー・グエン・ザップ将軍率いるベトミン軍が人力で重砲を山中に運び込んで要塞を包囲し、57日間の攻防の末にフランス軍守備隊を完全に包囲・降伏させた。', significance:'この歴史的敗北によりフランスはインドシナでの植民地維持を断念し、ジュネーブ会議での撤退合意へとつながる、20世紀の植民地戦争史における画期的事件となった。', debate:'勝因を人海戦術による重砲搬入という技術的達成に求めるか、住民動員を可能にした民族的団結の政治的要因に求めるかで力点が分かれる。'} },
+  { id:"geneva_accords", name:"ジュネーブ協定", category:"treaty", lat:46.2, lng:6.15, start:1954, end:1954, region:"スイス・ジュネーブ", desc:{background:'ディエンビエンフーでの決定的敗北によりフランスが戦争継続を断念したことが、国際会議召集の直接的契機となった。', process:'北緯17度線を暫定的軍事境界線としてベトナムを南北に分割し、2年以内の統一選挙実施を規定したが、南側(のちのベトナム共和国)と後ろ盾のアメリカが調印・選挙実施を拒否した。', significance:'本来「暫定的」であった分断線が固定化されたことで、以後20年に及ぶベトナム戦争(南北対立)の直接的な火種となった。', debate:'統一選挙が実施されなかった責任の所在(南ベトナム・米国の拒否か、冷戦構造そのものの帰結か)は、ベトナム戦争の正当性論争の出発点として重要な争点である。'} },
+  { id:"vietnam_war", name:"ベトナム戦争(第二次インドシナ戦争)", category:"war", lat:10.82, lng:106.63, start:1955, end:1975, region:"ベトナム全土", relatedIds:["ngo_dinh_diem", "viet_cong", "fall_of_saigon"], desc:{background:'ジュネーブ協定後の分断固定化と、共産主義の拡大を恐れる米国のドミノ理論に基づく介入方針が、戦争長期化の構造的背景となった。', process:'1965年以降アメリカが本格的な軍事介入(北爆・地上軍派遣)を行い戦争は激化したが、ゲリラ戦による消耗と国内外の反戦世論の高まりを受け1973年にパリ和平協定でアメリカ軍は撤退、1975年のサイゴン陥落により南ベトナムは崩壊した。', significance:'米国史上最大級の敗北体験(ベトナム症候群)として長くその外交・軍事政策に影響を残す一方、翌年のベトナム統一は東南アジアにおける社会主義陣営の拡大を象徴する出来事となった。', debate:'戦争の主因を共産主義の脅威に対する正当な防衛とみるか、内戦への不当な外部介入とみるかという論争は、現在も歴史認識・外交政策論争の中心的争点であり続けている。'} },
+  { id:"ngo_dinh_diem", name:"ゴ・ディン・ジエム", category:"person", parentId:"vietnam_war", lat:10.82, lng:106.63, start:1901, end:1963, region:"ベトナム共和国(サイゴン)", desc:{background:'フランス撤退後の権力の空白の中、反共・親米路線を明確にしたジエムに対し、米国が後ろ盾となったことが政権樹立の背景となった。', process:'1955年の国民投票(不正が指摘される)でバオダイを退けベトナム共和国初代大統領となったが、カトリック優遇・仏教徒弾圧と親族(特に弟ヌー)による強権統治で国内の不満を高めた。', significance:'1963年の仏教徒弾圧抗議での焼身自殺事件を機に国際的批判が高まり、同年の軍事クーデターで暗殺されたことは、以後の南ベトナムの政情不安定化と米国の直接軍事介入拡大の転機となった。', debate:'米国のジエム支援策を「同盟国育成」の成功例とみるか、現地社会の実情を無視した「代理人統治」の失敗例とみるかで、米国のベトナム政策全体の評価に直結する論点となる。'} },
+  { id:"viet_cong", name:"南ベトナム解放民族戦線(ベトコン)", category:"nation", lat:10.82, lng:106.63, start:1960, end:1976, region:"南ベトナム", desc:{background:'ジエム政権の弾圧と土地改革の停滞に対する南部農村の不満が、共産主義系ゲリラ組織結成の社会的土壌となった。', process:'北ベトナムの支援を受けて結成され、地下トンネル網(クチトンネルなど)を駆使したゲリラ戦術で抵抗を続け、1968年のテト攻勢では南ベトナム主要都市に一斉攻撃を仕掛け米軍・国際世論に大きな衝撃を与えた。', significance:'軍事的には大きな損害を被ったテト攻勢が、逆に米国内の厭戦世論を決定的に強めるという逆説的効果を生み、戦争の政治的帰趨を左右した。', debate:'南ベトナム解放民族戦線を北ベトナムの単なる別動隊とみるか、南部独自の社会的基盤を持つ自律的な組織とみるかは、南北統一の性格(内戦か外部からの征服か)をめぐる論争と直結する。'} },
+  { id:"fall_of_saigon", name:"サイゴン陥落", category:"event", lat:10.82, lng:106.63, start:1975, end:1975, region:"ベトナム(サイゴン)", desc:{background:'パリ和平協定に基づく米軍撤退後、軍事的・経済的支援を失った南ベトナム政府軍の士気と統制力が急速に低下したことが崩壊の背景となった。', process:'北ベトナム軍・解放戦線軍が総攻撃をかけてサイゴンを制圧し、南ベトナム政府が無条件降伏、アメリカ大使館からのヘリコプターによる緊迫した撤退劇が世界に伝えられた。', significance:'20年に及んだベトナム戦争の終結を象徴する出来事であり、翌1976年の南北統一によりベトナム社会主義共和国が成立する直接の契機となった。', debate:'この崩壊を米国の「見捨て」の結果とみるか、南ベトナム政権自体の正統性・統治能力の欠如の帰結とみるかで、戦争総括の評価が分かれる。'} },
+  { id:"socialist_vietnam", name:"ベトナム社会主義共和国", category:"nation", lat:21.03, lng:105.85, start:1976, end:2030, region:"ベトナム(ハノイ)", relatedIds:["doi_moi_policy"], desc:{background:'サイゴン陥落による南ベトナム崩壊を受け、南北を統一した単一の社会主義国家建設が急速に進められたことが成立の背景となる。', process:'統一直後は社会主義的計画経済への急速な移行や旧南ベトナム関係者の再教育キャンプ送致、カンボジアへの軍事介入により経済的疲弊と国際的孤立を経験したが、1986年のドイモイ政策以降は市場経済を導入して発展路線に転じた。', significance:'統一から市場経済化への転換を通じ、21世紀には東南アジア有数の成長市場として国際的な存在感を高め、旧敵国アメリカとの関係正常化(1995年)も実現した。', debate:'統一直後の急進的社会主義政策(南部の急速な集団化)の失敗をどう総括するかは、ドイモイ改革の必然性・正当性を論じる上で重要な前提となる。'} },
+  { id:"doi_moi_policy", name:"ドイモイ(刷新)政策", category:"event", lat:21.03, lng:105.85, start:1986, end:1995, region:"ベトナム", desc:{background:'統一後の非効率な計画経済とカンボジア介入による国際的孤立が深刻な食糧・物資不足を招いたことが、抜本的改革を不可避にした。', process:'ベトナム共産党第6回大会で採択され、中国の改革開放にならい計画経済から市場経済的要素を取り入れた「社会主義志向の市場経済」への転換を進め、農業生産請負制の導入や外資導入の自由化を実施した。', significance:'深刻だった食糧・物資不足を克服し、以後のベトナムの高度経済成長(2000年代以降の輸出主導型工業化)の出発点となった、社会主義国家における市場経済導入の代表的成功例と評価される。', debate:'共産党一党支配を維持したまま市場経済化を進める「ベトナム・モデル」を、中国モデルの模倣とみるか独自の漸進的改革路線とみるかが比較政治経済学の観点から論じられる。'} },
+
+  // ===================== カンボジア =====================
+  { id:"funan", name:"扶南", category:"nation", lat:10.2, lng:104.95, start:68, end:627, region:"カンボジア南部・メコンデルタ", desc:{background:'メコンデルタが東西海上交易(インドと中国を結ぶ航路)の中継地に位置したことが、早期の国家形成とインド文化受容を促した。', process:'インド系(あるいはインド化した)王権とヒンドゥー教・仏教が導入され、外港オケオを拠点にローマ・インド・中国の物品が出土する国際交易で繁栄したが、6世紀以降内陸の真臘(チェンラ)の台頭により衰退・吸収された。', significance:'東南アジア最古級の「インド化」国家として、以後の東南アジア大陸部における王権思想・宗教文化の原型を提供した。', debate:'「インド化」を現地エリートによる主体的なインド文化受容の過程とみるか、インド商人・バラモンによる植民地的支配とみるかという、東南アジア史学における「インド化論争」の代表事例である。'} },
+  { id:"chenla", name:"真臘(チェンラ)", category:"nation", lat:13.42, lng:105.97, start:550, end:802, region:"カンボジア内陸部", desc:{background:'メコン川中流域の稲作地帯を基盤に台頭した内陸勢力が、海上交易依存の扶南に対する優位を強めたことが台頭の背景となった。', process:'扶南を服属させて取って代わったが、8世紀には内紛により陸真臘・水真臘に分裂し、9世紀初頭にジャワからの帰国者ジャヤヴァルマン2世が諸勢力を統一しクメール帝国の基盤を築いた。', significance:'扶南からクメール帝国(アンコール朝)への政治的中心の移行を媒介した過渡期国家として位置づけられる。', debate:'「陸真臘・水真臘」への分裂の実態(中国側史料に基づく記述)がどこまで正確か、現地の政治的実態を反映しているかについて史料批判上の議論がある。'} },
+  { id:"khmer_empire", name:"クメール帝国(アンコール朝)", category:"dynasty", lat:13.41, lng:103.87, start:802, end:1431, region:"カンボジア(アンコール)", relatedIds:["jayavarman_ii", "suryavarman_ii", "jayavarman_vii", "champa_kingdom"], desc:{background:'メコン川流域の稲作生産力と、ヒンドゥー教的王権思想(神王理念)の導入が、大規模な集権国家形成を可能にした。', process:'ジャヤヴァルマン2世の建国後、バライ(貯水池)による灌漑水利の整備で農業生産力を飛躍的に高め、スーリヤヴァルマン2世のアンコールワット造営、ジャヤヴァルマン7世のアンコールトム・バイヨン造営で最盛期を迎えたが、14世紀以降スコータイ・アユタヤ朝タイの圧迫を受け、1431年のアユタヤ軍侵攻でアンコールが陥落した。', significance:'東南アジア屈指の壮麗な石造建築群を残し、その水利技術・王権理念は周辺のタイ・ラオス・チャンパにも大きな影響を与え、現在もカンボジアの国家的アイデンティティの中核をなしている。', debate:'衰退の原因を外的な軍事的圧力(タイの侵攻)とみるか、水利システムの環境的限界(気候変動・灌漑網の機能不全)とみるかで近年の考古学的研究の間で見解が分かれる。'} },
+  { id:"jayavarman_ii", name:"ジャヤヴァルマン2世", category:"person", parentId:"khmer_empire", lat:13.41, lng:103.87, start:770, end:835, region:"クメール帝国", desc:{background:'ジャワ滞在中に見聞した集権的王権のあり方が、帰国後の分裂したクメール諸勢力統一の理念的支柱となった。', process:'分裂していたクメールの諸勢力を統一し、聖山(プノン・クーレン)で自らを「神王(デーヴァラージャ)」として即位させる儀礼を行いクメール帝国を開いた。', significance:'この「神王」理念は王権とヒンドゥー教的宇宙観を結びつける思想として、以後歴代のアンコール諸王による壮大な寺院建設事業(王＝神の住まいとしての寺院)の思想的基盤となった。', debate:'「ジャワからの独立宣言」という建国伝承の史実性や、当時のジャワ(シャイレーンドラ朝)との具体的な政治関係の実態については史料が乏しく諸説がある。'} },
+  { id:"suryavarman_ii", name:"スーリヤヴァルマン2世", category:"person", parentId:"khmer_empire", lat:13.41, lng:103.87, start:1113, end:1150, region:"クメール帝国", desc:{background:'先代までに蓄積された国力と水利基盤を背景に、王権の威信を示す空前規模の国家事業が可能となる条件が整っていた。', process:'ヴィシュヌ神に捧げる国家寺院としてアンコールワットを建立させ、周辺のチャンパやベトナム(李朝大越)への軍事遠征も行い帝国の勢力を拡大したが、晩年のチャンパ遠征には失敗した。', significance:'アンコールワットは今日クメール帝国の栄華を象徴する世界的建造物であり、その建築様式・彫刻(乳海攪拌のレリーフなど)はヒンドゥー教的宇宙観を具現化した傑作として評価される。', debate:'アンコールワットが当初から王自身の墓所として構想されたか、生前の権威誇示のための寺院であったかという建設意図をめぐる論争が続く。'} },
+  { id:"jayavarman_vii", name:"ジャヤヴァルマン7世", category:"person", parentId:"khmer_empire", lat:13.44, lng:103.86, start:1125, end:1220, region:"クメール帝国(アンコールトム)", desc:{background:'チャンパによるアンコール占領という前代未聞の国家的屈辱が、強力な指導者の出現と国家再建事業への希求を生んだ。', process:'この危機を克服して即位すると、大乗仏教への深い帰依のもと新都アンコールトムとその中心バイヨン寺院、加えて病院・宿駅・貯水池など空前の規模の公共事業を全国に展開した。', significance:'クメール帝国の版図と建築事業を最大規模にまで押し広げた「アンコール朝最後の偉大な王」とされ、彼以降の急激な事業縮小は帝国衰退の始まりとも重なる。', debate:'大規模建設事業が国家財政・労働力を過度に消耗させ、結果的に後継王朝の衰退を早めたのではないかという「建設事業による自壊」説が唱えられている。'} },
+  { id:"post_angkor_cambodia", name:"ポスト・アンコール期のカンボジア", category:"nation", lat:11.57, lng:104.89, start:1431, end:1863, region:"カンボジア(プノンペン・ウドン等)", desc:{background:'アユタヤ軍の攻撃によるアンコール陥落という軍事的打撃と、それに伴う灌漑システムの維持能力の喪失が、政治的中心移転を余儀なくさせた。', process:'クメール王権はプノンペン周辺へ政治的中心を移したが、隣接するシャム(タイ)とベトナムという二大強国の間で領土を削られ続け、19世紀半ばにはほとんど両国の従属国に近い状態に置かれた。', significance:'かつての東南アジア随一の大帝国が周辺国の草刈り場と化したこの時代は、19世紀のフランス保護国化を招く国力の脆弱化として、カンボジア近代史の重要な前提となっている。', debate:'この時代を単なる「暗黒時代・衰退期」と切り捨てるか、地域交易網への再適応を試みた王権の存続戦略として再評価するかで研究の視点が分かれる。'} },
+  { id:"french_protectorate_cambodia", name:"フランス保護領カンボジア", category:"nation", lat:11.57, lng:104.89, start:1863, end:1953, region:"カンボジア(プノンペン)", desc:{background:'シャムとベトナム両国の圧迫にさらされ存亡の危機にあったノロドム国王が、第三の勢力であるフランスに活路を求めたことが保護国化の背景となった。', process:'フランスは仏領インドシナの一部としてカンボジアを間接統治しつつ、シャムが実効支配していたアンコール地域を交渉(1907年の仏泰条約)により回復させた。', significance:'フランスによるアンコール地域の回復は、消滅の危機にあったカンボジア王国の領域を今日の姿にまで保全した点で、皮肉にも植民地化がカンボジアの国家的存続に寄与したという逆説的評価につながっている。', debate:'保護国化を「亡国の危機からの救済」とみるか「独立の実質的喪失」とみるかは、カンボジア近代史の評価における根本的な対立軸である。'} },
+  { id:"sihanouk", name:"ノロドム・シハヌーク", category:"person", parentId:"cambodia_independence", lat:11.57, lng:104.89, start:1922, end:2012, region:"カンボジア(プノンペン)", desc:{background:'フランスにより傀儡的な国王として擁立されながらも、戦後の脱植民地化の国際的機運を巧みに利用する政治的資質を備えていたことが背景にある。', process:'国際世論への訴えかけ(「王の十字軍」)により1953年に独立を達成させ、退位後も国家元首として東西いずれの陣営にも与しない中立外交を展開したが、1970年にロン・ノルのクーデターで失脚、以後は内戦の中で亡命・幽閉・復権を繰り返した。', significance:'1993年の王政復古後は再び国王として国民統合の象徴的役割を担い、混乱を極めたカンボジア現代史を一貫して体現する稀有な政治的存在となった。', debate:'その中立外交(冷戦下での北ベトナム軍の領内通過黙認など)がクーデターとその後の内戦・虐殺を招いた一因かどうかについては、責任論を含め評価が分かれる。'} },
+  { id:"cambodia_independence", name:"カンボジア独立", category:"event", lat:11.57, lng:104.89, start:1953, end:1953, region:"カンボジア(プノンペン)", desc:{background:'第一次インドシナ戦争でフランスの国力が消耗する中、シハヌーク国王が国際世論に直接訴える異例の外交攻勢を展開したことが独立達成を後押しした。', process:'シハヌークの精力的な国際的働きかけ(「王の十字軍」)によりフランスから完全独立を達成し、翌年のジュネーブ協定でも独立が国際的に承認された。', significance:'仏領インドシナの中でいち早く、しかも大規模な武力闘争を経ずに主権国家としての地位を確立した点で、ベトナムの独立過程(第一次インドシナ戦争)とは対照的な経路をたどった。', debate:'武力闘争なしに独立を達成できた要因を、シハヌークの外交手腕に帰すか、フランスがベトナムでの消耗を優先しカンボジアでの譲歩に応じやすかった国際情勢に帰すかで見解が分かれる。'} },
+  { id:"cambodian_civil_war", name:"カンボジア内戦", category:"war", lat:11.57, lng:104.89, start:1970, end:1975, region:"カンボジア全土", relatedIds:["lon_nol_regime"], desc:{background:'ベトナム戦争の拡大に伴い北ベトナム軍の補給路がカンボジア領内を通過していたことへの対応をめぐり、親米派と中立派の対立が先鋭化したことが内戦の引き金となった。', process:'親米派のロン・ノルがシハヌークを追放するクーデターを起こし、アメリカの支援を受ける政権軍と、中国・北ベトナムの支援を受ける共産主義ゲリラ(クメール・ルージュ)が激しく争い、アメリカ軍による大規模な秘密爆撃も国土に深刻な被害をもたらした。', significance:'この内戦による社会の徹底的な荒廃と農村の疲弊が、急進的なクメール・ルージュの台頭とその後の大虐殺を準備する土壌を作った点で、カンボジア現代史最大の悲劇の起点となった。', debate:'アメリカによる秘密爆撃が、クメール・ルージュへの民衆の支持拡大を招いた主因の一つであるという見方が有力視されており、外部介入と内発的急進化の因果関係が論じられる。'} },
+  { id:"lon_nol_regime", name:"ロン・ノル政権(クメール共和国)", category:"nation", lat:11.57, lng:104.89, start:1970, end:1975, region:"カンボジア(プノンペン)", desc:{background:'北ベトナム軍のカンボジア領内通過を黙認するシハヌークの中立路線への不満が、親米派軍人による政権奪取を後押しした。', process:'国号をクメール共和国と改めたが、汚職・統治能力の欠如とアメリカの爆撃による国土荒廃、そしてクメール・ルージュの急速な勢力拡大により追い詰められ、1975年4月にプノンペン陥落とともに崩壊した。', significance:'この政権の崩壊は東南アジアにおける親米反共政権の脆弱性を象徴する事例であり、直後に成立したクメール・ルージュ政権による未曾有の大虐殺への道を開いた。', debate:'ロン・ノル政権の崩壊要因を政権自体の腐敗・無能に求めるか、アメリカの支援の限界と国際情勢の変化(米軍のインドシナ撤退方針)に求めるかで議論がある。'} },
+  { id:"khmer_rouge", name:"ポル・ポトとクメール・ルージュ(民主カンプチア)", category:"nation", lat:11.57, lng:104.89, start:1975, end:1979, region:"カンボジア全土", desc:{background:'長期の内戦による社会の荒廃と農村の窮乏、加えて急進的な農本主義・反都市・反知識人思想を掲げるポル・ポトらの指導が、極端な社会改造を可能にする条件を作った。', process:'都市住民を強制的に農村へ移住させ原始共産主義的な農業集団化を強行する一方、知識人・少数民族・旧政権関係者などを大量に処刑・餓死させ、わずか4年足らずで推定150万〜200万人の犠牲者を出す大虐殺を引き起こした。', significance:'20世紀後半における最も凄惨なジェノサイドの一つとして国際的に記憶され、この経験は後の国際刑事司法(特別法廷ECCC設置)や「保護する責任」論の形成にも影響を与えた。', debate:'この虐殺を単なる「狂気の産物」とみるか、極端なイデオロギー(反都市・反市場・自給自足)が必然的に導いた構造的帰結とみるかで解釈が分かれ、ジェノサイド研究における重要事例とされる。'} },
+  { id:"cambodia_vietnam_war", name:"カンボジア・ベトナム戦争とその後の内戦", category:"war", lat:11.57, lng:104.89, start:1978, end:1991, region:"カンボジア全土", desc:{background:'クメール・ルージュ政権による国境侵犯と国内カンボジア系ベトナム人への迫害、さらに大虐殺の継続が、ベトナムによる軍事介入の口実と動機を提供した。', process:'ベトナム軍がカンボジアへ侵攻してポル・ポト政権を打倒しヘン・サムリン政権を樹立したが、国際社会の多くはこれを不承認とし、退いたクメール・ルージュや旧勢力とベトナム占領軍・カンボジア政府軍との間でゲリラ戦が10年余り継続した。', significance:'大虐殺を終わらせた軍事介入でありながら国際的正統性を得られなかったという逆説は、「人道的介入」の是非をめぐる国際政治学上の重要な先行事例となっている。', debate:'冷戦下で中国・ASEAN諸国・欧米がクメール・ルージュ(を含む反ベトナム連合政府)の国連代表権を支持し続けたことは、ジェノサイド加害勢力を国際的に正統化したのではないかという厳しい批判がある。'} },
+  { id:"paris_peace_accords_cambodia", name:"カンボジア和平パリ協定", category:"treaty", lat:48.86, lng:2.35, start:1991, end:1991, region:"フランス・パリ", desc:{background:'冷戦終結によりベトナム・中国・ソ連・アメリカなど関係大国が和平推進で足並みを揃えたことが、10年以上こじれた内戦終結への機運を生んだ。', process:'国連の仲介のもとカンボジア国内の4派とベトナム・タイなど関係国が調印し、国連カンボジア暫定機構(UNTAC)による統治と選挙管理のもとで1993年に制憲議会選挙が実施された。', significance:'国連が国家統治そのものを一時的に担う大規模な平和構築(ピースビルディング)の先駆的事例として、以後の国連PKO・国家再建活動のモデルケースとなった。', debate:'UNTACによる暫定統治と選挙実施が、クメール・ルージュ残存勢力の武装解除を実現できなかった限界も含め、平和構築活動の成功例か不完全な成果かで評価が分かれる。'} },
+  { id:"modern_cambodia", name:"現代カンボジア王国", category:"nation", lat:11.57, lng:104.89, start:1993, end:2030, region:"カンボジア(プノンペン)", desc:{background:'パリ和平協定と国連暫定統治による民主的枠組みの構築が、立憲君主制国家としての再建を可能にした。', process:'フン・センが1985年以来長期にわたり首相を務め政治的安定と経済成長を実現する一方、強権的な統治や野党弾圧、事実上の一党優位体制の固定化への国際的批判が根強い。', significance:'アンコール遺跡を中心とした観光業や縫製産業を軸に東南アジアの新興国として発展を続けており、中国からの経済的影響力の増大も近年の重要な特徴となっている。', debate:'フン・セン政権の長期化を「内戦の記憶を踏まえた安定優先」とみるか「権威主義の固定化」とみるかで、民主化支援を行う国際社会の評価が分かれている。'} },
+
+  // ===================== タイ =====================
+  { id:"dvaravati", name:"ドヴァーラヴァティー(モン族仏教文化圏)", category:"nation", lat:13.82, lng:100.06, start:600, end:1000, region:"タイ中部(ナコンパトム)", desc:{background:'タイ人が南下する以前からチャオプラヤー川流域にモン族が定住し、インドとの海上交易を通じて仏教文化を早期に受容したことが背景にある。', process:'統一王権を持たない緩やかな都市国家連合として展開し、ナコンパトムの大仏塔に代表される仏教美術・法輪(ダルマチャクラ)石柱などの文化遺産を残したが、11世紀以降クメール(アンコール朝)の支配下に組み込まれた。', significance:'この地に根付いた上座部仏教は、後にタイ人が建てるスコータイ朝以降のタイ人国家の精神的基盤として継承され、今日のタイ文化の宗教的基層を形成した。', debate:'「タイ族による国家」以前のモン族文化圏をどこまでタイ史の一部として組み込んで叙述すべきか、国民史の時代区分をめぐる論点がある。'} },
+  { id:"sukhothai_kingdom", name:"スコータイ朝", category:"dynasty", lat:17.02, lng:99.82, start:1238, end:1438, region:"タイ北部(スコータイ)", relatedIds:["ramkhamhaeng"], desc:{background:'クメール帝国の弱体化により地方統治の空白が生じ、南下してきたタイ人首長がこれに乗じて自立を図ったことが建国の背景となった。', process:'上座部仏教を深く取り入れて温情的な統治を理想とし、ラームカムヘーン王のもとでタイ文字創始などタイ独自の文化の礎を築いたが、14世紀以降は南方に新たに台頭したアユタヤ朝の勢力下に置かれ、最終的にその属国となった。', significance:'タイ人最初の王朝として、文字・仏教・温情的王権(父権的統治)というタイ人国家の理念型を提示し、現在に至るまでタイのナショナリズムにおいて理想化された「黄金時代」として位置づけられている。', debate:'スコータイ王権を「理想の慈悲深い統治(父が子を治めるような)」として描く伝統的史観に対し、実際には他の東南アジア諸国と同様の階層的支配構造であったとする実証的な見直しが進んでいる。'} },
+  { id:"ramkhamhaeng", name:"ラームカムヘーン大王", category:"person", parentId:"sukhothai_kingdom", lat:17.02, lng:99.82, start:1237, end:1298, region:"スコータイ朝", desc:{background:'父祖が築いた王国基盤の上に、中国(元)との積極的な朝貢外交と技術導入を進める国際的環境が整っていたことが治世の背景にある。', process:'クメール文字を基にタイ文字を創始したと伝えられ(スコータイ碑文)、上座部仏教を篤く保護して国家統治の精神的基盤に据えるとともに、中国への朝貢外交や陶磁器生産の導入など積極的な対外交流を進めた。', significance:'タイ文字の創始は以後のタイ語による文献・碑文文化の出発点となり、スコータイを「タイ人国家の理想像」として後世に印象づける最大の功績とされる。', debate:'彼の事績を伝える「スコータイ碑文(碑文第1号)」については、19世紀のラーマ4世による近代における作成・改変の可能性を指摘する説があり、その真贋・史料性格をめぐる論争がタイ史学史上著名である。'} },
+  { id:"ayutthaya_kingdom", name:"アユタヤ朝", category:"dynasty", lat:14.35, lng:100.56, start:1351, end:1767, region:"タイ中部(アユタヤ)", relatedIds:["naresuan"], desc:{background:'チャオプラヤー川流域の肥沃な穀倉地帯と、海に面した交易上の要衝という地理的条件が、交易国家としての発展を支えた。', process:'稲作の豊かな生産力と海上交易網を押さえて東南アジア屈指の交易大国となり、日本(朱印船貿易・山田長政の活躍)や西欧諸国とも活発に交流したが、ビルマ(タウングー朝・コンバウン朝)との抗争を繰り返した末、1767年にコンバウン朝ビルマの侵攻を受け都は徹底的に破壊され滅亡した。', significance:'400年以上続いた繁栄と国際交易ネットワークは、現在のタイの経済的・文化的基盤の多くを形作り、日本町(アユタヤ日本人町)の存在は近世日タイ交流史の重要な一頁となっている。', debate:'滅亡の要因を軍事的劣勢(火器導入の遅れ)に求めるか、王位継承をめぐる内部抗争による国力消耗に求めるかで歴史家の力点が分かれる。'} },
+  { id:"naresuan", name:"ナレースワン大王", category:"person", parentId:"ayutthaya_kingdom", lat:14.35, lng:100.56, start:1555, end:1605, region:"アユタヤ朝", desc:{background:'一時ビルマの属国とされ人質生活を送った経験が、後の徹底した軍制改革と対ビルマ抵抗運動への強い意志を育んだとされる。', process:'軍制改革を進めてビルマからの独立を回復し、象上の一騎討ちでビルマの王太子を討ち取ったという伝説的な戦い(1593年ノーンサーライの戦い)を経てビルマの侵攻を度々撃退した。', significance:'アユタヤの独立と国威を回復させた英雄として、今日のタイでも国民的な崇敬を集め、映画化などを通じてタイ・ナショナリズムの重要な象徴であり続けている。', debate:'象上の一騎討ちの逸話の史実性については同時代史料に乏しく、後世の英雄伝説化の過程でどこまで脚色されたかが史料批判上の論点となる。'} },
+  { id:"fall_of_ayutthaya", name:"アユタヤの滅亡", category:"war", lat:14.35, lng:100.56, start:1765, end:1767, region:"タイ(アユタヤ)", desc:{background:'王位継承をめぐる内紛による国力の消耗と、ビルマ・コンバウン朝の軍事的拡大路線が、両者の全面衝突を不可避にした。', process:'コンバウン朝ビルマの大軍がアユタヤを長期包囲し、1767年に陥落・徹底的に破壊し、王族・住民の多くを連行、都城と文化財の多くが灰燼に帰した。', significance:'400年余り続いたアユタヤ王朝が滅亡し都は廃墟と化して国は一時的な無政府状態に陥ったが、この破壊の記憶はタイ人の対ビルマ観に長く影響を残した。', debate:'この破壊の徹底ぶりを、通常の征服戦争の範囲とみるか、意図的な文化的抹殺(旧王権の記憶の根絶)を狙ったものとみるかで解釈が分かれる。'} },
+  { id:"thonburi_kingdom", name:"トンブリー朝", category:"dynasty", lat:13.72, lng:100.49, start:1767, end:1782, region:"タイ(トンブリー)", relatedIds:["taksin"], desc:{background:'アユタヤ陥落による国家的混乱の中、各地に割拠する群雄の中からいち早く軍事的実績を挙げたタークシンが、統一の中心として台頭する条件を得た。', process:'チャオプラヤー川西岸のトンブリーを都に開き、国土の再統一とビルマ・カンボジア・ラオス方面への勢力拡大を進めたが、晩年の統治は不安定化し、部将チャクリーによるクーデターで王朝はわずか15年で幕を閉じた。', significance:'アユタヤ滅亡からラタナコーシン朝(現王朝)への橋渡しとなった王朝であり、タークシンの再統一事業がなければタイの国家的連続性は失われていた可能性が高いと評価される。', debate:'タークシン晩年の「精神的錯乱」とされる逸話(自らを弥勒仏の生まれ変わりと称したなど)が史実か、後継のチャクリー朝による廃位の正当化のための創作かをめぐり論争がある。'} },
+  { id:"taksin", name:"タークシン王", category:"person", parentId:"thonburi_kingdom", lat:13.72, lng:100.49, start:1734, end:1782, region:"トンブリー朝", desc:{background:'中国系の父を持つ非王族出身という異例の経歴ながら、アユタヤ陥落直前の軍事的実績が広範な支持を集める素地を作った。', process:'アユタヤ陥落後の混乱の中から急速に勢力を拡大し、ビルマ軍を撃退してタイを再統一、自ら王を称してトンブリー朝を開いたが、晩年は精神的混乱を来したとも伝えられ、腹心であったチャクリー将軍によるクーデターで廃位・処刑された。', significance:'非王族出身でありながら混乱期のタイを再統一した稀有な指導者として評価される一方、その悲劇的な最期は次のラタナコーシン朝の正統性を際立たせる対比としても機能した。', debate:'廃位の理由(精神錯乱説)の真偽と、チャクリー将軍(後のラーマ1世)によるクーデターの正当性評価は、王朝交代の史的評価における重要な論点である。'} },
+  { id:"rattanakosin_kingdom", name:"ラタナコーシン朝(チャクリー朝)", category:"dynasty", lat:13.75, lng:100.49, start:1782, end:2030, region:"タイ(バンコク)", relatedIds:["rama_i", "rama_iv", "rama_v", "siamese_revolution_1932"], desc:{background:'タークシン廃位後の政治的空白において、有力な軍事貴族チャクリー将軍が王権を掌握する条件が整っていたことが建国の背景となる。', process:'都をバンコクに定めて開かれ、19世紀には西欧列強の進出という危機に直面しながらもラーマ4世・5世による巧みな近代化外交により東南アジアで唯一欧米の植民地化を免れる独立を保ち、1932年の立憲革命により絶対王政から立憲君主制へ移行した。', significance:'現在まで続くタイの王朝として、東南アジアで唯一「非植民地化」を達成した近代化の独自モデルを提示し、王室は現在もタイ社会統合の中心的象徴であり続けている。', debate:'「独立保持」の要因を国王の外交手腕に求めるか、英仏の勢力均衡(緩衝地帯としての利用価値)という国際関係上の偶然に求めるかで評価が分かれる、タイ近代史最大の論争点である。'} },
+  { id:"rama_i", name:"ラーマ1世", category:"person", parentId:"rattanakosin_kingdom", lat:13.75, lng:100.49, start:1737, end:1809, region:"ラタナコーシン朝", desc:{background:'トンブリー朝末期の混乱の中、軍を掌握していたチャクリー将軍が広範な支持を集めていたことが即位の背景となった。', process:'クーデターにより即位し、都をバンコクに移して現王朝(チャクリー朝)を開き、アユタヤ朝の制度・文化・法典を復興・体系化するとともに破壊されたアユタヤに代わる新王都の都市整備を進めた。', significance:'アユタヤの文化的遺産を継承・体系化することで王朝の正統性を確立し、現在まで続くタイ王国の礎を築いた「中興の祖」として位置づけられる。', debate:'タークシンからの権力移譲を「正当な王朝交代」とみるか「軍事クーデターによる簒奪」とみるかは、現王朝の正統性叙述に関わるためタイ国内では公に論じにくい歴史認識上の機微な論点となっている。'} },
+  { id:"rama_iv", name:"ラーマ4世(モンクット王)", category:"person", parentId:"rattanakosin_kingdom", lat:13.75, lng:100.49, start:1804, end:1868, region:"ラタナコーシン朝", desc:{background:'出家生活で得た西欧の科学・言語知識と、清朝・ビルマなど周辺国の植民地化・半植民地化の実例を目の当たりにした危機感が、柔軟な開国路線の背景となった。', process:'イギリスとのボーリング条約(1855年)で自由貿易・治外法権を受け入れるなど譲歩しつつも、巧みな外交により全面的な植民地化を回避する道を切り開いた。', significance:'この開国路線は後継のラーマ5世による本格的な近代化改革(チャクリー改革)の土台となり、東南アジアで独立を保った稀有な事例の出発点となった。', debate:'ボーリング条約による不平等な譲歩(治外法権・低関税)を「植民地化回避のための必要な代償」と評価するか、「実質的な半植民地化の始まり」と評価するかで見解が分かれる。'} },
+  { id:"rama_v", name:"ラーマ5世(チュラロンコン大王)", category:"person", parentId:"rattanakosin_kingdom", lat:13.75, lng:100.49, start:1853, end:1910, region:"ラタナコーシン朝", desc:{background:'イギリス領ビルマ・マラヤとフランス領インドシナという二大植民地勢力に挟まれる厳しい地政学的状況が、抜本的な近代化改革を不可避にした。', process:'奴隷制度の廃止、中央集権的な行政改革(モントン制)、鉄道・電信網の整備など広範な近代化改革(チャクリー改革)を断行し、領土の一部割譲(ラオス・カンボジア西部・マレー半島北部など)という譲歩を払いながらも独立を保った。', significance:'東南アジアで唯一独立を保ち続けることに成功し、タイ近代化の父として現在も国民的に敬愛される、非西洋世界における「上からの近代化」の代表的成功例と評価される。', debate:'度重なる領土割譲を「独立維持のための巧妙な緩衝地帯戦略」と評価するか「実質的な国土の切り売り」と批判するかで、タイ近代外交史における評価が分かれる。'} },
+  { id:"siamese_revolution_1932", name:"立憲革命(1932年)", category:"revolution", lat:13.75, lng:100.49, start:1932, end:1932, region:"タイ(バンコク)", relatedIds:["phibun_songkhram"], desc:{background:'世界恐慌による経済危機と、西欧留学組の軍人・文官の間に広まった立憲主義思想が、絶対王政への不満を高めた。', process:'「人民党」が無血クーデターを起こして700年近く続いた絶対王政を廃し立憲君主制へ移行させ、国王ラーマ7世は憲法発布を受け入れて象徴的な立場に退いた。', significance:'タイにおける近代的立憲政治の出発点となったが、以後は議会と軍部が主導権を争う不安定な政治体制の時代に入り、この構図は今日まで続くタイ政治のクーデターの多さの起源ともなっている。', debate:'1932年革命を「民主化」の達成と評価するか、軍部・官僚エリートによる権力の単なる移動(王室から軍への)にすぎないとみるかで、タイ現代政治史研究における評価が分かれる。'} },
+  { id:"phibun_songkhram", name:"ピブーンソンクラーム", category:"person", parentId:"rattanakosin_kingdom", lat:13.75, lng:100.49, start:1897, end:1964, region:"タイ(バンコク)", desc:{background:'立憲革命を主導した人民党内での軍部勢力の台頭と、タイ民族主義の高揚を求める国内世論が、その強権的統治への支持基盤となった。', process:'国号をシャムからタイへ改称(1939年)しタイ民族主義を鼓吹する一方、第二次世界大戦では日本と同盟を結んで対英米宣戦を行ったが、戦後は親米路線に転じて政権に復帰した。', significance:'長期にわたりタイの軍事政権政治の基盤を築き、以後のタイ政治における「軍部と民主主義の間の振り子」という構造的パターンを決定づけた人物と評価される。', debate:'戦時の対日協力を「国家存続のための現実的選択」とみるか「日本の軍事的脅迫への屈服」とみるかで、戦後のタイの戦争責任論・対日関係の評価に影響する論点である。'} },
+  { id:"siam_to_thailand", name:"タイの国名変更(シャム→タイ)", category:"event", lat:13.75, lng:100.49, start:1939, end:1939, region:"タイ(バンコク)", desc:{background:'ピブーン政権が国内の多民族性(中国系・マレー系・少数民族)を包摂する旧国号「シャム」に代え、タイ族中心の国民統合を志向したことが改称の背景となった。', process:'多民族性を含意する「シャム」から、タイ族の国であることを強調する「タイ」へと国号を改称した。', significance:'この改称はタイ民族主義の高揚と軍事政権による国民統合強化策の一環として位置づけられ、以後の少数民族政策・華人同化政策とも連動する象徴的出来事となった。', debate:'国号変更が国内の非タイ系少数民族(特に中国系・マレー系ムスリム)の地位・アイデンティティにどのような影響を与えたかについて、多民族国家統合論の観点から議論される。'} },
+  { id:"thailand_ww2", name:"第二次世界大戦とタイ", category:"event", lat:13.75, lng:100.49, start:1941, end:1945, region:"タイ(バンコク)", desc:{background:'日本軍の圧倒的な軍事的優位とタイ領内への進駐要求という緊迫した状況が、ピブーン政権に対日協力か抗戦かの選択を迫った。', process:'日本軍のタイ進駐を受け、ピブーン政権が日本と軍事同盟を結び英米に宣戦布告した一方、国内では摂政プリーディー・パノムヨンが主導する自由タイ運動と呼ばれる抗日地下組織が連合国と連携して活動を続けた。', significance:'この二正面外交により、敗戦国でありながらタイは戦後、連合国から比較的寛大な扱いを受けることができ、東南アジアで唯一戦後も独立を維持し続けた。', debate:'自由タイ運動の存在を「戦後の巧妙な言い訳」とみるか「実質的な抵抗運動」とみるかで、タイの戦争責任論における評価が分かれる。'} },
+  { id:"asian_financial_crisis", name:"1997年アジア通貨危機", category:"event", lat:13.75, lng:100.49, start:1997, end:1998, region:"タイ(バンコク)", desc:{background:'1990年代の急速な資本自由化と対外借入による不動産・株式バブル、および事実上の対米ドル固定相場制の維持が、通貨危機発生の構造的背景となった。', process:'タイの通貨バーツが投機的売り圧力により暴落したことを発端に、東南アジア・韓国など広範な地域に急速に波及し、タイはIMFの支援を受けて緊縮財政を強いられた。', significance:'東南アジア各国の高度経済成長路線(「アジアの奇跡」)に大きな打撃を与え、グローバル資本移動のリスクと新興国の脆弱性を世界に印象づける象徴的出来事となった。', debate:'危機の主因を各国国内の「縁故資本主義(クローニー・キャピタリズム)」に求める新自由主義的説明と、投機資本の急速な流出という国際金融システム自体の欠陥に求める説明とが対立している。'} },
+
+  // ===================== ミャンマー(ビルマ) =====================
+  { id:"pyu_city_states", name:"ピュー都市国家群", category:"nation", lat:20.15, lng:94.93, start:-200, end:900, region:"ミャンマー中部(シュリークシェートラ等)", desc:{background:'エーヤワディー川流域が中国とインドを結ぶ内陸交易路の要衝であったことが、チベット・ビルマ系ピュー人による早期の都市文明形成を促した。', process:'インドから伝わった上座部仏教を早くから受容し、シュリークシェートラなどの城郭都市を築いて交易で繁栄したが、9世紀に南詔(雲南の勢力)の侵攻を受けて衰退し、後継として台頭したビルマ人のパガン王朝に吸収された。', significance:'ビルマ最古級の文明として上座部仏教とインド系文字文化をこの地にもたらし、後のパガン朝における仏教国家建設の先駆的基盤を提供した。', debate:'ピュー人とビルマ人(パガン朝建国者)との民族的・文化的連続性の程度については、言語学・考古学上の解釈が分かれている。'} },
+  { id:"pagan_kingdom", name:"パガン朝(バガン王朝)", category:"dynasty", lat:21.17, lng:94.86, start:849, end:1297, region:"ミャンマー中部(パガン)", relatedIds:["anawrahta"], desc:{background:'ピュー都市国家の衰退による地域的な権力空白と、モン族タトン王国が保持していた上座部仏教文化の存在が、ビルマ人による統一国家建設と宗教的正統化の条件を提供した。', process:'アノーヤター王のもとで上座部仏教を国教として確立し、以後の歴代王が競うように無数の仏塔・寺院群を建立したが、13世紀末モンゴル(元)の侵攻を機に急速に衰退・分裂した。', significance:'エーヤワディー川流域一帯を初めて統一した最初のビルマ人王朝として、上座部仏教を核とするビルマ人国家の宗教的・文化的アイデンティティの原型を確立し、「パガン遺跡」は今日世界的な仏教建築群として知られる。', debate:'衰退の主因をモンゴル侵攻という外的軍事的打撃に求めるか、寺院建設による免税地の膨張が招いた財政基盤の空洞化という内的要因に求めるかで議論が続く。'} },
+  { id:"anawrahta", name:"アノーヤター王", category:"person", parentId:"pagan_kingdom", lat:21.17, lng:94.86, start:1015, end:1077, region:"パガン朝", desc:{background:'ビルマ人諸勢力が分立する中、モン族の先進的な仏教文化を武力で獲得することが、統一と宗教的正統化の双方を同時に達成する道と認識された。', process:'モン族の王国タトンを征服して上座部仏教とパーリ語経典・モン文字をパガンにもたらし、これを国家統治の精神的支柱として確立、エーヤワディー川流域一帯を初めて政治的に統一した。', significance:'パガン朝の実質的建国者として、以後のビルマ人国家における仏教と王権の結びつき(仏教護持者としての王権理念)の基盤を築いた。', debate:'タトン征服を純粋な宗教的動機(仏教経典獲得)によるものとみるか、交易路掌握という経済的動機を主とみるかで解釈が分かれる。'} },
+  { id:"pagan_mongol_invasion", name:"パガン朝の衰退(モンゴル侵攻)", category:"war", lat:21.17, lng:94.86, start:1277, end:1287, region:"ミャンマー中部", desc:{background:'フビライ・ハンへの朝貢要求をパガン朝が拒否したことが、モンゴルによる軍事介入の直接的口実となった。', process:'元軍が数次にわたり侵攻し、軍事的に劣勢であったパガン朝は大きな打撃を受け、王権の権威は急速に失墜、以後ビルマは長期にわたりシャン族などの諸勢力が割拠する分裂状態に陥った。', significance:'統一ビルマ人国家の解体を招き、以後200年以上に及ぶ分裂・戦国期を経て16世紀のタウングー朝再統一まで政治的空白が続くこととなった。', debate:'モンゴル侵攻を王朝崩壊の主因とみるか、寺院への免税地集中による財政破綻という内部要因がすでに崩壊を準備していたとみるかで評価が分かれる。'} },
+  { id:"toungoo_dynasty", name:"タウングー朝", category:"dynasty", lat:18.93, lng:96.44, start:1510, end:1752, region:"ミャンマー中部(タウングー→ペグー)", relatedIds:["bayinnaung"], desc:{background:'パガン朝崩壊後200年以上続いた分裂状態の中、タウングー地方が比較的安定した勢力基盤を保持し続けたことが再統一の拠点となる条件を整えた。', process:'分裂状態を克服して勢力を拡大し、バインナウン王のもとで最盛期を迎え東南アジア史上最大級ともいわれる版図(現在のタイ・ラオスの一部を含む)を築きアユタヤ朝タイをも一時的に服属させたが、広大すぎる領域の統治は困難で彼の死後は急速に弱体化し内乱と分裂に見舞われた。', significance:'ポルトガル製火器の導入による軍事革新を背景に東南アジア大陸部を席巻し、この時代の「東南アジアの火薬帝国」としての性格は近世東南アジア史研究の重要なテーマとなっている。', debate:'急速な版図拡大と崩壊のサイクルを、火器導入による軍事革命が可能にした「早すぎた帝国」とみる近世東南アジア史(火薬帝国論)の枠組みでの評価が近年注目されている。'} },
+  { id:"bayinnaung", name:"バインナウン王", category:"person", parentId:"toungoo_dynasty", lat:16.78, lng:96.13, start:1516, end:1581, region:"タウングー朝", desc:{background:'タウングー朝が獲得したポルトガル製火器・傭兵の軍事技術が、周辺国を圧倒する軍事力の飛躍的向上をもたらしていた。', process:'アユタヤ朝タイの都を一時陥落させるなど東南アジア大陸部の広範囲を征服し、東南アジア史上有数の版図を実現したが、急速な拡大に統治体制が追いつかず、その死後まもなく帝国は各地の反乱により瓦解し始めた。', significance:'「征服王」として東南アジア大陸部史上最大級の帝国を一代で築き上げた事績は、後のビルマ・タイ両国のナショナリズム的歴史叙述において対照的に(征服者/被征服者として)語られ続けている。', debate:'征服のみに終始し持続可能な統治制度を構築できなかったことを、この帝国の「早すぎた拡大」の限界として批判する見方が有力である。'} },
+  { id:"konbaung_dynasty", name:"コンバウン朝", category:"dynasty", lat:22.0, lng:96.1, start:1752, end:1885, region:"ミャンマー(アヴァ・マンダレー)", relatedIds:["alaungpaya", "anglo_burmese_wars"], desc:{background:'モン族の反乱によるタウングー朝の崩壊という国家的危機が、地方指導者アラウンパヤーによる再統一の好機を生んだ。', process:'アユタヤ朝タイの都を再び陥落させるなど強大な軍事力を誇り最盛期を迎えたが、19世紀に入るとインドの権益をめぐりイギリスとの緊張が高まり、三次にわたる英緬戦争の末、1885年に完全にイギリスの植民地に併合され滅亡した。', significance:'ビルマ最後の王朝として強大な軍事力を誇りながらも、結果的に東南アジア大陸部で最も早く完全な植民地化を経験することとなり、この対照はタイの独立維持との比較で頻繁に論じられる。', debate:'植民地化の主因を対英強硬外交(インドとの国境紛争への強硬姿勢)による自滅とみるか、イギリスのインド権益防衛という不可避の帝国主義的圧力とみるかで評価が分かれる。'} },
+  { id:"alaungpaya", name:"アラウンパヤー王", category:"person", parentId:"konbaung_dynasty", lat:22.0, lng:96.1, start:1714, end:1760, region:"コンバウン朝", desc:{background:'タウングー朝崩壊後の無政府状態と、モン族による支配への在地ビルマ人社会の反発が、村長出身の彼を統一運動の中心に押し上げた。', process:'一介の村長から身を起こしてモン族の反乱を鎮定し、ビルマを再統一してコンバウン朝を開き、マニプル・シャム(アユタヤ)方面への積極的な軍事遠征を行ったが、アユタヤ遠征の途上で陣没した。', significance:'非王族出身でありながらビルマの再統一を成し遂げ、コンバウン朝約130年の軍事的拡大路線の基礎を築いた「建国の英雄」として評価される。', debate:'モン族に対する苛烈な征服・弾圧政策が、現在まで続くビルマ国内の民族間対立(モン族などの少数民族問題)の歴史的起点の一つとされることがある。'} },
+  { id:"anglo_burmese_wars", name:"英緬戦争(第一次〜第三次)", category:"war", lat:16.87, lng:96.2, start:1824, end:1885, region:"ミャンマー全土", desc:{background:'コンバウン朝の対外拡張政策(アッサム・マニプル方面への進出)がインドの権益を防衛したいイギリス東インド会社との国境紛争を引き起こしたことが開戦の背景となった。', process:'第一次(1824-26年)でアッサム・ラカイン・テナセリムを、第二次(1852年)で下ビルマ(ペグー)を割譲させられ、第三次(1885年)では首都マンダレーが陥落して国王ティーボーが廃位・インドへ流刑となり、ビルマ全土がイギリス領インド帝国に併合された。', significance:'三次にわたる段階的な領土喪失は最終的な完全植民地化に至り、東南アジア大陸部における英仏の植民地分割(緩衝国タイを挟む形)を決定づける最終段階となった。', debate:'第三次戦争の直接的口実(木材伐採権をめぐるビルマ・フランス系企業への対応)を、経済的利権紛争とみるか、フランスの影響力拡大を恐れた地政学的判断とみるかで議論がある。'} },
+
+  // ===================== ミャンマー(英領期・独立・現代) =====================
+  { id:"british_burma", name:"英領ビルマ", category:"nation", lat:16.87, lng:96.2, start:1885, end:1948, region:"ミャンマー(ラングーン)", relatedIds:["aung_san"], desc:{background:'三次にわたる英緬戦争の結果としての完全併合が、イギリス領インド帝国の枠組みへのビルマの組み込みという統治形態を決定づけた。', process:'英領インドからのインド人労働者・商人の大量流入や、チーク材・石油資源の収奪的開発が進む一方、伝統的な王権と仏教を中心とする社会秩序は解体され、これに対する民族運動・僧侶を中心とした抵抗運動(1930年代のサヤ・サン反乱など)が高まった。', significance:'「インドの一州」として統治されたことでビルマ独自の行政的アイデンティティが希薄化し、これへの反発が独自のビルマ民族主義運動を先鋭化させる要因となった。', debate:'インド人移民の大量流入が招いた経済的軋轢(特に土地の質入れ問題)が、独立後も続く根深い排外主義的傾向の歴史的起源として指摘されることがある。'} },
+  { id:"aung_san", name:"アウンサン", category:"person", parentId:"british_burma", lat:16.87, lng:96.2, start:1915, end:1947, region:"ビルマ(ラングーン)", desc:{background:'英領インドの一州としての従属的地位への学生・知識人層の不満と、日本のアジア進出という国際情勢の変化が、独立運動の戦略的選択肢を広げた。', process:'当初は日本の支援を得てビルマ独立義勇軍を組織したが、日本の占領統治(名目的独立の実態を伴わない収奪)に失望すると連合国側に転じてビルマ国民軍を率い、戦後はイギリスとの独立交渉を主導し独立の合意(アトリー・アウンサン協定)を取り付けた。', significance:'独立を目前にした1947年に政敵により暗殺されたが、「ビルマ建国の父」として今も国民的に敬愛され、少数民族との連邦制樹立を約した「パンロン協定」は今日のミャンマー連邦統合問題の原点となっている。', debate:'対日協力から対英協力への「転向」を、状況に応じた現実的な独立戦略の転換とみるか、日和見的な日和見主義とみるかで評価が分かれ、暗殺の黒幕(政敵ウー・ソウの単独犯行か背後関係があるか)についても諸説がある。'} },
+  { id:"burma_independence", name:"ビルマ独立", category:"event", lat:16.87, lng:96.2, start:1948, end:1948, region:"ビルマ(ラングーン)", desc:{background:'アトリー・アウンサン協定によりイギリスとの独立の枠組みがすでに合意されていたことが、暗殺という悲劇の中でも独立実現を可能にした。', process:'アウンサン暗殺という悲劇を乗り越え、1948年1月4日にイギリスから独立を達成したが、独立後のビルマ連邦は民族的多様性(多数の少数民族武装勢力)を抱えたまま出発した。', significance:'独立時から中央政府と少数民族勢力(カレン族・シャン族など)との内戦的緊張を内包する国家運営を強いられ、この構造的問題は現在に至るまでミャンマー最大の国内課題であり続けている。', debate:'アウンサンが約した連邦制的自治(パンロン協定)が独立後どこまで誠実に履行されたか(ビルマ族中心主義への後退の有無)は、少数民族側からの独立史批判の核心的論点である。'} },
+  { id:"ne_win_regime", name:"ネ・ウィンの軍事政権(ビルマ式社会主義)", category:"nation", lat:16.87, lng:96.2, start:1962, end:1988, region:"ビルマ(ラングーン)", desc:{background:'独立後の連邦制運営における中央・地方対立と経済的混乱が、軍による「秩序回復」を名目とした権力掌握を正当化する口実となった。', process:'クーデターで実権を握ったネ・ウィン将軍が「ビルマ式社会主義」を掲げて全産業を国有化し、鎖国的な孤立政策を26年にわたり継続させた。', significance:'豊かな天然資源(米・チーク材・宝石)を有しながら経済は著しく停滞し東南アジア最貧国の一つへと転落するという、資源の呪いと閉鎖経済の失敗例として国際的に注目される事例となった。', debate:'「ビルマ式社会主義」の失敗を、社会主義的計画経済そのものの欠陥に帰すか、軍による恣意的・非効率な統治運営の問題に帰すかで議論がある。'} },
+  { id:"8888_uprising", name:"8888民主化運動", category:"event", lat:16.87, lng:96.2, start:1988, end:1988, region:"ビルマ(ラングーン)", relatedIds:["aung_san_suu_kyi"], desc:{background:'26年に及ぶ経済的停滞と生活困窮、通貨切り替え(高額紙幣の突然の廃止)による庶民の資産喪失が、蓄積した不満を爆発させる直接的引き金となった。', process:'1988年8月8日を頂点に全国的に広がった大規模な民主化要求デモに学生・僧侶・市民が街頭に繰り出したが、軍はクーデターにより新たな軍事政権(SLORC)を樹立し武力で運動を鎮圧、多数の死傷者を出した。', significance:'この運動を機にアウンサンスーチーが民主化運動の指導者として国民的な支持を集めるようになり、以後30年以上に及ぶミャンマー民主化運動の出発点となった。', debate:'国際社会がこの弾圧に対し経済制裁で応じたことの実効性(制裁が軍政の孤立を強めたのか、逆に中国への依存を深めさせただけか)は現在も評価が分かれる。'} },
+  { id:"aung_san_suu_kyi", name:"アウンサンスーチー", category:"person", parentId:"myanmar_name_change", lat:16.87, lng:96.2, start:1945, end:2035, region:"ミャンマー(ヤンゴン)", desc:{background:'「建国の父」アウンサンの娘という出自と、8888民主化運動という国民的高揚のタイミングが重なったことが、その象徴的指導者としての地位を確立させた。', process:'国民民主連盟(NLD)を率いて軍事政権と対峙し、通算15年以上にわたる自宅軟禁を経験しながらも1991年にノーベル平和賞を受賞、2015年の総選挙でNLDが圧勝すると事実上の政権指導者(国家顧問)に就任した。', significance:'民主化の象徴として国際的な称賛を集めたが、2021年の国軍クーデターにより再び拘束され、その評価は少数民族(ロヒンギャ)問題への対応をめぐり国際的に大きく変化した。', debate:'国家顧問就任後のロヒンギャ危機に対する沈黙・擁護的姿勢を、民主化の理念との矛盾とみるか、軍との権力分有体制下での限定的な実権しか持たなかった現実的制約とみるかで、国際的評価が大きく割れている。'} },
+  { id:"myanmar_name_change", name:"国名変更(ビルマ→ミャンマー)", category:"event", lat:16.87, lng:96.2, start:1989, end:1989, region:"ミャンマー(ヤンゴン)", desc:{background:'8888民主化運動を武力鎮圧して成立した軍事政権が、国際的正統性の乏しさを国内の名目上の改革で補おうとしたことが背景にある。', process:'英語表記の国名を「ビルマ」から「ミャンマー」へ、首都名も「ラングーン」から「ヤンゴン」へ変更する措置を、多数派ビルマ族中心の呼称から国内の多民族性を反映させる意図として説明した。', significance:'軍政の正統性が国際的に疑問視される中での改称は、国名呼称そのものが政治的立場表明となる稀有な事例となり、各国政府・メディアの対応(「ビルマ」使用継続か「ミャンマー」採用か)を分ける論争的出来事となった。', debate:'改称の意図を多民族国家統合への配慮とみるか、軍政による国民的合意なき一方的な決定を正当化する体裁づくりとみるかで評価が分かれ、民主化勢力の多くは現在も「ビルマ」表記を支持している。'} },
+  { id:"myanmar_coup_2021", name:"2021年ミャンマー軍事クーデター", category:"event", lat:16.87, lng:96.2, start:2021, end:2021, region:"ミャンマー(ネピドー)", desc:{background:'2020年総選挙でのNLD圧勝という結果が、選挙に基づく民政移管の完成を恐れる国軍指導部の危機感を強めたことが背景にあるとされる。', process:'不正選挙を主張する国軍が武力でクーデターを起こし全権を掌握し、全土で市民的不服従運動(CDM)や大規模な抗議デモが広がったが、国軍は武力弾圧で応じ多数の死傷者が発生した。', significance:'2011年以降10年間続いた「民政移管」実験の実質的な終焉を意味し、各地で武装抵抗(国民統一政府NUGや民族武装勢力との連携)も継続するなど、深刻な内戦状態が続いている。', debate:'2011年からの民政移管を「軍による段階的な権力温存戦略」の一環とみるか「不完全ながら実質的な民主化」とみるかという評価の相違が、クーデターの解釈そのものにも影響している。'} },
+
+  // ===================== インドネシア(古代〜イスラーム化) =====================
+  { id:"srivijaya", name:"シュリーヴィジャヤ王国", category:"nation", lat:-2.99, lng:104.76, start:650, end:1377, region:"インドネシア・スマトラ島(パレンバン)", relatedIds:["sailendra_dynasty"], desc:{background:'マラッカ海峡というインドと中国を結ぶ海上交易路の最狭部を扼する地理的条件が、通行船からの徴税と交易統制による繁栄を可能にした。', process:'パレンバンを拠点に密教仏教の一大学問拠点としても栄え、唐の僧・義浄も長期滞在して仏典を研究した記録を残し、数世紀にわたりマラッカ海峡交易を統制したが、13世紀以降はジャワの諸勢力の台頭により衰退した。', significance:'東南アジア島嶼部における最初期の「海洋帝国」として、以後のマラッカ王国など港市国家モデルの先駆となり、インドネシアの国名候補にもこの名が挙がるなど現代の国家的記憶にも影響を残している。', debate:'シュリーヴィジャヤを中央集権的な「帝国」とみるか、港市を中心とする緩やかな交易ネットワーク(マンダラ型権力構造)とみるかで、東南アジア国家形成論における重要な論争がある。'} },
+  { id:"sailendra_dynasty", name:"シャイレーンドラ朝", category:"dynasty", lat:-7.6, lng:110.2, start:750, end:850, region:"インドネシア・ジャワ島中部", relatedIds:["borobudur_construction"], desc:{background:'中部ジャワの豊かな稲作生産力を基盤に、インドから伝わった大乗仏教を篤く奉じる王権が形成されたことが背景にある。', process:'スマトラのシュリーヴィジャヤとも婚姻・同盟関係を通じて密接に結びつき、中部ジャワではヒンドゥー教を奉じるサンジャヤ朝と並立・対抗する時期が続いたが、9世紀半ばに婚姻を通じて両王統が融合し、以後は単一の王権のもとでヒンドゥー・仏教が共存する文化が発展した。', significance:'ボロブドゥールに代表される仏教建築の造営を主導し、古代ジャワにおける仏教美術の頂点を築いた王朝として位置づけられる。', debate:'シャイレーンドラ朝とシュリーヴィジャヤを同一王統とみる説と、婚姻・同盟関係にある別個の王権とみる説とが対立し、東南アジア古代史の系譜研究における未解決の重要論点となっている。'} },
+  { id:"borobudur_construction", name:"ボロブドゥールの造営", category:"event", lat:-7.61, lng:110.2, start:780, end:825, region:"インドネシア・ジャワ島(ボロブドゥール)", desc:{background:'大乗仏教の宇宙観を国家的規模で具現化しようとするシャイレーンドラ朝の王権理念と、動員可能な豊かな農業余剰生産力が、この巨大事業を可能にした。', process:'方形の基壇の上に円形のテラスを重ねた曼荼羅型の構造で建立され、仏伝や善財童子の求法譚を描いた回廊のレリーフが施され、同時期に近隣で建立されたヒンドゥー教寺院プランバナンと並び古代ジャワの宗教建築の頂点をなした。', significance:'世界最大級の仏教石造遺跡として、古代東南アジアにおける宗教建築・彫刻美術の到達点を示し、東南アジア文化史における代表的な出題対象となっている。', debate:'建立の主目的を王権の宗教的権威誇示とみるか、実際の巡礼・修行の場としての宗教的機能を重視するかで解釈が分かれ、放棄・忘却の経緯(火山灰による埋没か意図的放棄か)も議論の対象である。'} },
+  { id:"mongol_invasion_java", name:"元(モンゴル)軍のジャワ遠征", category:"war", lat:-7.53, lng:111.88, start:1292, end:1293, region:"インドネシア・ジャワ島(クディリ)", desc:{background:'フビライ・ハンへの服属と朝貢を拒んだクディリ朝の対応が、モンゴルによる懲罰的遠征を招く直接的契機となった。', process:'元が海路派遣した大規模な遠征軍の上陸時にはクディリ内部の政変に乗じたラデン・ヴィジャヤが元軍と結んでクディリ王家を打倒したが、目的達成直後にラデン・ヴィジャヤは一転して元軍を奇襲し撤退させることに成功、その勢いのままマジャパヒト王国を建国した。', significance:'陳朝ベトナムでの元軍撃退と並び、東南アジアが大陸国家モンゴルの本格的征服を退けた稀有な事例として頻繁に対比され、この巧妙な「二段構え」の戦略はジャワの政治的老獪さを示す象徴的事例とされる。', debate:'ラデン・ヴィジャヤの元軍利用を「巧妙な政治的策略」と評価するか「裏切り」と評価するかで、マジャパヒト建国神話の性格づけが変わってくる。'} },
+  { id:"majapahit_kingdom", name:"マジャパヒト王国", category:"dynasty", lat:-7.53, lng:111.88, start:1293, end:1527, region:"インドネシア・ジャワ島(トロウラン)", relatedIds:["hayam_wuruk_gajah_mada", "mongol_invasion_java"], desc:{background:'元軍撃退という軍事的成功と、ジャワ島東部の肥沃な稲作地帯という経済基盤が、新王国の急速な発展を後押しした。', process:'ハヤム・ウルク王とその宰相ガジャ・マダのもとで最盛期を迎え、現在のインドネシアの大部分に相当する広範な島嶼部に影響力を及ぼしたが、15世紀以降はイスラームを奉じるスルタン国群の台頭により急速に衰退した。', significance:'今日のインドネシアが「建国の理想」として参照する統一の象徴的存在となり、独立運動においても民族統一の理想像として繰り返し参照された点で、単なる古代王国を超えた現代的意義を持つ。', debate:'マジャパヒトの「広範な影響力」が実効支配を意味するか、儀礼的な朝貢関係にとどまる緩やかな覇権(マンダラ型)にすぎないかで、その版図の実態評価が分かれる。'} },
+  { id:"hayam_wuruk_gajah_mada", name:"ハヤム・ウルク王とガジャ・マダ", category:"person", parentId:"majapahit_kingdom", lat:-7.53, lng:111.88, start:1334, end:1389, region:"マジャパヒト王国", desc:{background:'先代までに確立された軍事的優位と、有能な宰相ガジャ・マダの登用が、王国の対外拡張を推進する政治的条件を整えた。', process:'ガジャ・マダは「ヌサンタラ(諸島世界)統一」を誓う忠誠の誓い(パラパの誓い)を立てたと伝えられ、軍事・外交両面で王国の勢力を東南アジア島嶼部の広範囲に及ぼした。', significance:'この時代の記憶は20世紀のインドネシア独立運動においても民族統一の理想像として繰り返し参照され、現代インドネシアの領域的一体性を正当化する歴史的根拠としても機能している。', debate:'「パラパの誓い」に示される統一構想を、後世(独立期)のナショナリズムによる過度の投影・美化とみるか、当時の実際の統治理念を反映したものとみるかで議論がある。'} },
+  { id:"islamization_indonesia", name:"イスラーム化とスルタン国群の形成", category:"event", lat:-6.95, lng:110.42, start:1200, end:1650, region:"インドネシア諸島(ジャワ・スマトラ等)", desc:{background:'インド洋交易の活発化に伴いムスリム商人が来航を重ねたことと、マジャパヒトなどヒンドゥー・仏教王権の弱体化が、新宗教の浸透を容易にした。', process:'13世紀以降スマトラ北部を皮切りに徐々に島嶼部各地に浸透し、マラッカ・アチェ・ドゥマク・マタラムなど各地にイスラームを奉じるスルタン国が次々と成立し、香辛料貿易の利権をめぐって競合・交流を繰り広げた。', significance:'この過程により東南アジア島嶼部は世界最大のムスリム人口を擁する地域へと変貌し、現在のインドネシア・マレーシアの宗教的アイデンティティの根本的基盤が形成された。', debate:'イスラーム化を交易商人による平和的・自発的浸透とみるか、スルタン国による政治的強制を伴う改宗とみるかで、地域や時期により実態が異なり一様な説明が困難とされる。'} },
+  { id:"mataram_sultanate", name:"マタラム・スルタン国", category:"nation", lat:-7.8, lng:110.36, start:1587, end:1755, region:"インドネシア・ジャワ島(中部ジャワ)", desc:{background:'マジャパヒト衰退後の中部ジャワにおける権力空白と、イスラーム化の進展が、新たな有力スルタン国台頭の条件を整えた。', process:'一時はジャワ島の大半を支配下に置く勢力を誇り、オランダ東インド会社(VOC)の拠点バタヴィアを包囲攻撃するなど激しく抵抗したが、後継者争いにVOCが介入したことで領土は次第に分割され、最終的にジョグジャカルタとスラカルタの2つの小王国に分裂・従属していった。', significance:'VOCによる「分割統治(内紛への介入による弱体化)」の典型例として、ヨーロッパ勢力がジャワの政治に本格的に介入する契機となった。', debate:'マタラムの分裂を単なるVOCの謀略の結果とみるか、王位継承をめぐる内部対立が本質的要因でVOCはそれを利用したにすぎないとみるかで力点が分かれる。'} },
+  { id:"aceh_sultanate", name:"アチェ・スルタン国", category:"nation", lat:5.55, lng:95.32, start:1496, end:1903, region:"インドネシア・スマトラ島北部", relatedIds:["fall_of_malacca"], desc:{background:'マラッカ海峡の入口を扼する地理的要衝という立地が、香辛料交易の利権を求めるイスラーム王国建国の好条件となった。', process:'オスマン帝国とも通交して大砲・軍事技術を導入し、ポルトガル・オランダに対抗する東南アジア有数の海洋強国として長く独立を保ったが、19世紀後半オランダとの間で30年近くに及ぶ激しいアチェ戦争を戦った末、1903年ついにオランダの支配下に組み込まれた。', significance:'オスマン帝国との連携に象徴されるように、東南アジア島嶼部とイスラーム世界の広域ネットワークとの結びつきを示す代表的事例であり、長期にわたる抵抗はインドネシア独立後も「英雄の地」としての誇りの源泉となっている。', debate:'オスマン帝国との関係を実効的な軍事同盟とみるか、名目的な宗教的連帯にとどまるとみるかで、当時のイスラーム世界の国際関係の実態評価が分かれる。'} },
+
+  // ===================== マレー半島・マラッカ海峡(マラッカ王国とその後継) =====================
+  { id:"malacca_sultanate", name:"マラッカ王国", category:"dynasty", lat:2.19, lng:102.25, start:1400, end:1511, region:"マレー半島南西部(マラッカ)", relatedIds:["parameswara", "zheng_he_voyages", "fall_of_malacca"], desc:{background:'マジャパヒトの圧迫でパレンバンを追われたパラメスワラが逃れた先が、マラッカ海峡を扼する交易上の要衝であったことが繁栄の地理的条件となった。', process:'明の鄭和艦隊の保護と朝貢関係を得て急速に発展し、15世紀半ばには歴代の王がイスラームに改宗し東南アジア随一のイスラーム交易拠点となったが、1511年にポルトガルの武力攻撃を受けて陥落した。', significance:'中国・インド・アラビア・ジャワ各地の商人が行き交う「南海交易の結節点」として繁栄し、周辺のイスラーム化(スルタン国形成)を促す震源地ともなった、東南アジア港市国家の典型例である。', debate:'マラッカの急速な発展の主因を明の後ろ盾(鄭和艦隊の保護)に求めるか、地理的立地とイスラーム改宗による交易ネットワークへの参入に求めるかで議論がある。'} },
+  { id:"parameswara", name:"パラメスワラ(イスカンダル・シャー)", category:"person", parentId:"malacca_sultanate", lat:2.19, lng:102.25, start:1344, end:1414, region:"マラッカ王国", desc:{background:'シュリーヴィジャヤ系の王族という出自と、マジャパヒトの圧迫による亡命という逆境が、新天地での王国建設を促した。', process:'マレー半島南西岸に逃れて新王国マラッカを建て、明に朝貢して永楽帝の保護を取り付け、鄭和艦隊の後ろ盾を得たことでマラッカを短期間のうちに国際交易港へと成長させた。', significance:'晩年にイスラームに改宗しイスカンダル・シャーを名乗ったと伝えられ、以後の歴代マラッカ王もイスラームを奉じるようになったことで、マレー世界のイスラーム化の重要な起点となった。', debate:'改宗の動機を信仰的なものとみるか、ムスリム商人ネットワークへの参入という経済的動機を重視するかで解釈が分かれる。'} },
+  { id:"zheng_he_voyages", name:"鄭和の南海遠征", category:"event", lat:2.19, lng:102.25, start:1405, end:1433, region:"東南アジア海域(拠点:マラッカ)", desc:{background:'永楽帝が明朝の威光を海外に示し朝貢体制を拡大する対外積極策を志向したことが、大艦隊派遣の政治的背景となった。', process:'宦官・鄭和が率いた大艦隊による7次にわたる遠征で東南アジア各地・インド洋沿岸から遠くアフリカ東岸にまで至り、朝貢関係の拡大と海上交易の振興を図り、とりわけ新興のマラッカ王国を重要な中継拠点として保護した。', significance:'明の後ろ盾を得たマラッカが急速に交易拠点として発展する契機となった一方、遠征打ち切り後の明が海禁政策に転じたことで、東南アジア海域は次第にヨーロッパ勢力の進出を招く空白地帯となっていった。', debate:'遠征中止の理由(財政負担説・儒教官僚の反対説)と、その後の海禁政策への転換が結果的にヨーロッパ勢力のアジア進出を容易にしたのではないかという「機会の喪失」論が、世界史的な分岐点として論じられる。'} },
+  { id:"fall_of_malacca", name:"ポルトガルによるマラッカ占領", category:"war", lat:2.19, lng:102.25, start:1511, end:1511, region:"マレー半島(マラッカ)", relatedIds:["johor_sultanate"], desc:{background:'香辛料貿易の利権獲得を狙うポルトガルにとって、マラッカ海峡の要衝を扼するイスラーム交易国家の存在が、アジア進出戦略上の障害と認識された。', process:'インド総督アルブケルケ率いるポルトガル艦隊が短期間の攻撃でマラッカ王国を滅ぼし、以後1世紀以上にわたりマラッカ海峡の要衝を植民地拠点として確保、アジア進出の一大中継基地とした。', significance:'ヨーロッパ勢力による東南アジア島嶼部への本格的な軍事的進出の先駆けとなり、以後400年以上に及ぶ西洋列強の東南アジア関与の出発点となった画期的事件である。', debate:'この陥落を「ヨーロッパの軍事技術的優位の証明」とみるか、当時のマラッカ王国内部の統治的脆弱性(後継者争いなど)の帰結とみるかで評価が分かれる。'} },
+  { id:"johor_sultanate", name:"ジョホール王国", category:"nation", lat:1.49, lng:103.74, start:1528, end:1824, region:"マレー半島南端・リアウ諸島", desc:{background:'ポルトガルに追われたマラッカ王家が、旧来の交易ネットワークとの結びつきが残るマレー半島南端・リアウ諸島に再興の地を求めたことが背景にある。', process:'マラッカ海峡の交易ルート再建を図りつつポルトガル、後にはオランダとの抗争を続けたが、1824年の英蘭協約でマレー半島とリアウ諸島の勢力圏がそれぞれイギリス・オランダに分割されると領域が分断された。', significance:'この分割は現在のマレーシアとインドネシアの国境線の淵源となり、単一のマレー世界がヨーロッパ列強の都合により分断される近代の典型例となった。', debate:'英蘭協約による分割線を、単なる列強間の勢力均衡の産物とみるか、現地のマレー人社会の一体性を無視した恣意的な国境画定とみるかで、ポストコロニアル史学の観点から批判的検討がなされている。'} },
+
+  // ===================== インドネシア(オランダ植民地期) =====================
+  { id:"voc_indonesia", name:"オランダ東インド会社(VOC)の進出", category:"event", lat:-6.14, lng:106.81, start:1602, end:1799, region:"インドネシア(バタヴィア)", desc:{background:'ヨーロッパにおける香辛料需要の高まりと、それを独占的に扱うことで巨利を得ようとするオランダ商人の思惑が、特許会社設立の背景となった。', process:'ジャワのバタヴィア(現ジャカルタ)を拠点にポルトガル・イギリスなど競合勢力を排除しつつ香辛料諸島(モルッカ諸島)などを次々と支配下に置いたが、経営腐敗と度重なる戦費負担により経営が悪化し、1799年に解散、その資産・領土はオランダ本国政府に接収された。', significance:'世界最初期の株式会社形態による植民地経営として近代資本主義史上の重要な先例となり、その領土・権益はそのままオランダによる直接統治(オランダ領東インド)へと引き継がれた。', debate:'VOCの解散原因を経営の非効率・腐敗という内部要因に求めるか、イギリスとの度重なる戦争による戦費負担という外部要因に求めるかで議論が分かれる。'} },
+  { id:"dutch_east_indies", name:"オランダ領東インド", category:"nation", lat:-6.21, lng:106.85, start:1800, end:1942, region:"インドネシア(バタヴィア)", relatedIds:["java_war", "budi_utomo"], desc:{background:'解散したVOCの広大な権益をオランダ本国政府が直接引き継いだことが、より体系的な植民地統治体制構築の出発点となった。', process:'19世紀には強制栽培制度によりジャワの農民に商品作物栽培を強いて莫大な富をオランダ本国にもたらす一方深刻な貧困と飢饉も招き、20世紀初頭には「倫理政策」への転換とともに近代教育を受けた現地エリート層が台頭し民族運動の担い手となっていった。', significance:'強制栽培制度による収奪と倫理政策による近代教育という一見矛盾する二つの政策が、結果的にインドネシア独立運動を担う近代的民族エリートを生み出したという歴史の逆説を示す代表例である。', debate:'「倫理政策」を植民地支配の反省に基づく真摯な現地民福祉向上策とみるか、収奪を継続するための体裁づくり(統治コストの現地転嫁)とみるかで評価が分かれる。'} },
+  { id:"java_war", name:"ディポネゴロ戦争(ジャワ戦争)", category:"war", lat:-7.8, lng:110.36, start:1825, end:1830, region:"インドネシア・ジャワ島", desc:{background:'オランダの植民地支配強化(直接統治への移行)がジョグジャカルタ王家の伝統的権益・土地収入を侵害したことが、蜂起の直接的背景となった。', process:'ジョグジャカルタの王子ディポネゴロがゲリラ戦術で長期にわたりオランダ軍を苦しめたが、和平交渉と称して招かれた席で捕縛され、最終的に鎮圧されて流刑となった。', significance:'オランダは多大な戦費を費やし、その財政負担の穴埋めが後の強制栽培制度導入の一因ともなった点で、抵抗運動が皮肉にもより過酷な収奪体制を招く結果となった。', debate:'和平交渉の場での捕縛を「卑劣な騙し討ち」と非難する見方が一般的であるが、これがインドネシア民族運動史においてどう記憶・継承されてきたかも重要な論点である。'} },
+  { id:"budi_utomo", name:"ブディ・ウトモの結成と民族覚醒", category:"event", lat:-7.57, lng:110.83, start:1908, end:1908, region:"インドネシア・ジャワ島", desc:{background:'オランダの「倫理政策」により近代西洋式教育を受けたジャワ人医学生層が形成されたことが、近代的組織結成を可能にする社会的基盤となった。', process:'当初はジャワ人エリートの文化・教育向上を目的とする穏健な組織として結成されたが、その結成は「インドネシア民族覚醒」の出発点として位置づけられ、以後イスラーム同盟(サレカット・イスラム)やインドネシア国民党など、より政治色の強い民族運動団体の結成が相次いだ。', significance:'インドネシアでは現在もこの結成日(5月20日)が「民族覚醒の日」として国家的に記念されており、近代的民族運動の象徴的出発点として位置づけられている。', debate:'ブディ・ウトモの実態(当初はジャワ人限定の穏健な文化団体)と、後世に付与された「民族覚醒の始まり」という象徴的意義との間にはズレがあり、この神話化の過程自体が歴史学の検討対象となっている。'} },
+
+  // ===================== インドネシア(独立・現代) =====================
+  { id:"japan_occupation_indonesia", name:"日本によるインドネシア占領", category:"event", lat:-6.21, lng:106.85, start:1942, end:1945, region:"インドネシア(ジャカルタ)", desc:{background:'石油をはじめとする東南アジアの資源獲得を目指す日本の南進政策が、オランダ領東インドへの侵攻を招いた直接的動機となった。', process:'オランダの植民地支配に代わって軍政を敷き、スカルノら民族運動指導者を利用しつつインドネシア語での教育やインドネシア人の軍事訓練(郷土防衛義勇軍=PETAなど)を進めた。', significance:'日本の占領統治は資源収奪を主目的とした過酷なものであったが、結果的に独立後のインドネシア共和国建設に必要な人材・軍事組織基盤を準備するという皮肉な効果をもたらした。', debate:'日本占領がインドネシア独立を「準備した」とみるか「独立の主体性を損なった」とみるかは、東南アジアにおける日本占領の歴史的評価全体に関わる重要な論点である。'} },
+  { id:"sukarno", name:"スカルノ", category:"person", parentId:"indonesia_republic", lat:-6.21, lng:106.85, start:1901, end:1970, region:"インドネシア(ジャカルタ)", desc:{background:'オランダ統治下での抑圧的な政治状況と、日本占領期を通じて得た組織・軍事的基盤が、独立宣言に踏み切る条件を整えた。', process:'日本占領期を経て1945年8月17日にインドネシア独立を宣言した初代大統領となり、「建国五原則(パンチャシラ)」を提唱して多民族・多宗教国家の統合理念を示し独立戦争を勝ち抜いたが、後年は「指導される民主主義」と称する権威主義的統治や共産党との接近を強め、1965年の9月30日事件を機に実権を失いスハルトにその座を譲った。', significance:'1万7000以上の島々と多様な民族を統合する国家理念(パンチャシラ)を打ち立てた建国の父として、その理念は現在もインドネシアの国是であり続けている。', debate:'晩年の「指導される民主主義」への傾斜を、冷戦下の国内左右対立を調停するための現実的な統治手法とみるか、権威主義への単純な後退とみるかで評価が分かれる。'} },
+  { id:"indonesian_independence", name:"インドネシア独立宣言", category:"event", lat:-6.21, lng:106.85, start:1945, end:1945, region:"インドネシア(ジャカルタ)", desc:{background:'日本の突然の降伏という権力の空白が、独立宣言という決定的な政治的賭けに踏み切る好機を生んだ。', process:'スカルノとハッタが連名でインドネシアの独立を宣言したが、旧宗主国オランダはこれを認めず軍を再派遣したため、独立の実効化には引き続き4年に及ぶ独立戦争を戦い抜く必要があった。', significance:'アジアにおける戦後最初期の独立宣言の一つとして、東南アジア全域の脱植民地化運動を触発する先駆的意義を持った。', debate:'独立宣言の日付・経緯(日本の後押しの有無を含む)をめぐる解釈は、独立の正統性を「日本からの贈り物」とみるか「インドネシア人自身の主体的達成」とみるかという評価に直結する。'} },
+  { id:"indonesian_war_independence", name:"インドネシア独立戦争", category:"war", lat:-6.21, lng:106.85, start:1945, end:1949, region:"インドネシア全土", desc:{background:'独立を認めないオランダが軍事的な再植民地化を試みたことが、独立戦争勃発の直接的原因となった。', process:'インドネシア共和国軍・民兵が武力・外交両面で抵抗を続け、国際世論(特にアメリカ)の圧力もあり、オランダは1949年のハーグ円卓会議協定でついに主権移譲に応じた。', significance:'戦後の脱植民地化戦争の中でもアメリカの外交的圧力(マーシャル・プラン援助停止の示唆)が旧宗主国を譲歩させた事例として、冷戦初期の国際政治力学を示す重要な事例となっている。', debate:'独立達成の要因を現地の武力抵抗に求めるか、アメリカの外交的介入という国際的要因に求めるかで、独立戦争の主要な推進力についての評価が分かれる。'} },
+  { id:"indonesia_republic", name:"インドネシア共和国", category:"nation", lat:-6.21, lng:106.85, start:1945, end:2030, region:"インドネシア(ジャカルタ)", relatedIds:["g30s_incident", "suharto_new_order", "east_timor_independence"], desc:{background:'独立宣言とそれに続く独立戦争を経て国際的に承認されたことが、東南アジア最大の人口を擁する共和国としての出発点となった。', process:'1万7000以上の島々と多様な民族・言語・宗教を「多様性の中の統一」の理念のもとに統合し、スカルノ・スハルトの時代を経て1998年の民主化以降は活発な選挙を通じた民主主義国家として推移している。', significance:'G20参加国にも数えられる地域大国へと成長し、多民族・多島嶼国家がいかに国家的一体性を維持するかという課題への一つの解答例として、比較政治学上も重要な事例となっている。', debate:'極めて多様な民族・宗教・島嶼を単一国家として維持し続けていることの要因を、パンチャシラ理念の統合力に求めるか、軍・中央政府による強力な統制に求めるかで評価が分かれる。'} },
+  { id:"g30s_incident", name:"9月30日事件", category:"event", lat:-6.21, lng:106.85, start:1965, end:1965, region:"インドネシア(ジャカルタ)", desc:{background:'陸軍と共産党(PKI)の対立激化、スカルノの後継をめぐる権力闘争、冷戦下の左右イデオロギー対立が、この事件の複雑な背景を形成していた。', process:'陸軍将校らが起こしたクーデター未遂事件を機に、これを共産党の陰謀とみなした陸軍のスハルト少将が主導権を握り、共産党員・支持者とみなされた人々に対する凄惨な大量虐殺(推定50万人以上)が全国で展開された。', significance:'この事件を境にスカルノは急速に実権を失い共産党は壊滅、以後32年に及ぶスハルトの長期軍事政権(新体制)への道が開かれた、冷戦期アジア最大級の政変の一つである。', debate:'事件の首謀者(共産党の単独犯行か、陸軍内部対立の結果か、CIAなど外部勢力の関与があったか)については史料的に不透明な点が多く、現在も国際的な歴史論争が続いている重大な未解決問題である。'} },
+  { id:"suharto_new_order", name:"スハルトの新体制(開発独裁)", category:"nation", lat:-6.21, lng:106.85, start:1966, end:1998, region:"インドネシア(ジャカルタ)", relatedIds:["asian_financial_crisis"], desc:{background:'9月30日事件を経た共産党壊滅と反共世論の高まりが、スハルトによる長期権力掌握を可能にする政治的条件を整えた。', process:'「開発の時代」を掲げ石油収入や外資導入を通じて高い経済成長率を実現する一方、反対派の徹底的な弾圧、縁故主義的な汚職(いわゆるKKN)、東ティモールをはじめとする強硬な地方統合政策も特徴とし、1997年のアジア通貨危機を機に経済が破綻し民主化要求デモが激化、1998年に退陣に追い込まれた。', significance:'「開発独裁」の代表的成功例として一時は高く評価されたが、その脆弱性(縁故資本主義への過度の依存)は通貨危機で露呈し、開発独裁モデルの限界を示す事例として比較政治学上重要視されている。', debate:'スハルト政権を「経済発展を実現した安定政権」と評価するか「大量虐殺の上に築かれた抑圧的独裁」と断罪するかで、インドネシア現代史の評価は根本的に分かれる。'} },
+  { id:"east_timor_independence", name:"東ティモール独立", category:"event", lat:-8.55, lng:125.58, start:1999, end:2002, region:"東ティモール(ディリ)", desc:{background:'ポルトガルからの独立宣言直後、地域の共産化を恐れる冷戦的計算とインドネシアの領土的野心が結びつき、軍事併合を招いた。', process:'1975年にインドネシアに軍事併合・統合されていた東ティモールが、スハルト退陣後の1999年住民投票で独立を選択し、国連の暫定統治を経て2002年に正式に独立を達成した。', significance:'併合期の長年にわたる武力弾圧と人権侵害は国際的な批判を招いており、独立はインドネシアの権威主義的な国家統合路線の限界を象徴する出来事となった。', debate:'1975年の併合を黙認した欧米諸国(特にオーストラリア・アメリカ)の姿勢を、冷戦下の反共優先の現実主義とみるか、人権侵害への共犯的黙認とみるかで厳しい批判と議論がある。'} },
+  { id:"post_1998_indonesia", name:"インドネシアの民主化(改革の時代)", category:"event", lat:-6.21, lng:106.85, start:1998, end:2030, region:"インドネシア(ジャカルタ)", desc:{background:'アジア通貨危機による経済破綻とスハルト長期政権への蓄積した不満が、大規模な民主化要求運動を引き起こした。', process:'大統領直接選挙の導入、地方分権化、報道の自由化などが進み、東南アジア最大の民主主義国家として定期的な政権交代を実現する一方、汚職対策や地域紛争、宗教的多様性の管理など多くの課題にも取り組み続けている。', significance:'権威主義体制からの平和的な民主化移行の成功例として、「改革(レフォルマシ)」はイスラーム世界における民主主義と多元主義の両立可能性を示す重要な事例とされる。', debate:'民主化後も残存する軍・旧エリート層の政治的影響力(スハルト時代の人脈の継続)をどう評価するかで、「真の民主化」の達成度についての見解が分かれる。'} },
+
+  // ===================== ラオス =====================
+  { id:"lan_xang_kingdom", name:"ランサーン王国(百万頭の象の国)", category:"dynasty", lat:19.89, lng:102.13, start:1353, end:1707, region:"ラオス(ルアンパバーン)", relatedIds:["fa_ngum"], desc:{background:'クメール(アンコール朝)の宮廷での教育と軍事支援の獲得が、ラオス系ラーオ族諸勢力を統合する新王国建設を可能にした。', process:'上座部仏教(クメール経由)を国家統治の精神的基盤に据え、メコン川流域の交易とタイ系ラーオ族諸勢力の統合を進めて繁栄したが、17世紀末の王位継承争いを機にルアンパバーン・ヴィエンチャン・チャンパーサックの三王国に分裂し、いずれも次第にタイ(シャム)の影響下に置かれた。', significance:'ラオス史上最初の統一王国として、以後のラオス人のアイデンティティの核となる仏教文化の基礎を築いた点で、現在のラオス国家の歴史的正統性の源泉となっている。', debate:'分裂後の三王国がタイの属国化していく過程を、地域大国間の必然的な勢力再編とみるか、内部の権力闘争が招いた自滅とみるかで議論がある。'} },
+  { id:"fa_ngum", name:"ファーグム", category:"person", parentId:"lan_xang_kingdom", lat:19.89, lng:102.13, start:1316, end:1393, region:"ランサーン王国", desc:{background:'政変で追放されるという逆境の中、亡命先のアンコール宮廷でクメールの王女を妃に迎えたことが、軍事的支援獲得の重要な足がかりとなった。', process:'クメールの軍事支援を得てラオス各地の勢力を統一しランサーン王国を建国し、クメール経由の上座部仏教を国教として導入した。', significance:'以後のラオス人のアイデンティティの核となる仏教文化の基礎を築いたが、晩年は家臣の離反により追放され、失意のうちに他国で没するという劇的な生涯を送った。', debate:'その統治後半の急速な求心力低下について、専制的統治手法への反発とみるか、多民族的な広大な版図を統治する制度的未整備の問題とみるかで議論がある。'} },
+  { id:"laos_division_three_kingdoms", name:"ランサーンの三王国分裂", category:"event", lat:17.97, lng:102.6, start:1707, end:1713, region:"ラオス(ルアンパバーン・ヴィエンチャン・チャンパーサック)", desc:{background:'ランサーン王国内における王位継承をめぐる有力諸侯間の対立が先鋭化したことが、統一王国分裂の直接的背景となった。', process:'ルアンパバーン・ヴィエンチャン・チャンパーサックの3王国へ分裂し、分裂後の各王国は互いに抗争を繰り返しながら次第に弱体化した。', significance:'18世紀後半以降はいずれもシャム(ラタナコーシン朝タイ)に服属する朝貢国的な地位に転落し、この分裂と弱体化が19世紀末のフランス保護国化を招く直接的要因となった。', debate:'この分裂を単なる王家の内紛とみるか、そもそも広大で交通の不便な山岳地形が単一の中央集権国家の維持を構造的に困難にしていたとみるかで議論がある。'} },
+  { id:"french_laos", name:"フランス保護領ラオス", category:"nation", lat:17.97, lng:102.6, start:1893 , end:1953, region:"ラオス(ヴィエンチャン)", relatedIds:["laotian_civil_war"], desc:{background:'清仏戦争後のフランスがシャムに軍事的圧力をかけ、メコン川以東の領域を割譲させたことが保護領成立の直接的契機となった。', process:'仏領インドシナ連邦の一部に組み込まれたが、フランスは統治の中心をベトナムに置いたため開発は低調にとどまり、民族運動の高まりも他の仏領地域に比べ緩やかであった。第二次世界大戦後は独立運動組織ラオ・イサラの活動を経て段階的に自治権が拡大し、1953年に完全独立を達成した。', significance:'他の仏領インドシナ地域と比較して開発投資・民族運動双方が低調であったことが、独立後のラオスの経済的後進性と政治的脆弱性の歴史的要因として指摘される。', debate:'ラオスにおける民族運動の低調さを、フランスの統治政策(周辺化)に帰すか、地理的条件(人口希薄・山岳地形)による内発的動員力の弱さに帰すかで議論がある。'} },
+  { id:"laotian_civil_war", name:"ラオス内戦", category:"war", lat:19.45, lng:103.15, start:1959, end:1975, region:"ラオス全土(シエンクワーン高原など)", relatedIds:["lao_pdr"], desc:{background:'独立後のラオスにおける親米派・中立派・共産派の三つ巴の政治対立と、ベトナム戦争の地理的拡大が、内戦を長期化させる構造的背景となった。', process:'アメリカが支援する王国政府軍と、北ベトナム・中国が支援する共産主義勢力パテト・ラーオとの間で戦われ、北ベトナム軍の補給路「ホーチミン・ルート」がラオス領内を通過したことから、アメリカ軍による史上最大級ともいわれる大規模な秘密爆撃の対象ともなった。', significance:'1975年サイゴン陥落と連動してパテト・ラーオが全土を制圧し内戦は終結したが、大量の不発弾が現在も国土に残存し続けるなど、「秘密戦争」による被害は今日まで継続している。', debate:'議会の承認を経ない大規模秘密爆撃の合法性・道義性は、アメリカの対外軍事介入における「秘密戦争」の是非をめぐる重要な論点として国際法・戦争責任論の観点から論じられる。'} },
+  { id:"lao_pdr", name:"ラオス人民民主共和国", category:"nation", lat:17.97, lng:102.6, start:1975, end:2030, region:"ラオス(ヴィエンチャン)", desc:{background:'ラオス内戦に勝利したパテト・ラーオが、王制の廃止と社会主義国家建設を志向したことが成立の背景となる。', process:'当初はベトナムに準じた社会主義的計画経済を採ったが、1980年代以降は市場経済的要素を導入する改革(チンタナカーン・マイ、新思考)を進め、内陸国という地理的制約の中でメコン川流域開発や中国・ベトナムとの経済関係強化を通じた発展を模索している。', significance:'内陸国という地理的ハンディキャップを、周辺国(特に中国)からのインフラ投資受け入れによって克服しようとする「陸封国の開発戦略」の事例として注目される。', debate:'近年の中国資本への経済的依存の深まりを、地理的制約を克服する現実的選択とみるか、新たな形の従属(債務の罠)の懸念とみるかで議論がある。'} },
+
+  // ===================== マレーシア・シンガポール =====================
+  { id:"raffles_singapore", name:"ラッフルズによるシンガポール獲得", category:"event", lat:1.35, lng:103.82, start:1819, end:1824, region:"シンガポール", desc:{background:'オランダに対抗する新たな交易拠点を求めるイギリス東インド会社の戦略と、天然の良港という地理的条件が、シンガポール獲得の背景となった。', process:'ラッフルズがジョホール王家からシンガポール島の使用権を獲得し、自由港政策により中継貿易港として急速に発展させ、1824年の英蘭協約でイギリスの領有が確定した。', significance:'以後マレー半島における英領植民地経営の中核拠点となり、今日の国際金融・貿易都市シンガポールの発展の直接的起点となった。', debate:'ラッフルズによる獲得の正当性(ジョホール王家内部の後継者争いへの介入を利用した点)を、巧妙な外交手腕とみるか、現地の政治的混乱に乗じた不当な権益獲得とみるかで評価が分かれる。'} },
+  { id:"straits_settlements", name:"海峡植民地", category:"nation", lat:1.35, lng:103.82, start:1826, end:1946, region:"マレー半島(ペナン・マラッカ・シンガポール)", desc:{background:'ペナン・マラッカ・シンガポールという3つの英領港市を一体的に経営することで、マラッカ海峡全域の交易を統制しようとする戦略的意図が背景にあった。', process:'イギリス東インド会社が統合して成立させ、1867年には本国直轄の直轄植民地に昇格し、自由貿易港政策のもとで中国系・インド系移民や商人を惹きつけて東西交易の一大中継拠点に発展した。', significance:'後の英領マラヤ経営の橋頭堡となり、第二次世界大戦後の再編でシンガポールは分離した直轄植民地として独自の道を歩むこととなった。', debate:'自由貿易港政策が現地マレー人社会にもたらした影響(中国系・インド系移民の大量流入による人口構成の激変)を、経済的繁栄の代償として不可避なものとみるか、植民地統治の構造的問題とみるかで議論がある。'} },
+  { id:"british_malaya", name:"英領マラヤ(マレー連合州)", category:"nation", lat:3.14, lng:101.69, start:1874, end:1957, region:"マレー半島(クアラルンプール)", relatedIds:["malayan_emergency", "malaya_independence"], desc:{background:'パンコール条約(1874年)を機にイギリスがマレー半島内陸の諸スルタン国に「保護」の名目で介入したことが、間接統治体制構築の出発点となった。', process:'1895年にはペラ・スランゴールなど4州をマレー連合州として統合し、さらに非連合州も間接支配下に置き、豊富な錫鉱山とゴムプランテーション経営のため大量の中国系・インド系移民労働者が導入された。', significance:'この移民導入政策が今日にまで続くマレーシアの多民族社会構成(マレー系・中国系・インド系)の起源となり、独立後の民族融和政策の必要性を規定する歴史的与件となった。', debate:'「保護」の名目による間接統治を、現地スルタンの権威を尊重した穏健な統治とみるか、実質的な主権剥奪を糊塗する方便とみるかで評価が分かれる。'} },
+  { id:"fall_of_singapore_1942", name:"シンガポール陥落", category:"war", lat:1.35, lng:103.82, start:1942, end:1942, region:"シンガポール", desc:{background:'「東洋の要塞」としてのシンガポールが海側の防衛に偏重し、マレー半島からの陸上侵攻を軽視していたことが、日本軍の奇襲的成功を許す構造的弱点となった。', process:'山下奉文率いる日本軍のマレー半島縦断作戦(自転車部隊を用いた電撃的南下)を経て、わずか1週間の攻防で陥落し、10万人以上のイギリス軍・イギリス連邦軍が降伏する史上最大級の敗北を喫した。', significance:'アジアにおけるイギリスの威信は決定的に失墜し、戦後の東南アジア各地での民族独立運動の高まりを促す大きな要因となった、「西洋不敗神話」崩壊の象徴的事件である。', debate:'この大敗の主因を、イギリス軍の戦略的誤算(要塞砲の向きなど)に求めるか、日本軍の機動力を活かした戦術的革新に求めるかで軍事史上の評価が分かれる。'} },
+  { id:"malayan_emergency", name:"マラヤ危機(共産ゲリラ戦)", category:"war", lat:3.14, lng:101.69, start:1948, end:1960, region:"マレー半島(ジャングル地帯)", desc:{background:'日本占領期に抗日ゲリラとして組織され武器・経験を蓄えたマラヤ共産党が、戦後の独立をめぐる主導権争いでイギリスとの対立を先鋭化させたことが背景にある。', process:'マラヤ共産党が指導するゲリラ(主に中国系住民が中心の民族解放軍)とイギリス植民地当局との間で戦われ、イギリスは「ブリッグス・プラン」による住民の集団移住(新村建設)でゲリラと住民の分断を図る対ゲリラ戦術を確立して鎮圧に成功した。', significance:'この対ゲリラ戦術(住民分離による兵站遮断)は後の米軍のベトナムでの「戦略村」政策にも影響を与えた対反乱作戦の古典的成功例として軍事史上重要視される一方、マレー人優遇・多民族融和という独立後のマレーシアの国家統合方針にも大きな影響を与えた。', debate:'共産ゲリラの主体が中国系住民に偏っていたことが、独立後のマレー人優遇政策(ブミプトラ政策)の正当化に利用された側面をどう評価するかで議論がある。'} },
+  { id:"malaya_independence", name:"マラヤ連邦独立", category:"event", lat:3.14, lng:101.69, start:1957, end:1957, region:"マラヤ連邦(クアラルンプール)", relatedIds:["tunku_abdul_rahman"], desc:{background:'マラヤ危機を通じてイギリスが多民族融和的な穏健路線の政党連合を独立の交渉相手として選好したことが、独立の枠組みを決定づけた。', process:'マレー人政党UMNOを中心に中国系・インド系政党が連合(アライアンス)を組み、イギリスとの交渉により独立を達成した。', significance:'主要3民族の政党連合による民族融和路線のもとで独立を実現したことは、多民族国家における政治的統合モデルの一例として、この統治体制は後のマレーシア連邦結成の政治的基盤ともなった。', debate:'この「民族融和」路線を真の平等な連合とみるか、実質的にはマレー人優位を前提とした連合であったとみるかは、独立後のマレーシア政治における民族間格差論争の出発点となっている。'} },
+  { id:"tunku_abdul_rahman", name:"トゥンク・アブドゥル・ラーマン", category:"person", parentId:"malaya_independence", lat:3.14, lng:101.69, start:1903, end:1990, region:"マラヤ連邦(クアラルンプール)", desc:{background:'UMNOの穏健な指導者としての立場と、中国系・インド系政党との連合形成の政治手腕が、独立交渉の主導権掌握を可能にした。', process:'中国系・インド系政党との連合(アライアンス党)を組織し1957年のマラヤ連邦独立を実現させて初代首相に就任し、1963年にはシンガポール・北ボルネオ(サバ)・サラワクを統合したマレーシア連邦の結成を主導した。', significance:'「独立の父」として東南アジアにおける多民族国家建設の指導者の代表例となったが、1965年のシンガポール分離や1969年の民族暴動などマレーシアの国家統合をめぐる困難な課題にも直面した。', debate:'1969年の民族暴動を招いた責任の一端が、彼の穏健な融和路線の限界(経済格差是正の遅れ)にあったのかどうかは、マレーシア政治史上の重要な論点である。'} },
+  { id:"formation_malaysia", name:"マレーシア連邦の結成", category:"event", lat:3.14, lng:101.69, start:1963, end:1963, region:"マレーシア(クアラルンプール)", relatedIds:["singapore_separation"], desc:{background:'イギリスが東南アジアの植民地を段階的に手放す過程で、単独では経済的に脆弱な諸邦を統合することで安定した独立国家を作ろうとした意図が背景にあった。', process:'マラヤ連邦にシンガポール・サバ(北ボルネオ)・サラワクを統合して成立したが、フィリピンが北ボルネオの領有権を主張して反発し、インドネシアのスカルノ政権が「マレーシア粉砕」を掲げて軍事的圧力をかける「マレーシア紛争(コンフロンタシ)」を引き起こすなど、周辺国との緊張を伴う難産の統合過程であった。', significance:'この結成は東南アジアにおける新植民地主義的国境画定への周辺国の反発を招いた事例として、地域国際政治における国家形成の複雑さを示す典型例となっている。', debate:'スカルノの「マレーシア粉砕」政策を、正当な反植民地主義的抵抗とみるか、単なる地域覇権主義的な軍事的威嚇とみるかで、インドネシア・マレーシア双方の歴史認識が対立する。'} },
+  { id:"singapore_separation", name:"シンガポールのマレーシアからの分離独立", category:"event", lat:1.35, lng:103.82, start:1965, end:1965, region:"シンガポール", relatedIds:["lee_kuan_yew", "singapore_republic"], desc:{background:'マレー人優遇政策をめぐるマレー系・中国系間の対立の先鋭化(1964年の人種暴動なども背景)が、連邦内における民族的緊張を高めていた。', process:'リー・クアンユー率いる人民行動党と連邦政府との協議の末、シンガポールがマレーシア連邦から分離・独立を余儀なくされた。', significance:'当初は望まぬ形での独立であったが、以後シンガポールは独自路線での急速な経済発展を遂げることとなり、結果的に「予期せぬ独立からの成功」という稀有な事例となった。', debate:'分離の主因を人民行動党の「マレーシア人のマレーシア(民族平等)」路線とUMNOのマレー人優遇路線との理念的対立に求めるか、単なる政治的権力闘争の帰結に求めるかで議論がある。'} },
+  { id:"singapore_republic", name:"シンガポール共和国", category:"nation", lat:1.35, lng:103.82, start:1965, end:2030, region:"シンガポール", relatedIds:["lee_kuan_yew"], desc:{background:'天然資源に乏しく国内市場も狭小という不利な条件下で、独立を強いられたことが、外資依存型の開発戦略を不可避にした。', process:'外資導入・自由貿易・法の支配の徹底による国際金融・製造業拠点化を進め、独立からわずか一世代余りで「アジアNIEs」の一角として世界有数の高所得国へと発展を遂げた。', significance:'資源に乏しい都市国家が「開発独裁」的な手法により先進国水準の経済発展を達成した代表的成功例として、開発経済学・比較政治学で頻繁に参照される事例となっている。', debate:'急速な経済発展を可能にした要因を人民行動党の一党優位体制による政治的安定に求めるか、地理的立地(国際海運の要衝)という与件に求めるかで評価が分かれ、経済的自由と政治的統制の共存モデルとしても論じられる。'} },
+  { id:"lee_kuan_yew", name:"リー・クアンユー", category:"person", parentId:"singapore_republic", lat:1.35, lng:103.82, start:1923, end:2015, region:"シンガポール", desc:{background:'分離独立という予期せぬ事態の中、資源も後背地も持たない小国をいかに存続させるかという危機感が、徹底した実利主義的統治の背景となった。', process:'清潔で効率的な行政、外資誘致による工業化、多民族融和と英語を軸とした教育政策などを通じて「開発独裁」的な手法により経済発展を実現し、1990年まで首相として国家建設を担った。', significance:'東南アジアの中でも際立った統治モデル(「シンガポール・モデル」)を築いたことで知られ、中国をはじめとする多くの発展途上国の指導者から統治手法の模範として参照されている。', debate:'言論・集会の自由を制限する強権的手法を、小国存続のための必要な代償とみるか、経済発展の美名のもとでの権威主義の正当化とみるかで、国際的な評価が大きく分かれる。'} },
+  { id:"malaysia_federation", name:"マレーシア連邦", category:"nation", lat:3.14, lng:101.69, start:1963, end:2030, region:"マレーシア(クアラルンプール)", relatedIds:["malaysia_1969_riots", "mahathir"], desc:{background:'1965年のシンガポール分離という国家的な危機を経て、残った領域でマレー人優位を軸とする国民統合の再構築が課題となった。', process:'マレー系・中国系・インド系という多民族構成のもとブミプトラ(マレー系優遇)政策による経済格差是正と国民統合を国是とし、マハティール首相のもとでの工業化政策を経て東南アジアの中進国として発展を続けている。', significance:'資源(錫・ゴム・後にパーム油)輸出から製造業への産業構造転換を成功させた事例として、東南アジアにおける「中進国の罠」回避のモデルケースとしてしばしば参照される。', debate:'ブミプトラ政策を民族間格差是正のための正当な積極的差別是正措置とみるか、非マレー系(特に中国系)への逆差別とみるかで、マレーシア国内外で評価が大きく対立している。'} },
+  { id:"malaysia_1969_riots", name:"5月13日事件と新経済政策(NEP)", category:"event", lat:3.14, lng:101.69, start:1969, end:1971, region:"マレーシア(クアラルンプール)", desc:{background:'独立後も経済的実権の多くを中国系住民が握り続ける一方、政治的多数派であるマレー系との経済格差が拡大していたことが、対立の構造的背景となった。', process:'総選挙での野党(主に中国系支持層)の躍進を機にクアラルンプールで発生したマレー系・中国系住民間の大規模な流血の民族衝突を受け、政府は経済格差の是正を掲げる新経済政策(NEP)を導入した。', significance:'教育・雇用・企業株式保有などの分野でマレー系(ブミプトラ)を優遇する措置を長期にわたり制度化し、以後半世紀以上に及ぶマレーシアの民族別優遇政策の起点となった。', debate:'NEPによる格差是正が民族融和に寄与したとみるか、逆に民族間の分断・非マレー系の不満を制度的に固定化したとみるかで、政策評価が大きく分かれる。'} },
+  { id:"mahathir", name:"マハティール・ビン・モハマド", category:"person", parentId:"malaysia_federation", lat:3.14, lng:101.69, start:1925, end:2035, region:"マレーシア(クアラルンプール)", desc:{background:'植民地時代からの一次産品輸出依存経済からの脱却という国家的課題が、強力な指導力を求める政治的要請を生んでいた。', process:'「ルックイースト政策」により日本・韓国の経済発展モデルを範として工業化を推進し、ペトロナス・ツインタワーに象徴される「2020年構想(ビジョン2020)」を掲げて先進国入りを目指した。', significance:'強権的な統治手法や司法・言論への介入もたびたび批判されたが、マレーシアの経済近代化を主導した長期政権指導者として国内外に大きな足跡を残した。', debate:'「アジア的価値観」を掲げ西洋型民主主義とは異なる開発優先の統治モデルを主張した彼の言説は、開発途上国における民主主義と経済発展の関係をめぐる比較政治学上の重要な論争点を提供している。'} },
+
+  // ===================== フィリピン =====================
+  { id:"spanish_arrival_philippines", name:"マゼラン到達とマクタン島の戦い", category:"event", lat:10.31, lng:123.95, start:1521, end:1521, region:"フィリピン(セブ・マクタン島)", desc:{background:'スペインが大航海時代を通じアジアの香辛料交易への参入路を西回りに求めたことが、マゼラン艦隊派遣の背景となった。', process:'マゼランがフィリピンに到達しセブ島でキリスト教布教を試みたが、服属を拒んだマクタン島の首長ラプ・ラプの軍との戦いでマゼラン自身が戦死し、遠征隊は撤退を余儀なくされた。', significance:'スペインはフィリピン諸島の存在をヨーロッパに知らしめ、約40年後のレガスピによる本格的な植民地化事業の端緒を開いた点で、フィリピン史の画期をなす出来事である。', debate:'ラプ・ラプの抵抗を「フィリピン最初の反植民地主義的英雄」として顕彰する近代のナショナリズム的評価と、当時の一地域首長の局地的な自衛行動という史実との間の距離が論じられる。'} },
+  { id:"spanish_philippines", name:"スペイン領フィリピン", category:"dynasty", lat:14.6, lng:120.98, start:1565, end:1898, region:"フィリピン(マニラ)", relatedIds:["jose_rizal", "philippine_revolution"], desc:{background:'レガスピによる征服後、太平洋を挟んでメキシコと結びつく貿易ルートの構築という経済的思惑と、カトリック布教という宗教的使命とが植民地経営の両輪となった。', process:'マニラを拠点にメキシコ(アカプルコ)との間でガレオン船による中継貿易(アカプルコ貿易)が展開され中国産の絹・陶磁器とメキシコ産銀が交換される太平洋交易の要となる一方、修道会が広大な土地(教会領)を集積したが、19世紀後半には土地収奪と重税への不満、啓蒙思想の流入を背景に民族運動が高まり、1898年の米西戦争を機に統治は終焉した。', significance:'約330年に及ぶこの統治により、フィリピンは東南アジアで唯一カトリックが多数派の国となり、この宗教的性格は今日まで続く同国社会の最大の特徴の一つとなっている。', debate:'アカプルコ貿易を、フィリピンをアジア・アメリカ間の単なる中継地に留め本来の経済発展を阻害した「収奪的植民地経済」とみるか、当時としては先進的なグローバル交易への統合とみるかで評価が分かれる。'} },
+  { id:"jose_rizal", name:"ホセ・リサール", category:"person", parentId:"spanish_philippines", lat:14.6, lng:120.98, start:1861, end:1896, region:"スペイン領フィリピン(マニラ)", desc:{background:'ヨーロッパ留学を通じて啓蒙思想・民族主義思想に触れた経験が、スペイン植民地統治の矛盾を批判的に見つめる知的基盤を形成した。', process:'小説『ノリ・メ・タンヘレ』などでスペイン植民地統治の不正と教会の腐敗を告発し、穏健な改革(スペイン議会への参政権付与など)を求める合法的運動団体「ラ・リガ・フィリピナ」を組織したが、急進化を恐れたスペイン当局により反乱扇動の疑いで逮捕され、1896年にマニラで銃殺刑に処された。', significance:'その死は直後のフィリピン革命の引き金となり、今日「国民的英雄」として讃えられ、その処刑の地(現リサール公園)は国民的記憶の場となっている。', debate:'改革を求めた穏健派リサールと武装蜂起を主導した急進派ボニファシオという二つの民族運動路線のどちらをフィリピン独立運動の正統な起点とすべきかは、フィリピン史学における継続的な論争点である。'} },
+  { id:"philippine_revolution", name:"フィリピン革命", category:"revolution", lat:14.65, lng:121.02, start:1896, end:1898, region:"フィリピン(マニラ近郊)", relatedIds:["emilio_aguinaldo"], desc:{background:'リサールの処刑を含むスペイン当局の弾圧強化と、啓蒙思想の浸透による民族意識の高揚が、武装蜂起への機運を決定的に高めた。', process:'ボニファシオが結成した秘密結社カティプナンが指導し1896年に武装蜂起したが、当初は苦戦を強いられ、エミリオ・アギナルドが指導権を握ると勢力を拡大し1898年6月には独立を宣言した。', significance:'アジアにおける最初期の反植民地独立革命の一つとして東南アジア各地の民族運動に先駆的な影響を与えたが、同年の米西戦争でスペインが敗北すると独立の主導権はまもなくアメリカとの対立へと移行した。', debate:'カティプナン内部でのボニファシオ(急進的大衆運動路線)からアギナルド(エリート主導路線)への指導権移行の正当性(処刑を含む)については、フィリピン革命史上最大の内部対立として今も評価が分かれる。'} },
+  { id:"treaty_paris_1898", name:"パリ条約(米西戦争講和)", category:"treaty", lat:48.86, lng:2.35, start:1898, end:1898, region:"フランス・パリ", desc:{background:'米西戦争でスペインが劣勢に立たされたことが、アメリカとの講和交渉においてフィリピンの帰属という重大な決定を迫る背景となった。', process:'敗れたスペインはキューバの独立を承認するとともに、プエルトリコ・グアム・フィリピンをアメリカに割譲(フィリピンについては2000万ドルの支払いを伴う事実上の売却)することとなった。', significance:'独立を宣言していたアギナルドらフィリピン革命勢力の頭越しに統治権がアメリカへ移されたことが、直後のフィリピン=アメリカ戦争の火種となった、植民地の当事者不在の主権移譲の典型例である。', debate:'「金銭による領土売却」という形式を、通常の帝国主義的領土獲得とみるか、アメリカの当時の反植民地主義的建前(自国も独立革命の産物)との矛盾を示す事例とみるかで論じられる。'} },
+  { id:"philippine_american_war", name:"フィリピン=アメリカ戦争", category:"war", lat:14.6, lng:120.98, start:1899, end:1902, region:"フィリピン全土", relatedIds:["emilio_aguinaldo"], desc:{background:'パリ条約でフィリピンの統治権を得たアメリカが独立を認めなかったことが、独立を宣言していたフィリピン第一共和国との軍事衝突を不可避にした。', process:'当初は正規戦で応戦したフィリピン軍もまもなくゲリラ戦に転じたが、アメリカ軍は苛烈な鎮圧作戦(集落の焼き討ちや強制収容)と分断統治により抵抗を制圧し、1902年に戦争終結を宣言した(ただし一部地域の抵抗は継続)。', significance:'この戦争を通じてフィリピンは正式にアメリカの植民地となったが、この戦争でのアメリカ軍の残虐行為は、自国を「反植民地主義の産物」と自認するアメリカの自己認識との深刻な矛盾を露呈させた。', debate:'アメリカ国内でもこの戦争の正当性(「文明化の使命」か帝国主義的侵略か)をめぐり反帝国主義者連盟などによる激しい国内論争が起こり、アメリカ史における帝国主義論争の重要な事例となっている。'} },
+  { id:"emilio_aguinaldo", name:"エミリオ・アギナルド", category:"person", parentId:"philippine_american_war", lat:14.44, lng:120.85, start:1869, end:1964, region:"フィリピン(カビテ)", desc:{background:'カティプナン内部での急進派(ボニファシオ)との路線対立の中、より穏健で組織的な指導力を求める勢力からの支持が、彼の台頭を後押しした。', process:'カティプナン内部の派閥抗争でボニファシオを排除して革命の主導権を握り、1898年6月にフィリピン独立を宣言、翌年マロロス憲法のもとフィリピン第一共和国の初代大統領に就任したが、アメリカがフィリピンの統治権を得ると独立を認めないアメリカ軍との戦争を強いられ、1901年に捕縛されてアメリカへの服従を宣誓した。', significance:'アジア最初期の共和国憲法(マロロス憲法)を制定した指導者として評価される一方、その捕縛と服従宣誓により初期の武装抵抗運動は終結を迎えた。', debate:'ボニファシオの処刑を命じた事実が、彼の「独立の英雄」としての評価にどう影響すべきかについては、フィリピン国内でも意見が分かれる論争的な問題である。'} },
+  { id:"american_philippines", name:"アメリカ統治下のフィリピン", category:"nation", lat:14.6, lng:120.98, start:1898, end:1946, region:"フィリピン(マニラ)", relatedIds:["japan_occupation_philippines"], desc:{background:'フィリピン=アメリカ戦争を経て統治権を確立したアメリカが、旧宗主国スペインとは異なる統治理念(「恩恵的同化」)を掲げたことが、この時代の性格を規定した。', process:'公教育の英語による普及や自治制度の段階的導入など「恩恵的同化」政策を進め、1935年には10年後の完全独立を約定するフィリピン・コモンウェルス(自治領)が発足しケソンが初代大統領に就任したが、第二次世界大戦中の日本軍占領により独立準備は中断された。', significance:'英語教育の普及とアメリカ式教育制度・政治制度の移植は、独立後のフィリピンの言語状況(英語の公用語化)と政治文化に長期的な影響を残した。', debate:'「恩恵的同化」を、他の欧州植民地主義とは異なる進歩的な統治理念とみるか、経済的収奪(農産物輸出への依存構造の固定化)を糊塗する美名にすぎないとみるかで評価が分かれる。'} },
+  { id:"japan_occupation_philippines", name:"日本軍のフィリピン占領", category:"event", lat:14.6, lng:120.98, start:1942, end:1945, region:"フィリピン(マニラ・レイテ島)", relatedIds:["philippines_republic"], desc:{background:'太平洋戦争開戦後、東南アジア資源地帯への進出を図る日本の南進政策が、アメリカ領フィリピンへの侵攻を招いた。', process:'日本軍がフィリピンに侵攻しアメリカ・フィリピン軍を降伏させて(「バターン死の行進」などの悲劇を伴いつつ)全土を占領し、マッカーサーは「アイ・シャル・リターン」の言葉を残して撤退したが、1944年のレイテ沖海戦・レイテ島上陸により反攻を開始し1945年にマニラ市街戦などの激しい戦闘を経て奪回した。', significance:'特にマニラ市街戦は日本軍による住民虐殺を伴う激戦となり、フィリピンにおける対日感情と戦後の戦争責任認識の重要な原点となっている。', debate:'バターン死の行進における死者数・原因(意図的虐待か補給破綻による混乱かの複合)については史料的検証が続けられている。'} },
+  { id:"philippine_independence", name:"フィリピン独立", category:"event", lat:14.6, lng:120.98, start:1946, end:1946, region:"フィリピン(マニラ)", desc:{background:'1935年のフィリピン・コモンウェルス発足時に約定されていた10年後の完全独立という取り決めが、戦争による中断を経てそのまま履行された。', process:'第二次世界大戦後の1946年7月4日にアメリカからの完全独立を達成したが、独立後もアメリカとの間で軍事基地の設置や経済面での特権的地位を認める協定が結ばれた。', significance:'政治的独立とは裏腹に経済的・軍事的にはアメリカへの強い依存が続く「新植民地主義的」な関係が長く指摘されることとなり、この構造は冷戦期を通じたアメリカのアジア戦略の拠点としてのフィリピンの位置づけを規定した。', debate:'独立の「完全性」について、法的独立と実質的な経済的従属(パリティ権条項など対米特権の存続)との乖離をどう評価するかが、新植民地主義論の文脈でしばしば論じられる。'} },
+  { id:"philippines_republic", name:"フィリピン共和国", category:"nation", lat:14.6, lng:120.98, start:1946, end:2030, region:"フィリピン(マニラ)", relatedIds:["marcos_regime", "edsa_revolution"], desc:{background:'地主層を基盤とする寡頭的な議会政治が独立当初から続いていたことが、貧富の格差と社会不安の構造的背景となった。', process:'貧富の格差や共産主義ゲリラ(フクバラハップ、後の新人民軍)の活動が深刻化する中、1965年に大統領に就任したマルコスは1972年に戒厳令を敷いて独裁体制を築いたが、1986年のピープルパワー革命でマルコスが追放されて以降は民主政治が回復した。', significance:'東南アジアの中でも活発な市民社会と選挙政治を特徴とする国家として推移しているが、地主エリート層による寡頭政治構造は現在も根強く残存する社会的課題である。', debate:'独立後の土地改革の度重なる停滞を、地主層の政治的影響力という構造的要因に求めるか、歴代政権の政策的怠慢に求めるかで議論がある。'} },
+  { id:"marcos_regime", name:"マルコス独裁政権(戒厳令体制)", category:"nation", lat:14.6, lng:120.98, start:1965, end:1986, region:"フィリピン(マニラ)", relatedIds:["ferdinand_marcos"], desc:{background:'共産主義ゲリラの活発化と、マルコス自身の三選禁止の憲法規定という政治的制約が、非常措置(戒厳令)による権力延命の動機となった。', process:'「新社会(バゴン・リプナン)」建設を掲げ戒厳令下で独裁体制を敷き、汚職と縁故主義(クロニー・キャピタリズム)、反対派弾圧が横行する一方、対外的には親米路線を維持したが、1983年の野党指導者ベニグノ・アキノ暗殺事件を機に反政権運動が爆発的に拡大し、1986年のピープルパワー革命によりマルコスはハワイへ亡命し政権は崩壊した。', significance:'「開発独裁」を標榜しながら実際には国富の私物化と対外債務の急増を招いた失敗例として、東南アジアの他の開発独裁(インドネシア・韓国など)との対比でしばしば論じられる。', debate:'アメリカがマルコス政権を長年支持し続けた背景(冷戦下の反共同盟国としての戦略的価値)が、独裁の長期化にどこまで寄与したかは、米比関係史上の重要な論点である。'} },
+  { id:"ferdinand_marcos", name:"フェルディナンド・マルコス", category:"person", parentId:"marcos_regime", lat:14.6, lng:120.98, start:1917, end:1989, region:"フィリピン(マニラ)", desc:{background:'対日抗戦の英雄としての(誇張された)経歴と、弁舌に長けた政治的才覚が、その当初の高い人気の基盤となった。', process:'1965年に大統領に就任し1972年に戒厳令を布告して憲法上の三選禁止規定を回避し長期独裁体制を築き、夫人イメルダとともに国家財政を私物化し莫大な蓄財を行ったが、1983年に亡命先から帰国しようとした政敵ベニグノ・アキノをマニラ空港で暗殺させた事件が国民の怒りに火をつけ、1986年の大統領選挙不正を機にピープルパワー革命が発生し失脚してハワイへ亡命し同地で死去した。', significance:'その蓄財規模(数十億ドルとも言われる)は「クレプトクラシー(泥棒政治)」の世界的代表例として国際的に記憶され、亡命後の資産返還・追及は今日まで続くフィリピンの重要な政治課題であり続けている。', debate:'対日戦争中の抗日ゲリラとしての経歴・戦功が誇張・捏造であったとする研究があり、その政治的経歴の出発点そのものの史実性が近年の歴史検証で問い直されている。'} },
+  { id:"edsa_revolution", name:"ピープルパワー革命(エドゥサ革命)", category:"revolution", lat:14.63, lng:121.03, start:1986, end:1986, region:"フィリピン(マニラ・エドゥサ通り)", relatedIds:["corazon_aquino"], desc:{background:'不正が疑われた1986年大統領選挙の結果発表と、ベニグノ・アキノ暗殺事件以来蓄積されていた反マルコス感情が、大規模な市民蜂起の直接的引き金となった。', process:'コラソン・アキノを支持する市民・修道女・軍の一部反乱勢力がエドゥサ(EDSA)通りに集結し、非暴力の抗議行動によってマルコス独裁を退陣に追い込み、カトリック教会や在郷軍人らの離反も政権崩壊を後押しした。', significance:'流血をほとんど伴わずに独裁政権を打倒した「非暴力革命」の成功例として、後の世界各地(東欧・アジア)の民主化運動にも大きな影響を与えたとされる。', debate:'この「非暴力革命」の成功要因を市民の自発的動員に求めるか、軍内部の反乱勢力(エンリレ国防相ら)の離反という制度内部からの動きに求めるかで、革命の性格づけが分かれる。'} },
+  { id:"corazon_aquino", name:"コラソン・アキノ", category:"person", parentId:"edsa_revolution", lat:14.6, lng:120.98, start:1933, end:2009, region:"フィリピン(マニラ)", desc:{background:'暗殺された野党指導者ベニグノ・アキノの妻という立場が、政治経験がなかったにもかかわらず民主化運動の象徴的存在として担ぎ出される背景となった。', process:'夫の死後に民主化運動の象徴的存在として担ぎ出され、ピープルパワー革命後に大統領に就任し、新憲法の制定や政治犯の釈放など民主化改革を進めたが、旧来の地主層の抵抗による土地改革の停滞や度重なる軍のクーデター未遂に直面した。', significance:'アジアにおける女性初の大統領(近代的選挙による)として、民主化と権威主義克服のシンボルとなったが、その統治の限界は民主化後のフィリピン政治が抱える構造的課題を象徴する存在ともなった。', debate:'自らも大地主一族出身であったアキノが、なぜ包括的土地改革(自家所有地を含む)を徹底できなかったのかは、フィリピンにおける「エリート民主主義」の限界を示す事例として批判的に論じられる。'} },
+];
+
+/* =========================================================================
+   カテゴリ設定
+   ========================================================================= */
+const CATEGORY_CONFIG = {
+  person:     { label:'人物',       color:'#c0554a' },
+  nation:     { label:'国家',       color:'#3f7ea6' },
+  dynasty:    { label:'王朝',       color:'#8259ac' },
+  event:      { label:'事件・出来事', color:'#c99a4a' },
+  war:        { label:'戦争・戦い',  color:'#8a3a3a' },
+  revolution: { label:'革命',       color:'#3f8f74' },
+  treaty:     { label:'条約',       color:'#7a6a52' },
+};
+
+/* =========================================================================
+   年号の表示フォーマット
+   ========================================================================= */
+function formatYear(y){
+  y = Math.round(y);
+  if(y < 0) return `紀元前${Math.abs(y)}年`;
+  if(y === 0) return `紀元1年`;
+  return `西暦${y}年`;
+}
+function formatYearShort(y){
+  y = Math.round(y);
+  if(y < 0) return `前${Math.abs(y)}`;
+  return `${y}`;
+}
+
+/* =========================================================================
+   地図の初期化
+   ========================================================================= */
+const map = L.map('map', {
+  center:[8, 108],
+  zoom:5,
+  minZoom:2,
+  maxZoom:12,
+  worldCopyJump:true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19,
+}).addTo(map);
+
+const markerLayer = L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 11,
+  iconCreateFunction: function(cluster){
+    return L.divIcon({
+      html: `<div class="cluster-badge">${cluster.getChildCount()}</div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: L.point(32, 32),
+    });
+  },
+}).addTo(map);
+const markerById = {}; // id -> {marker, entry}
+
+/* =========================================================================
+   フィルタ状態
+   ========================================================================= */
+const activeCategories = new Set(Object.keys(CATEGORY_CONFIG));
+let searchTerm = '';
+
+/* =========================================================================
+   サイドバー: フィルタリスト生成
+   ========================================================================= */
+const filterListEl = document.getElementById('filterList');
+Object.entries(CATEGORY_CONFIG).forEach(([key, cfg])=>{
+  const count = historicalData.filter(d=>d.category===key).length;
+  const row = document.createElement('label');
+  row.className = 'filter-row';
+  row.innerHTML = `
+    <input type="checkbox" data-cat="${key}" checked>
+    <span class="swatch" style="background:${cfg.color}"></span>
+    <span class="fname">${cfg.label}</span>
+    <span class="fcount">${count}</span>
+  `;
+  filterListEl.appendChild(row);
+});
+filterListEl.addEventListener('change', (e)=>{
+  const cb = e.target;
+  if(cb.type !== 'checkbox') return;
+  const cat = cb.dataset.cat;
+  if(cb.checked) activeCategories.add(cat);
+  else activeCategories.delete(cat);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = true;
+    activeCategories.add(cb.dataset.cat);
+  });
+  updateMap();
+});
+document.getElementById('selectNoneBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+  });
+  activeCategories.clear();
+  updateMap();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  updateMap();
+});
+
+/* =========================================================================
+   詳細パネル
+   ========================================================================= */
+const detailPanel = document.getElementById('detailPanel');
+const detailContent = document.getElementById('detailContent');
+
+let currentDetailEntry = null;
+
+function getCurrentYear(){
+  return parseInt(document.getElementById('yearSlider').value, 10);
+}
+
+// entry(国家・王朝・事件など)に紐づく人物、および entry.relatedIds で明示的に
+// リンクされた国家・王朝(同盟/敵対関係)・事件・戦争・革命・条約などを、
+// 年代に関わらず全て取得(古い順)。表示中のジャンルでフィルタする。
+function getRelatedItems(entry){
+  if(activeCategories.size === 0) return null;
+
+  const byParent = historicalData.filter(p => p.category === 'person' && p.parentId === entry.id);
+
+  const explicitIds = entry.relatedIds || [];
+  const byExplicit = explicitIds
+    .map(id => historicalData.find(d => d.id === id))
+    .filter(Boolean);
+
+  const merged = [...byParent];
+  for(const item of byExplicit){
+    if(item.id !== entry.id && !merged.some(m => m.id === item.id)) merged.push(item);
+  }
+
+  return merged
+    .filter(d => activeCategories.has(d.category))
+    .sort((a,b)=> a.start - b.start);
+}
+
+function showDetail(entry, parentEntry){
+  currentDetailEntry = entry;
+  const cfg = CATEGORY_CONFIG[entry.category];
+
+  const backHtml = parentEntry
+    ? `<button class="back-btn" data-back-id="${parentEntry.id}">← ${parentEntry.name} に戻る</button>`
+    : '';
+
+  let relatedHtml = '';
+  {
+    const related = getRelatedItems(entry);
+    if(related !== null){
+      if(related.length > 0){
+        const items = related.map(p => {
+          const pCfg = CATEGORY_CONFIG[p.category];
+          return `
+          <li class="person-list-item" data-person-id="${p.id}">
+            <span class="person-name"><span class="related-cat-badge" style="background:${pCfg.color}">${pCfg.label}</span>${p.name}</span>
+            <span class="person-years">${formatYear(p.start)} 〜 ${formatYear(p.end)}</span>
+          </li>`;
+        }).join('');
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語(${related.length}件・古い順)</h4>
+            <ul>${items}</ul>
+          </div>`;
+      } else {
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語</h4>
+            <div class="related-persons-empty">関連する用語データはありません。</div>
+          </div>`;
+      }
+    }
+  }
+
+  const metaLabel = entry.category === 'person' ? '活躍した年代(生没年)' : '時期';
+
+  detailContent.innerHTML = `
+    ${backHtml}
+    <span class="detail-badge" style="background:${cfg.color}">${cfg.label}</span>
+    <h3>${entry.name}</h3>
+    <div class="detail-meta">
+      <div>${metaLabel}: ${formatYear(entry.start)} 〜 ${formatYear(entry.end)}</div>
+      <div>地域: ${entry.region || '—'}</div>
+    </div>
+    ${renderDesc(entry.desc)}
+    ${relatedHtml}
+  `;
+  detailPanel.classList.remove('hidden');
+}
+
+const DESC_SECTION_CONFIG = [
+  { key:'background',    label:'背景(なぜ起きたか)',           cls:'sec-background' },
+  { key:'process',       label:'経過(何が決定的だったか)',       cls:'sec-process' },
+  { key:'significance',  label:'意義・影響(何を変えたか)',       cls:'sec-significance' },
+  { key:'debate',        label:'論点・史学上の論争',             cls:'sec-debate' },
+];
+
+function renderDesc(desc){
+  if(!desc) return '';
+  // 後方互換: 万一プレーン文字列のdescが残っていた場合はそのまま1段落で表示
+  if(typeof desc === 'string'){
+    return `<p>${desc}</p>`;
+  }
+  const sections = DESC_SECTION_CONFIG
+    .filter(sec => desc[sec.key])
+    .map(sec => `
+      <div class="desc-section ${sec.cls}">
+        <span class="desc-label">${sec.label}</span>
+        <p class="desc-text">${desc[sec.key]}</p>
+      </div>`)
+    .join('');
+  return `<div class="desc-sections">${sections}</div>`;
+}
+
+// 動的に生成される「戻る」ボタン・人物リスト項目のクリックをイベント委譲で処理
+detailContent.addEventListener('click', (e)=>{
+  const personItem = e.target.closest('.person-list-item');
+  if(personItem){
+    const person = historicalData.find(d => d.id === personItem.dataset.personId);
+    if(person) showDetail(person, currentDetailEntry);
+    return;
+  }
+  const backBtn = e.target.closest('.back-btn');
+  if(backBtn){
+    const parent = historicalData.find(d => d.id === backBtn.dataset.backId);
+    if(parent) showDetail(parent);
+    return;
+  }
+});
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailPanel.classList.add('hidden');
+});
+
+/* =========================================================================
+   マーカー描画・年代フィルタリング
+   ========================================================================= */
+function createMarker(entry){
+  const cfg = CATEGORY_CONFIG[entry.category];
+  const marker = L.circleMarker([entry.lat, entry.lng], {
+    radius:7,
+    weight:2,
+    color:'#f3ecdc',
+    fillColor:cfg.color,
+    fillOpacity:0.92,
+  });
+  marker.bindTooltip(entry.name, {
+    permanent:true,
+    direction:'right',
+    offset:[9,0],
+    className:'entry-label',
+  });
+  marker.on('click', ()=> showDetail(entry));
+  return marker;
+}
+
+function updateMap(){
+  const year = parseInt(document.getElementById('yearSlider').value, 10);
+  document.getElementById('yearDisplay').textContent = formatYear(year);
+
+  markerLayer.clearLayers();
+  let visibleCount = 0;
+  const term = searchTerm.toLowerCase();
+
+  historicalData.forEach(entry=>{
+    if(!activeCategories.has(entry.category)) return;
+    if(year < entry.start || year > entry.end) return;
+    if(term && !entry.name.toLowerCase().includes(term)) return;
+    // 国家・王朝に紐づく人物は、そのピンをクリックした先の一覧からのみ表示する
+    if(entry.category === 'person' && entry.parentId) return;
+    const marker = createMarker(entry);
+    markerLayer.addLayer(marker);
+    visibleCount++;
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+/* =========================================================================
+   年表(タイムライン)スライダー
+   ========================================================================= */
+const yearSlider = document.getElementById('yearSlider');
+yearSlider.addEventListener('input', updateMap);
+
+// 目盛り(500年刻み)を生成
+const ticksEl = document.getElementById('ticks');
+const MIN_YEAR = -1000, MAX_YEAR = 2030;
+for(let y = MIN_YEAR; y <= MAX_YEAR; y += 500){
+  const pct = (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+  const tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = pct + '%';
+  tick.textContent = formatYearShort(y);
+  ticksEl.appendChild(tick);
+}
+
+/* =========================================================================
+   再生(自動再生)機能
+   ========================================================================= */
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+let playing = false;
+let playTimer = null;
+
+function startPlaying(){
+  playing = true;
+  playBtn.textContent = '⏸ 停止';
+  playTimer = setInterval(()=>{
+    const step = parseInt(speedSelect.value, 10);
+    let v = parseInt(yearSlider.value, 10) + step;
+    if(v > MAX_YEAR){ v = MIN_YEAR; }
+    yearSlider.value = v;
+    updateMap();
+  }, 180);
+}
+function stopPlaying(){
+  playing = false;
+  playBtn.textContent = '▶ 再生';
+  clearInterval(playTimer);
+}
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlaying();
+  else startPlaying();
+});
+
+/* =========================================================================
+   初期描画
+   ========================================================================= */
+updateMap();
+
+</script>
+</body>
+</html>

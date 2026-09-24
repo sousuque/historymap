@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北米史地図 — 世界史探究</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+<style>
+/* ---- Leaflet core CSS, inlined here because published pages may only load external script tags from cdnjs, not link-tag stylesheets ---- */
+.leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-tile::selection{background:0 0}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important;width:auto;padding:0}.leaflet-container img.leaflet-tile{mix-blend-mode:plus-lighter}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}svg.leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline-offset:1px}.leaflet-container a{color:#0078a8}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;font-size:12px;font-size:.75rem;line-height:1.5}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:focus,.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block;font-size:13px;font-size:1.08333em}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.8);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333;line-height:1.4}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:focus,.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-attribution-flag{display:inline!important;vertical-align:baseline!important;width:1em;height:.6669em}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;white-space:nowrap;-moz-box-sizing:border-box;box-sizing:border-box;background:rgba(255,255,255,.8);text-shadow:1px 1px #fff}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;font-size:1.08333em;min-height:1px}.leaflet-popup-content p{margin:17px 0;margin:1.3em 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:0 0}.leaflet-container a.leaflet-popup-close-button:focus,.leaflet-container a.leaflet-popup-close-button:hover{color:#585858}.leaflet-popup-scrolled{overflow:auto}.leaflet-oldie .leaflet-popup-content-wrapper{-ms-zoom:1}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto}.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-interactive{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:""}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}@media print{.leaflet-control{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* ---- Leaflet.markercluster CSS (inlined) ---- */
+.leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
+	-webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
+	-moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
+	-o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
+	transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+}
+
+.leaflet-cluster-spider-leg {
+	-webkit-transition: -webkit-stroke-dashoffset 0.3s ease-out, -webkit-stroke-opacity 0.3s ease-in;
+	-moz-transition: -moz-stroke-dashoffset 0.3s ease-out, -moz-stroke-opacity 0.3s ease-in;
+	-o-transition: -o-stroke-dashoffset 0.3s ease-out, -o-stroke-opacity 0.3s ease-in;
+	transition: stroke-dashoffset 0.3s ease-out, stroke-opacity 0.3s ease-in;
+}
+
+  :root{
+    --bg-chrome:#1b2430;
+    --bg-chrome-alt:#212c3a;
+    --bg-chrome-alt2:#283544;
+    --parchment:#f3ecdc;
+    --parchment-alt:#eadfc6;
+    --ink:#2a2420;
+    --ink-soft:#5b5346;
+    --line:#3a4658;
+    --line-parchment:#cbb98c;
+    --gold:#c99a4a;
+    --gold-strong:#e0b567;
+    --text-light:#e9e2d0;
+    --text-light-soft:#9aa3b3;
+
+    --cat-person:#c0554a;
+    --cat-nation:#3f7ea6;
+    --cat-dynasty:#8259ac;
+    --cat-event:#c99a4a;
+    --cat-war:#8a3a3a;
+    --cat-revolution:#3f8f74;
+    --cat-treaty:#7a6a52;
+
+    --header-h:68px;
+    --footer-h:104px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-chrome);
+    color:var(--text-light);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.serif{ font-family:'Spectral',Georgia,serif; }
+
+  a{color:var(--gold-strong);}
+
+  :focus-visible{
+    outline:2px solid var(--gold-strong);
+    outline-offset:2px;
+  }
+
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ---------- Header ---------- */
+  #app-header{
+    height:var(--header-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+  }
+  #app-header h1{
+    margin:0;
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-light);
+  }
+  #app-header .subtitle{
+    margin:2px 0 0;
+    font-size:12px;
+    color:var(--text-light-soft);
+    font-family:'Inter',sans-serif;
+  }
+  .header-year{
+    text-align:right;
+  }
+  .header-year .label{
+    font-size:11px;
+    color:var(--text-light-soft);
+    display:block;
+    margin-bottom:2px;
+  }
+  .header-year .value{
+    font-family:'Spectral',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--gold-strong);
+    white-space:nowrap;
+  }
+
+  /* ---------- Main layout ---------- */
+  #main{
+    flex:1 1 auto;
+    display:flex;
+    min-height:0;
+  }
+
+  /* Sidebar */
+  #sidebar{
+    width:230px;
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    overflow-y:auto;
+  }
+  #sidebar h2{
+    font-size:14px;
+    font-weight:600;
+    margin:0 0 12px;
+    color:var(--text-light);
+  }
+  .filter-list{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:6px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .filter-row:hover{ background:var(--bg-chrome-alt2); }
+  .filter-row input[type="checkbox"]{
+    accent-color:var(--gold);
+    width:14px; height:14px;
+    flex:0 0 auto;
+  }
+  .swatch{
+    width:10px; height:10px;
+    border-radius:50%;
+    flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);
+  }
+  .filter-row .fname{
+    flex:1 1 auto;
+    font-size:13px;
+    color:var(--text-light);
+  }
+  .filter-row .fcount{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+
+  .filter-actions{
+    display:flex;
+    gap:10px;
+    margin:12px 0 18px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--gold-strong);
+    font-size:12px;
+    padding:0;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .link-btn:hover{ text-decoration:underline; }
+
+  .search-box{
+    margin-bottom:18px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .search-box label{
+    display:block;
+    font-size:12px;
+    color:var(--text-light-soft);
+    margin-bottom:6px;
+  }
+  .search-box input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--text-light);
+    font-size:13px;
+    padding:5px 2px;
+    font-family:'Inter',sans-serif;
+  }
+  .search-box input:focus{
+    border-bottom-color:var(--gold-strong);
+    outline:none;
+  }
+
+  .stats{
+    font-size:11.5px;
+    color:var(--text-light-soft);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+  .stats b{ color:var(--gold-strong); font-weight:600; }
+
+  /* Map */
+  #mapWrap{
+    flex:1 1 auto;
+    position:relative;
+    min-width:0;
+  }
+  #map{
+    position:absolute; inset:0;
+    background:var(--bg-chrome-alt);
+  }
+  .leaflet-tile-pane{
+    filter:grayscale(18%) sepia(10%) saturate(85%) contrast(0.96) brightness(0.97);
+  }
+  .entry-label{
+    background:rgba(27,36,48,.82) !important;
+    border:none !important;
+    box-shadow:none !important;
+    color:#f3ecdc !important;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    padding:1px 6px !important;
+    border-radius:3px !important;
+  }
+  .entry-label::before{ display:none; }
+
+  /* クラスター(ピンの重なり)アイコン */
+  .cluster-marker-wrap{ background:none !important; border:none !important; }
+  .cluster-badge{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--bg-chrome-alt2);
+    border:2px solid var(--gold-strong);
+    color:var(--gold-strong);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:12px; font-weight:600;
+    box-shadow:0 0 0 3px rgba(27,36,48,.55);
+  }
+  .leaflet-cluster-spider-leg{
+    stroke:var(--gold-strong) !important;
+    stroke-opacity:.6 !important;
+  }
+
+  /* Detail panel */
+  #detailPanel{
+    width:340px;
+    flex:0 0 auto;
+    background:var(--parchment);
+    color:var(--ink);
+    border-left:1px solid var(--line-parchment);
+    overflow-y:auto;
+    position:relative;
+    transition:margin-right .22s ease;
+  }
+  #detailPanel.hidden{
+    margin-right:-340px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #detailPanel{ transition:none; }
+  }
+  #closeDetail{
+    position:absolute;
+    top:12px; right:12px;
+    width:26px; height:26px;
+    border-radius:50%;
+    border:1px solid var(--line-parchment);
+    background:var(--parchment-alt);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+  }
+  #closeDetail:hover{ background:#e0d3ac; }
+  #detailContent{ padding:26px 22px 30px; }
+  .detail-badge{
+    display:inline-block;
+    font-size:11px;
+    color:#fff;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:12px;
+  }
+  #detailContent h3{
+    margin:0 0 6px;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .detail-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line-parchment);
+  }
+  .detail-meta div{ margin-top:3px; }
+  #detailContent p{
+    font-size:14px;
+    line-height:1.85;
+    color:var(--ink);
+    margin:0;
+  }
+  .desc-sections{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .desc-section{
+    padding-left:12px;
+    border-left:3px solid var(--line-parchment);
+  }
+  .desc-section.sec-background{ border-left-color:#3f7ea6; }
+  .desc-section.sec-process{ border-left-color:#c99a4a; }
+  .desc-section.sec-significance{ border-left-color:#3f8f74; }
+  .desc-section.sec-debate{ border-left-color:#8a3a3a; }
+  .desc-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .desc-section.sec-background .desc-label{ color:#3f7ea6; }
+  .desc-section.sec-process .desc-label{ color:#a67c2e; }
+  .desc-section.sec-significance .desc-label{ color:#2f7358; }
+  .desc-section.sec-debate .desc-label{ color:#8a3a3a; }
+  .desc-text{
+    font-size:13.5px;
+    line-height:1.8;
+    color:var(--ink);
+    margin:0;
+  }
+  .detail-empty{
+    padding:40px 22px;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.8;
+  }
+
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:1px solid var(--line-parchment);
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:4px;
+    margin-bottom:16px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .back-btn:hover{ background:var(--parchment-alt); }
+
+  .related-persons{
+    margin-top:22px;
+    padding-top:16px;
+    border-top:1px solid var(--line-parchment);
+  }
+  .related-persons h4{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-family:'Inter',sans-serif;
+  }
+  .related-persons ul{
+    list-style:none;
+    margin:0; padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+  }
+  .person-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    padding:9px 8px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  .person-list-item:hover{ background:var(--parchment-alt); }
+  .related-cat-badge{
+    display:inline-block;
+    font-size:9.5px;
+    color:#fff;
+    padding:1px 6px;
+    border-radius:3px;
+    margin-right:7px;
+    white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .person-name{
+    font-size:13.5px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .person-years{
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .related-persons-empty{
+    font-size:12px;
+    color:var(--ink-soft);
+    padding-top:2px;
+  }
+
+  /* Footer timeline */
+  #timeline{
+    height:var(--footer-h);
+    flex:0 0 auto;
+    background:var(--bg-chrome);
+    border-top:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:0 22px;
+  }
+  #playBtn{
+    flex:0 0 auto;
+    background:var(--bg-chrome-alt2);
+    border:1px solid var(--line);
+    color:var(--gold-strong);
+    border-radius:20px;
+    padding:9px 16px;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  #playBtn:hover{ background:#31405490; }
+
+  .timeline-track-wrap{
+    flex:1 1 auto;
+    position:relative;
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+  #yearSlider{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:2px;
+    background:var(--line-parchment);
+    outline:none;
+    margin:0;
+    display:block;
+  }
+  #yearSlider::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+    margin-top:0;
+  }
+  #yearSlider::-moz-range-thumb{
+    width:16px; height:16px;
+    border:none;
+    border-radius:50%;
+    background:var(--gold-strong);
+    box-shadow:0 0 0 4px rgba(224,181,103,.22);
+    cursor:pointer;
+  }
+  .ticks{
+    position:relative;
+    height:16px;
+    margin-top:6px;
+  }
+  .tick{
+    position:absolute;
+    top:0;
+    transform:translateX(-50%);
+    font-size:10.5px;
+    color:var(--text-light-soft);
+    white-space:nowrap;
+  }
+  .tick::before{
+    content:"";
+    position:absolute;
+    top:-16px; left:50%;
+    width:1px; height:6px;
+    background:var(--line);
+  }
+
+  .speed-control{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .speed-control label{
+    font-size:11px;
+    color:var(--text-light-soft);
+  }
+  .speed-control select{
+    background:var(--bg-chrome-alt2);
+    color:var(--text-light);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:6px 8px;
+    font-size:12px;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* Responsive: narrow screens */
+  @media (max-width: 760px){
+    #sidebar{
+      width:100%;
+      position:absolute;
+      z-index:900;
+      height:auto;
+      max-height:55%;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+    }
+    #detailPanel{
+      position:absolute;
+      right:0; left:0; top:auto; bottom:0;
+      width:auto;
+      height:60%;
+      border-left:none;
+      border-top:1px solid var(--line-parchment);
+      transition:transform .22s ease;
+      z-index:950;
+    }
+    #detailPanel.hidden{
+      margin-right:0;
+      transform:translateY(100%);
+    }
+    #timeline{ gap:10px; padding:0 12px; }
+    .speed-control label{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <header id="app-header">
+    <div>
+      <h1>北米史 地図で学ぶ世界史</h1>
+      <p class="subtitle">先コロンブス期(紀元前1500年頃)〜 西暦2025年 ・ 高校世界史探究 学習用</p>
+    </div>
+    <div class="header-year">
+      <span class="label">現在の年代</span>
+      <span class="value" id="yearDisplay">西暦1750年</span>
+    </div>
+  </header>
+
+  <div id="main">
+
+    <aside id="sidebar">
+      <h2>ジャンルで絞り込み</h2>
+      <div class="filter-list" id="filterList"></div>
+      <p style="font-size:11px; color:var(--text-light-soft); line-height:1.6; margin:8px 2px 0;">
+        ※人物は単独のピンではなく、関連する国家・王朝のピンをクリックした先の一覧から見られます。
+      </p>
+
+      <div class="filter-actions">
+        <button class="link-btn" id="selectAllBtn">すべて表示</button>
+        <button class="link-btn" id="selectNoneBtn">すべて解除</button>
+      </div>
+
+      <div class="search-box">
+        <label for="searchInput">名称で検索</label>
+        <input type="text" id="searchInput" placeholder="例: ワシントン、独立戦争">
+      </div>
+
+      <div class="stats">
+        <b id="visibleCount">0</b> 件を表示中 / 全 <b id="totalCount">0</b> 件のデータ
+      </div>
+    </aside>
+
+    <div id="mapWrap">
+      <div id="map"></div>
+    </div>
+
+    <aside id="detailPanel" class="hidden">
+      <button id="closeDetail" aria-label="閉じる">×</button>
+      <div id="detailContent">
+        <div class="detail-empty">地図上のピンをクリックすると、ここに詳しい解説が表示されます。</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer id="timeline">
+    <button id="playBtn">▶ 再生</button>
+    <div class="timeline-track-wrap">
+      <input type="range" id="yearSlider" min="-1500" max="2025" step="1" value="1750">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <div class="speed-control">
+      <label for="speedSelect">速度</label>
+      <select id="speedSelect">
+        <option value="1">×1</option>
+        <option value="5" selected>×5</option>
+        <option value="20">×20</option>
+        <option value="50">×50</option>
+      </select>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================================
+   北米史 地図アプリ — データ本体
+   -------------------------------------------------------------------------
+   ジャンル(category)は以下の7種:
+     person     人物
+     nation     国家
+     dynasty    王朝・王統
+     event      事件・出来事
+     war        戦争・戦い
+     revolution 革命
+     treaty     条約
+
+   各エントリの形式:
+   {
+     id:       一意の文字列ID
+     name:     表示名(日本語)
+     category: 上記7種のいずれか
+     lat, lng: 地図上の座標(代表都市・場所)
+     start:    存在/在位/発生開始年(西暦。紀元前はマイナスで表現。例: 紀元前500年 = -500)
+     end:      終了年(単発の出来事は start と同じか、数年程度の幅を持たせる)
+     region:   地域・国名の補助タグ
+     desc:     詳細説明文
+   }
+
+   ★ データは先コロンブス期の中南米・北米先住民文明から、ヨーロッパ人の
+     到達・植民地化、アメリカ独立、南北戦争、カナダ連邦成立、メキシコ
+     独立・革命、二度の世界大戦、公民権運動、冷戦、現代までを扱う。
+   ========================================================================= */
+
+const historicalData = [
+  // ===================== 先コロンブス期:メソアメリカ文明 =====================
+  { id:'olmec_civilization', name:'オルメカ文明', category:'nation', lat:18.10, lng:-94.04, start:-1200, end:-400, region:'メキシコ湾岸(現ベラクルス・タバスコ州)',
+    desc:{background:'メキシコ湾岸の湿潤な低地でトウモロコシ農耕による余剰生産が生まれ、ジャガー信仰と結びついた祭祀的権威を持つ首長層が台頭したことが、高度な文明形成の基盤となった。', process:'巨石人頭像(支配者の肖像とされる)や基壇・広場を備えた計画的な祭祀センター(サン=ロレンソ、次いでラ=ベンタ)を築き、カカオ・ヒスイ・黒曜石を介した広域交易網を通じてメソアメリカ各地にオルメカ様式の図像やジャガー=人間の融合モチーフを波及させたが、前400年頃までに主要中心地は環境変化や交易路の変化により放棄された。', significance:'後続のマヤ・サポテカ・アステカなど諸文明に共通する宗教観・美術様式・暦法・球技の原型を築いたことから「母なる文明」と呼ばれ、その宗教的・社会的制度は後代文明に継承されメソアメリカ文明圏の連続性の出発点となった。', debate:'単一の政治的帝国としてではなく複数の中心地が交替しながら文化的雛型を伝播させた「様式圏」として理解すべきか、それとも実質的な支配圏を持つ政体であったかという解釈が、メソアメリカ考古学における「母文化論」対「姉妹文化論」の論争として続いている。'} },
+  { id:'teotihuacan', name:'テオティワカン', category:'nation', lat:19.69, lng:-98.84, start:-100, end:750, region:'メキシコ中央高原',
+    desc:{background:'メキシコ中央高原の盆地という交易上の要衝に、黒曜石加工品の生産・交易を基盤とする都市国家が形成され、周辺農村から人口を集住させる都市計画が進んだことが繁栄の背景となった。', process:'南北の軸線(死者の大通り)に沿って「太陽のピラミッド」「月のピラミッド」を配する厳格な都市計画のもと多民族的な都市社会を形成し、羽毛の蛇の宗教体系の輸出などを通じマヤ地域(ティカルなど)にまで政治的・文化的影響を及ぼしたが、8世紀半ばに中心部の神殿群が意図的に焼き払われて急速に衰退した。', significance:'最盛期には人口10万人を超えたメソアメリカ最大級の古代都市として、後代のアステカ人からは自らの起源神話と結びつく「神々の生まれた都市」として神聖視・巡礼の対象とされた。', debate:'都市を築いた民族系統や統治形態(単独の王権か複数集団による集団指導か)を示す文字資料は乏しく、中心部破壊の原因(外敵の侵攻か内部の社会的反乱か)を文字史料なしに考古学的に再構成するという研究課題自体が、メソアメリカ史研究の方法論を考える好例となっている。'} },
+  { id:'maya_civilization', name:'マヤ文明', category:'nation', lat:20.68, lng:-88.57, start:-1000, end:1697, region:'ユカタン半島・メソアメリカ南部',
+    relatedIds:['palenque_dynasty','spanish_conquest_maya'],
+    desc:{background:'メソアメリカ南部の熱帯雨林という多様な生態環境の中、独自の水利・農業技術と精緻な暦法・二十進法(ゼロの概念を含む)、表語・音節文字体系を発展させたことが、この文明の知的基盤となった。', process:'パレンケ・ティカル・カラクムル・チチェン=イツァーなど多数の「聖なる王」を戴く都市国家が婚姻同盟と戦争を繰り返しながら覇権を争う、ギリシアのポリス世界にも似た政治的に分裂した世界を築き、古典期(3〜9世紀)に天文観測に基づく暦法運用と壮大なピラミッド神殿建築が花開いたが、9〜10世紀にかけて南部低地の諸都市が数十年の間に相次いで放棄される「古典期崩壊」を迎えた。', significance:'現存するメソアメリカ唯一の完全な文字体系により王朝の系譜・戦争・儀礼など具体的な歴史叙述が可能となり、北部ユカタンでは後古典期以降も都市国家が存続、16世紀のスペイン人到来後も内陸ペテン地方のイツァ族が1697年まで独立を保つなど、先住民勢力の抵抗の持続性を示す事例としても重要である。', debate:'エジプトやメソポタミアのような単一の中央集権的「帝国」を持たなかった政治的分裂状態を、政治的未成熟とみるか、むしろメソアメリカ的な多極的国家形態の洗練された一形態とみるかで評価が分かれ、「古典期崩壊」の原因(長期化する干魃・人口過密・都市間戦争激化)も複合的要因のどこに力点を置くかで議論が続く。'} },
+  { id:'palenque_dynasty', name:'パレンケ王朝(キニチ・ハナアブ・パカル)', category:'dynasty', parentId:'maya_civilization', lat:17.48, lng:-92.04, start:431, end:799, region:'マヤ文明(パレンケ)',
+    desc:{background:'マヤ古典期の有力都市国家パレンケが、隣接するカラクムルとの対立で一時劣勢に立たされていたことが、7世紀の王パカルによる立て直しの背景となった。', process:'パカル(在位615〜683年)は王朝を立て直し都市を大規模に拡張して自らの葬祭複合体「碑文の神殿」を建設し、神殿内部の墓室に精巧な翡翠の仮面と石棺の浮き彫りを伴う自身の遺体を安置させた。', significance:'この墓は1952年に考古学者アルベルト=ルスにより発見され、神官階級のみの祭祀空間と考えられていたマヤのピラミッド神殿が実は王墓としても機能していたことを実証し、石棺を囲む碑文は音節文字解読の進展と相まってマヤの王権観・歴史記述の実態を解明する最重要の一次史料群を提供している。', debate:'この発見以前の「神殿=祭祀空間のみ」という理解がどこまで他のマヤ遺跡の解釈にも影響していたか、王墓としての機能をめぐる再評価がマヤ考古学全体に及ぼした方法論的影響が論じられる。'} },
+  { id:'toltec_civilization', name:'トルテカ文明', category:'nation', lat:20.06, lng:-99.34, start:900, end:1168, region:'メキシコ中央高原(トゥーラ)',
+    desc:{background:'テオティワカン崩壊後の政治的空白期を経て、メキシコ中央高原に軍事的色彩の強い新たな文明が台頭する条件が整っていた。', process:'首都トゥーラを拠点に戦士像(アトランテス柱)や生贄の心臓を捧げる「チャクモール像」に象徴される好戦的・征服的な国家理念を発展させ、ユカタン半島のチチェン=イツァーに酷似した建築様式が確認されることから両地域間で軍事的征服ないし政治的同盟を伴う人的移動があったと考えられている。', significance:'後の15世紀に台頭したアステカ人はトルテカを高度な工芸・知恵の体現者として理想化し、自らの王統をトルテカの正統な後継者と位置づける建国神話(ケツァルコアトル伝承との結合)を通じて政治的正統性の根拠とした。', debate:'チチェン=イツァーとの様式的類似を軍事的征服とみるか交易・婚姻を通じた平和的な文化伝播とみるかで、メソアメリカ史における「トルテカ影響論」をめぐる論争が続いている。'} },
+  { id:'aztec_empire', name:'アステカ帝国(メシカ三都市同盟)', category:'nation', lat:19.43, lng:-99.13, start:1428, end:1521, region:'メキシコ中央高原(テノチティトラン)',
+    relatedIds:['tenochtitlan_dynasty','spanish_conquest_aztec','moctezuma_ii','cuauhtemoc'],
+    desc:{background:'テスココ湖上の島という防御に適した立地と、周辺諸都市の対立関係を利用できる政治状況が、三都市同盟(トリプル・アリアンサ)結成による覇権国家形成を可能にした。', process:'征服した被支配都市の現地支配層を存続させたまま定期的な貢納を課す間接支配体制のもと、太陽神ウィツィロポチトリ信仰に基づく大規模な人身供犠を伴う軍事的拡張を進め、湖上農法(チナンパ)による高い農業生産性と発達した交易経済によって都市文明を支えたが、1519年のスペイン人コルテスの来航と被支配諸都市の離反、天然痘の流行という複合的要因により1521年の首都陥落をもって滅亡した。', significance:'湖上都市という特異な立地に築かれた高度な都市計画は限られた土地条件下での高密度な人口扶養の実現例として評価され、滅亡後メキシコはスペイン植民地ヌエバ=エスパーニャとして再編された。', debate:'この統治の緩やかな間接支配体制こそが、スペイン人到来時に被支配都市(特にトラスカラ)の離反を招く構造的弱点となったとされ、大規模な人身供犠の実態(規模・頻度)についてもスペイン側記録の誇張の可能性が指摘され評価が分かれている。'} },
+  { id:'tenochtitlan_dynasty', name:'テノチティトラン歴代トラトアニ', category:'dynasty', parentId:'aztec_empire', lat:19.43, lng:-99.13, start:1375, end:1521, region:'アステカ帝国',
+    desc:{background:'初代アカマピチトリに始まる系譲の中、第4代イツコアトルの代に三都市同盟を結成したことが、隷属都市から覇権国家へ飛躍する画期となった。', process:'トラトアニは世襲ではなく有力貴族の中から選出される仕組みをとり、この選出制と軍事的実績の重視が拡張主義的国家性格を支え、モクテスマ1世・アシャヤカトル・アウィツォトルの代に軍事的拡張を推し進めて帝国の最大版図を実現した。', significance:'第9代モクテスマ2世の代でスペイン人との接触・征服という文明の断絶を迎え、最後のトラトアニ・クアウテモクの処刑をもって450年近く続いた王統は完全に断絶した。', debate:'世襲ではなく選出制であったことが、アステカの拡張主義的性格をどこまで規定していたか、統治の正統性の源泉としての選出制の意味が論じられる。'} },
+  { id:'moctezuma_ii', name:'モクテスマ2世', category:'person', parentId:'tenochtitlan_dynasty', lat:19.43, lng:-99.13, start:1466, end:1520, region:'アステカ帝国',
+    desc:{background:'即位後に帝国領域をさらに拡大し宗教的権威も強化していた状況の中、1519年のコルテス来航という予期せぬ事態に直面したことが、彼の運命を決定づけた。', process:'羽毛の蛇の神ケツァルコアトルの帰還を予言する伝承との連想もあり当初は融和的・観察的な姿勢で迎え入れたが、結果的にテノチティトラン入城を許し事実上の人質状態に置かれ、被支配都市への統制力も急速に失った。1520年、蜂起した民衆に取り囲まれる中で死亡した。', significance:'この指導者の喪失と統治の空白こそが征服を決定づける最大の要因となり、征服史における「なぜ少数のスペイン人が大帝国を打倒し得たか」という中心的な論点と直結している。', debate:'ケツァルコアトル帰還伝承との連想による融和策という解釈は後世の脚色を含むとする説が有力であり、モクテスマの対応(融和か抗戦か)の評価はスペイン側記録とアステカ側の記憶(民衆に見限られた指導者)とで大きく異なる。'} },
+  { id:'cuauhtemoc', name:'クアウテモク', category:'person', parentId:'tenochtitlan_dynasty', lat:19.43, lng:-99.13, start:1495, end:1525, region:'アステカ帝国',
+    desc:{background:'天然痘の大流行と前任トラトアニ・クイトラワクの急死という混乱の中で即位したことが、彼に徹底抗戦を指揮する困難な立場を強いた。', process:'包囲されたテノチティトランで市街戦にまで及ぶ徹底抗戦を指揮したが1521年の陥落により捕虜となり、財宝の隠し場所を吐かせるため足を焼く拷問を受けたが最後まで口を割らなかったとされ、後にコルテスのホンジュラス遠征に同行させられた末、反乱の疑いをかけられて処刑された。', significance:'この逸話は植民地支配に屈しなかった先住民の尊厳の象徴として語り継がれ、19世紀以降のメキシコ国民国家形成期には「最初の国民的英雄」として再評価され、先住民の過去とクリオーリョ社会の融合というナショナル・アイデンティティ構築において重要な象徴的役割を担っている。', debate:'拷問に耐えた逸話の史実性と、それが後世どこまで英雄化・脚色されたかについて、征服史料の性格を踏まえた史料批判が求められる。'} },
+
+  // ===================== 先コロンブス期:北米先住民の文明・諸部族 =====================
+  { id:'ancestral_puebloans', name:'古代プエブロ人(アナサジ)', category:'nation', lat:36.06, lng:-107.96, start:-1200, end:1300, region:'北米南西部(現ニューメキシコ・アリゾナ)',
+    desc:{background:'現在のアメリカ南西部の乾燥地帯という厳しい環境条件のもと、天文観測に基づく儀礼を伴う複合住居を中心地とする広域的な宗教・交易ネットワーク形成が進んだことが背景にある。', process:'崖に沿った集合住居(クリフ=ドウェリング、代表例はメサ=ヴェルデ)や太陽暦・宗教儀礼のための地下祭祀場(キヴァ)を築き、チャコ峡谷では30以上の衛星集落を放射状の道路網で結ぶ複合住居(プエブロ=ボニート)を中心地とし、トウモロコシ・豆・カボチャの農耕(三姉妹作物)と灌漑技術を発達させた。', significance:'樹木年輪年代学の研究により13世紀後半に数十年続く深刻な長期干魃があったことが実証されており、これを主因として集落が放棄され、現在のホピ族やズニ族などプエブロ諸部族の祖先が水資源の豊かな周辺地域へ分散移住した。', debate:'乾燥地帯における気候変動と文明の存続可能性という論点を考える上で重要な事例であり、放棄の要因を気候変動のみに帰すか社会的緊張との複合要因とみるかで議論がある。'} },
+  { id:'cahokia_mounds', name:'カホキア(ミシシッピ文化)', category:'nation', lat:38.66, lng:-90.06, start:600, end:1400, region:'北米中西部(現イリノイ州)',
+    desc:{background:'ミシシッピ川流域の農耕文明「ミシシッピ文化」の中で、五大湖から湾岸地域に至る広域交易網の結節点という地理的条件が、大規模な都市的集落の形成を可能にした。', process:'北米先住民が築いた最大の土製ピラミッド「モンクス=マウンド」を中心に、儀礼用広場・木柱を用いた天文観測施設(通称「ウッドヘンジ」)を配する計画的な都市構造を持ち、トウモロコシ農耕を基盤とする顕著な階層社会(支配者の埋葬に多数の殉葬者を伴う事例)を築いたが、14世紀にかけて気候寒冷化や森林伐採による資源枯渇、社会的緊張の高まりが複合的に作用して急速に衰退・放棄された。', significance:'最盛期には人口1万〜2万人規模に達したコロンブス以前の北米大陸最大の都市的集落として、同時代のヨーロッパの都市に匹敵する複雑な社会組織を有していたことが近年の考古学研究で明らかになっている。', debate:'衰退の原因(気候寒冷化・資源枯渇・社会的緊張のいずれが主因か)は今なお活発な研究対象であり、その解明は北米先住民文明の存続可能性を考える環境考古学上の重要課題である。'} },
+  { id:'iroquois_confederacy', name:'イロコイ連邦(ホデノショニ)', category:'nation', lat:43.05, lng:-76.15, start:1142, end:1783, region:'北米北東部(現ニューヨーク州)',
+    desc:{background:'部族間の血讐の連鎖を断ち切る必要から、伝承では平和の使者ディガナウィダとハイアワサの呼びかけにより5部族の連合結成が図られたことが背景にある。', process:'各部族の代表からなる評議会(グレート=ロー=オブ=ピース)を通じた全会一致に基づく合意形成の仕組みと、母系制社会を反映した女性長老(クラン=マザー)による首長罷免権など高度に制度化された統治原理を備え、毛皮交易・領土紛争をめぐり英仏植民地勢力とも複雑な同盟関係を結んだが、独立戦争では部族間で対応(親英・親米)が分かれて連邦自体が事実上分裂した。', significance:'この分権的で権力の集中を避ける統治構造は、18世紀にベンジャミン=フランクリンら建国の父祖たちが実見して強い印象を受けたとされ、後のアメリカ合衆国憲法における連邦制構想に一定の示唆を与えたとする説がある。', debate:'イロコイの統治原理がアメリカ合衆国憲法に直接的な制度移植を与えたとする説と、多様な統治モデルの一つとして参照されたにすぎないとする穏当な理解との間で、その影響の程度をめぐり議論がある。'} },
+  { id:'powhatan_confederacy', name:'ポウハタン連合', category:'nation', lat:37.50, lng:-77.00, start:1570, end:1646, region:'北米東海岸(現バージニア州)',
+    desc:{background:'チェサピーク湾岸の約30部族を統合した首長ポウハタンの連合体が、1607年の入植者到来という新たな事態に直面したことが、以後の関係の出発点となった。', process:'当初は先進的な農耕技術の欠如に苦しむ入植者へ食料を供給するなど交易・同盟関係を築き、首長の娘ポカホンタスの結婚は一時的な和平の象徴ともなったが、タバコ栽培の急拡大に伴う入植地拡大が緊張を再燃させ、1622年と1644年の二度にわたる大規模な武力蜂起(アングロ・ポウハタン戦争)へと発展した。', significance:'植民地側は圧倒的な人口増加と火器の優位を背景に反撃し、1646年の講和条約でポウハタン連合は事実上解体、生存者は限定された保留地への移住を強いられた。', debate:'この経過は北米東海岸における英植民地拡大が先住民社会の解体を伴う不可逆的な過程であったことを示す最初期の典型例として、以後の先住民政策の原型をどこまで規定したかが論じられる。'} },
+  { id:'cherokee_nation', name:'チェロキー族', category:'nation', lat:35.47, lng:-83.31, start:1450, end:1907, region:'北米南東部(現ジョージア・テネシー周辺)',
+    relatedIds:['trail_of_tears','sequoyah'],
+    desc:{background:'18世紀末以降、私有農地制・独自の文字による識字率向上・キリスト教への改宗・成文憲法に基づく共和政的統治機構を整備するなど、白人社会の制度を自発的かつ急速に取り入れたことが背景にある。', process:'「文明化五部族」と呼ばれるまでの同化努力にもかかわらず、1828年に部族領内で金鉱が発見されるとジョージア州は連邦法を無視して部族の土地・自治権を一方的に剥奪する州法を制定し、連邦最高裁が『ウスター対ジョージア州』判決(1832年)でチェロキー族の主権的地位を認めたにもかかわらず、ジャクソン大統領はこの判決の執行を事実上拒否した。', significance:'1830年の強制移住法に基づき1838〜39年の「涙の道」で人口の4分の1近くを失いながらオクラホマ準州への移住を強いられ、この事例は「法の判断が政治権力によって無視される」という司法と行政の緊張関係を考える上で重要な先例とされる。', debate:'「文明化」による同化努力が結果的に政治的保護に結びつかなかったという歴史の非情さを、部族側の戦略の限界とみるか、そもそも同化がどれほど進んでも人種主義的な排除は避けられなかったとみるかで議論がある。'} },
+  { id:'sequoyah', name:'セコイア', category:'person', parentId:'cherokee_nation', lat:35.47, lng:-83.31, start:1770, end:1843, region:'チェロキー族',
+    desc:{background:'欧米の識字文化に触発されたことが、文字を持たなかったチェロキー語に単独で表記法を創造する動機となった。', process:'約12年をかけてチェロキー語の音節文字体系(86の音節記号)を考案し、短期間で高い識字率をもたらし、1828年には北米先住民初の新聞『チェロキー・フェニックス』が英語・チェロキー語併記で発行された。', significance:'文字を持たない言語に体系的な表記法を単独で創造した事例として言語学史上も極めて稀有な業績とされ、部族の自治機構整備と「文明化五部族」としての地位確立を大きく支えた。', debate:'この文化的達成にもかかわらず部族は1830年代に連邦政府の強制移住政策(涙の道)を免れることはできず、文化的な「近代化」の達成が政治的な保護には直結しなかったという歴史の非情さを象徴する事例として位置づけられる。'} },
+
+  // ===================== ヨーロッパ人の到達・探検 =====================
+  { id:'vinland_norse', name:'ヴィンランドへのノルド人到達', category:'event', lat:51.60, lng:-55.53, start:1000, end:1021, region:'北米大西洋岸(現ニューファンドランド)',
+    desc:{background:'アイスランド・グリーンランドを拠点としたノルド人(バイキング)の航海活動の拡大が、レイフ=エリクソンによる北米大陸北東岸への到達を可能にした。', process:'『赤毛のエイリークのサガ』などに「ヴィンランド」と記される地に到達し一時的な定住拠点(現ランス=オー=メドウズ遺跡)を築いたが、先住民との関係悪化や本国からの補給の困難、グリーンランド植民地自体の人口的脆弱性から定住は長続きせず数年で放棄された。', significance:'20世紀の考古学調査(鍛冶炉や木製品の発見と年代測定)によりコロンブス以前のヨーロッパ人による北米到達が実証され、大西洋を挟んだ両大陸の「接触」がコロンブスに始まるという通説を相対化した。', debate:'新大陸発見史を単線的な「発見」の物語としてではなく、複数回にわたる断続的接触の歴史として捉え直すべきかという視点が、この事例を通じて提起されている。'} },
+  { id:'columbus_voyage', name:'コロンブスの新大陸到達', category:'event', lat:24.02, lng:-74.47, start:1492, end:1492, region:'カリブ海(バハマ諸島)',
+    desc:{background:'地球球体説とアジアの富(マルコ=ポーロの記述に基づく)を根拠に、スペイン女王イサベル1世・国王フェルナンド2世が西回りでのアジア到達を企図する航海を支援したことが背景となった。', process:'コロンブスが大西洋を横断しカリブ海の島(サン=サルバドル島)に到達したが、当初の目的(アジア航路開拓)は果たされず、コロンブス自身は生涯これを「西インド」と誤認し続けた。', significance:'両半球間で作物・家畜・疫病・人間集団が交換される「コロンブス交換」が始まり、先住民人口の壊滅的な減少とヨーロッパの世界経済への包摂という、以後数世紀にわたる世界史の構造そのものを規定する事件となり、トルデシリャス条約(1494年)によるスペイン・ポルトガル間の勢力圏分割にも直結した。', debate:'コロンブスを「新大陸発見の英雄」とみるか、コロンブス交換がもたらした先住民社会破壊の起点とみるかで評価が大きく分かれ、大航海時代の世界史的意義の光と影をどう総括するかが論じられる。'} },
+  { id:'cabot_newfoundland', name:'カボットの北米大陸到達', category:'event', lat:47.56, lng:-52.71, start:1497, end:1497, region:'北米大西洋岸(現ニューファンドランド)',
+    desc:{background:'コロンブスに触発されつつ、スペイン・ポルトガルに出遅れていたイングランドが北米進出の足がかりを求めていたことが、ヘンリー7世によるカボットへの勅許の背景となった。', process:'ジェノヴァ出身のジョン=カボットが大西洋を横断し北米大陸(現ニューファンドランド島周辺)に到達し、より北方の航路からアジアへの短距離到達(北西航路)を狙ったが目的自体は果たされなかった。', significance:'この到達はイングランドが北米進出の法的根拠(先占権の主張)として後年繰り返し援用する重要な先例となり、報告された豊かな漁場(グランドバンクス)は以後数世紀にわたり欧州漁民が季節的に北米沿岸へ往来する契機となって恒久的な入植・植民地建設の下地を形成した。', debate:'単なる探検にとどまらない経済史的意義を持つこの到達が、後のイングランドの北米進出戦略においてどこまで意識的に参照されたかが論じられる。'} },
+
+  // ===================== スペインによるメソアメリカ征服とヌエバ・エスパーニャ =====================
+  { id:'hernan_cortes', name:'エルナン・コルテス', category:'person', parentId:'new_spain', lat:19.17, lng:-96.13, start:1485, end:1547, region:'ヌエバ・エスパーニャ',
+    desc:{background:'キューバ総督ベラスケスの遠征命令を事実上無視し独断で艦隊を率いてメキシコ湾岸に上陸するという、コンキスタドール個人の野心に基づく決死の行動が出発点となった。', process:'先住民出身の通訳マリンチェの助力を得てアステカへの貢納に不満を持つ被支配都市トラスカラなどとの同盟を巧みに構築し、アステカ帝国内部の政治的亀裂を最大限利用して「悲しみの夜」での壊滅的打撃からも体制を立て直し1521年にテノチティトランを陥落させた。', significance:'ヌエバ=エスパーニャ総督として植民地統治の基礎(エンコミエンダ制の導入)を築いたが、その独断専行と巨大な権力・富の掌握を本国スペイン王権が警戒し、次第に権限を剥奪されて晩年は不遇のうちに本国で没した。', debate:'この経緯は、遠征を担った現地征服者(コンキスタドール)の自律的な権力拡大を、本国の中央集権的官僚統治(副王制)がいかに掣肘していったかという、スペイン帝国統治の構造的緊張を示す典型例として論じられる。'} },
+  { id:'spanish_conquest_aztec', name:'アステカ帝国の征服', category:'war', lat:19.43, lng:-99.13, start:1519, end:1521, region:'メキシコ中央高原',
+    desc:{background:'アステカへの貢納に不満を抱く被支配都市トラスカラ・テスココなどの存在が、わずか約600人のスペイン人による征服を可能にする決定的な条件を提供した。', process:'鉄製武器・馬・大砲という軍事技術の優位と被支配都市の離反というアステカの間接統治体制固有の弱点を突いて緒戦は成功したが、「悲しみの夜」ではアステカ側の反撃でスペイン側が壊滅的損害を被り、体制を立て直したコルテスは1521年に水陸両面からの包囲戦と兵糧攻めによって数か月に及ぶ攻城戦の末にテノチティトランを陥落させた。', significance:'免疫を持たない先住民人口を直撃した天然痘の大流行がスペイン側の勝利を決定づける最大の要因として作用したことが近年の研究で強調されており、以後メキシコはスペイン植民地ヌエバ=エスパーニャとして再編された。', debate:'征服は軍事力のみならず「旧世界の病原体」という生物学的要因によって成し遂げられた点が重要であり、軍事技術・同盟戦略・疫病のいずれを主要因とみるかで力点が分かれる。'} },
+  { id:'spanish_conquest_maya', name:'ユカタン・マヤ地域の征服', category:'war', lat:20.68, lng:-88.57, start:1527, end:1697, region:'ユカタン半島',
+    desc:{background:'アステカのような単一の中央権力を持たず多数の独立した都市国家・部族に分裂していたマヤ地域では、征服者が交渉・服属させるべき相手が固定されず抵抗が各地で個別に継続する構造があった。', process:'フランシスコ=デ=モンテホ父子らによる複数次の遠征でユカタン半島北部は16世紀半ばまでに制圧されたが、山岳部や密林地帯を拠点とする集団の抵抗は根強く、内陸ペテン地方の湖上都市を拠点としたイツァ族は独立を保ち続け、最終的に1697年の遠征で首都タヤサルが陥落してようやく制圧された。', significance:'アステカ征服(実質2年)に比べ170年以上という桁違いの長期間を要したこの事象は、征服史・比較政治史上重要な論点を提示する事例となっている。', debate:'中央集権的な政治統合の度合いが低い社会の方が、単一の指導者を排除すれば全体が崩壊する中央集権国家よりもかえって外来勢力への抵抗力が高いという逆説が、この長期化から導かれる重要な論点である。'} },
+  { id:'new_spain', name:'ヌエバ・エスパーニャ副王領', category:'nation', lat:19.43, lng:-99.13, start:1521, end:1821, region:'メキシコ・北米南西部・中米',
+    relatedIds:['hernan_cortes','santa_fe_founding','mexican_independence_war'],
+    desc:{background:'アステカ征服という軍事的達成の後、本国王権が任命する副王のもとでの官僚制統治体制を樹立する必要が生じたことが背景となった。', process:'銀鉱山開発による莫大な富の本国送還を経済基盤とし、先住民への強制労働・貢納制度(エンコミエンダ、後にレパルティミエント)とカトリック布教を統治の両輪とし、現在の米国南西部にも布教・入植の手を広げたが、本国生まれの白人(ペニンスラール)が要職を独占する構造への不満から現地生まれの白人(クリオーリョ)層の疎外感が18世紀を通じて蓄積した。', significance:'ナポレオンによるスペイン本国占領(1808年)を機とする王権の正統性動揺を契機として1810年代の独立戦争へと発展し、1821年の独立をもって300年に及ぶ植民地支配は幕を閉じた。', debate:'ペニンスラールとクリオーリョの身分的対立が独立運動を決定づけた主因かどうか、また銀経済への依存がこの副王領の統治構造にどこまで規定的であったかが論じられる。'} },
+  { id:'santa_fe_founding', name:'サンタフェの建設', category:'event', lat:35.69, lng:-105.94, start:1610, end:1610, region:'ヌエバ・エスパーニャ北方辺境(現ニューメキシコ)',
+    desc:{background:'ヌエバ=エスパーニャが北方辺境の統治拠点を必要とし、プエブロ諸族への布教・支配の拠点として建設したことが背景にある。', process:'フランシスコ会士による強制的な改宗と伝統宗教儀礼の弾圧、労働力徴発への反発が長年蓄積した結果、1680年に指導者ポペを中心にプエブロ諸族が広域的に連携した大規模な蜂起(プエブロ・レボルト)が発生し、スペイン人入植者はこの地域から完全に駆逐された。', significance:'北米大陸における先住民蜂起として稀有な成功例を記録し、12年後の1692年にスペインが再征服に成功した後は先住民の宗教慣行への一定の融和策がとられるようになり、現在まで続くプエブロ諸族の文化的連続性の一因となった。', debate:'この蜂起の成功が一時的なものにとどまったにもかかわらず、その後の統治姿勢の融和化という長期的な変化をもたらした点をどう評価するか、抵抗の「成果」の測り方が論じられる。'} },
+  { id:'st_augustine_founding', name:'セントオーガスティンの建設', category:'event', lat:29.90, lng:-81.31, start:1565, end:1565, region:'ヌエバ・エスパーニャ(現フロリダ州)',
+    desc:{background:'カリブ海とヨーロッパを結ぶメキシコ・ペルーからの銀を輸送する財宝船団の航路(メキシコ湾流)を防衛する必要が、この要塞都市建設の戦略的背景となった。', process:'先行して建設されていたフランス人入植拠点(ユグノー教徒によるフォート=カロライン)を武力で排除した上で建設され、以後たびたびイングランド海賊やジョージア植民地からの攻撃を受けながらも、1819年のアダムズ=オニス条約でフロリダがアメリカに割譲されるまで250年以上にわたりスペイン領として存続した。', significance:'現在の合衆国本土に現存する最古のヨーロッパ人建設都市として、北米大陸におけるスペイン・フランス・イングランド三国間の初期の植民地争奪戦の性格を象徴している。', debate:'この争奪戦を単なる入植地の建設競争とみるか、カリブ海貿易ルートの防衛という戦略的要請と密接に結びついた地政学的競争とみるかが論じられる。'} },
+  // ===================== 北米植民地時代(英・仏・蘭) =====================
+  { id:'jamestown_founding', name:'ジェームズタウン建設', category:'event', lat:37.21, lng:-76.78, start:1607, end:1607, region:'イングランド植民地(現バージニア州)',
+    desc:{background:'ヴァージニア会社という国王の勅許を得た営利目的の株式会社の出資により、北米における最初の永続的なイングランド人植民地建設が図られたことが背景となった。', process:'金銀の発見という当初の期待は外れ疫病・飢餓(1609〜10年の「飢餓の時代」)で存続自体が危ぶまれる苦境が続いたが、ジョン=ロルフによるタバコ栽培の導入(1612年)が本国での大流行と相まって輸出産業として成功し、植民地の経済的自立を可能にした。', significance:'1619年には北米初の代議制機関(バージニア会社総会)が開かれて自治の伝統が始まる一方、同年最初のアフリカ人が植民地に到着したことも記録されており、両者は後の南部プランテーション経済における議会制自治と奴隷制の並存という構造の起点をなす象徴的事例とされる。', debate:'経済的成功(タバコ)を可能にした労働力需要の高まりが、自治(代議制)と奴隷制という対照的な二つの制度を同時に生んだという逆説をどう理解すべきかが論じられる。'} },
+  { id:'john_smith', name:'ジョン・スミス', category:'person', parentId:'thirteen_colonies', lat:37.21, lng:-76.78, start:1580, end:1631, region:'ジェームズタウン植民地',
+    desc:{background:'飢餓と統率の乱れ(入植者の多くが金鉱探しに執着し農耕を怠ったこと)に苦しむジェームズタウン植民地初期の状況が、軍人出身の彼の指導力を必要とした。', process:'「働かざる者食うべからず」の方針で強制的に農作業に従事させることで入植者の生存を支え、先住民ポウハタン連合との交渉・食料交換を担い、その首長の娘ポカホンタスに命を救われたとされる逸話でも知られる。', significance:'事故による負傷で本国に帰還した後は北米沿岸の詳細な地図作成やニューイングランドの地名を初めて用いた記録者として、後続の入植促進にも大きく貢献した。', debate:'ポカホンタスに命を救われた逸話の史実性については後年の脚色を疑う説が有力であり、この逸話がどのように植民地建設の英雄譚として形成されていったかが検討される。'} },
+  { id:'plymouth_colony', name:'プリマス植民地(ピルグリム=ファーザーズ)', category:'event', lat:41.96, lng:-70.67, start:1620, end:1620, region:'イングランド植民地(現マサチューセッツ州)',
+    desc:{background:'イングランド国教会からの分離を求める急進的清教徒(ピルグリム)が、信仰の自由を求めて渡米を志したことが背景にある。', process:'当初の予定地から外れた場所に漂着したため既存の勅許の効力が及ばない状況下で、入植者間の自治規約「メイフラワー誓約」を取り交わし、先住民ワンパノアグ族の指導者スクアントの助けでトウモロコシ栽培などの農業技術を学び最初の収穫を祝った。', significance:'メイフラワー誓約は成文憲法も王権の後ろ盾もない集団が自発的に統治の正統性を作り出した事例として、後のアメリカにおける社会契約論的な自治・独立の伝統の象徴的な出発点として位置づけられ、この収穫祭は感謝祭の起源説話として語り継がれている。', debate:'先住民との協力関係が数十年後のフィリップ王戦争(1675〜76年)における全面対決を回避できなかった点を、この協力関係の限界としてどう評価すべきかが論じられる。'} },
+  { id:'massachusetts_bay_colony', name:'マサチューセッツ湾植民地', category:'nation', lat:42.36, lng:-71.06, start:1630, end:1691, region:'イングランド植民地(現マサチューセッツ州)',
+    desc:{background:'プリマスより大規模な集団で入植した清教徒(ピューリタン)が、ジョン=ウィンスロップの指導のもとボストンを中心とする植民地建設を志したことが背景となった。', process:'ウィンスロップが説いた「丘の上の町」という理念のもと、教会員資格と結びついた厳格な自治統治を敷いたが、その不寛容な体制はロジャー=ウィリアムズ(信教の自由を主張)やアン=ハッチンソン(女性の信仰解釈の自由を主張)ら異論者の排除も招いた。', significance:'ニューイングランド植民地群の政治的・宗教的中核として、自治議会・タウンミーティング(住民集会による直接民主政的な地方自治)の伝統を確立し、後のアメリカ的自治観念の形成に大きな影響を残した。', debate:'「世界が範とすべきモデル」という理想主義的な使命感と、異論者を排除する不寛容な現実との矛盾を、この植民地の性格をどう総括すべきかという問題として論じることができる。'} },
+  { id:'new_france', name:'ヌーベルフランス(フランス領カナダ)', category:'nation', lat:46.81, lng:-71.21, start:1534, end:1763, region:'北米北東部(現ケベック・五大湖周辺)',
+    relatedIds:['samuel_de_champlain','french_indian_war','treaty_paris_1763'],
+    desc:{background:'ジャック=カルティエの探検(1534年)を端緒に、シャンプランによるケベック建設(1608年)以降本格的な植民地化が進んだことが背景となった。', process:'本国からの移民が乏しく人口的に劣位であったため先住民との毛皮交易を経済の柱とし、宣教師や探検家が先住民社会に深く入り込みながらミシシッピ川流域にまで進出して広大な内陸領域を主張する「線的支配」の植民地経営を展開したが、七年戦争(フレンチ・インディアン戦争)での敗北により1763年のパリ条約でイギリスに割譲された。', significance:'フランス系住民(カナディアン)はケベックに残留を許され、これが現在まで続くカナダの英仏二文化構造の起点となった。', debate:'面的な農業入植に基づくイングランド植民地との対照的な「線的支配」という経営方式の違いが、両者の人口的劣位・優位をどこまで規定したかが比較植民地史の観点から論じられる。'} },
+  { id:'samuel_de_champlain', name:'サミュエル・ド・シャンプラン', category:'person', parentId:'new_france', lat:46.81, lng:-71.21, start:1567, end:1635, region:'ヌーベルフランス',
+    desc:{background:'探検家・地図製作者として北米東岸を広く踏査した経験が、1608年のケベック市建設という植民地の実質的な基礎固めを可能にした。', process:'先住民ヒューロン族・アルゴンキン系諸部族と同盟を結んで毛皮交易網を築き、みずから同盟部族の対イロコイ戦に加わってこれを撃退した(1609年、シャンプラン湖の戦い)。', significance:'「カナダ建国の父」として植民地経営の基礎を築いたが、この同盟形成は同時に敵対するイロコイ連邦との間に長期にわたる根深い緊張関係を生んだ。', debate:'毛皮という経済的利害と軍事同盟が不可分に結びついた植民地経営の性格が、後年のイロコイ連邦のイギリス側への接近をどこまで決定づけたかが論じられる。'} },
+  { id:'new_netherland', name:'ニューネーデルラント(オランダ領北米植民地)', category:'nation', lat:40.71, lng:-74.01, start:1614, end:1667, region:'北米東海岸(現ニューヨーク州)',
+    desc:{background:'オランダ西インド会社が毛皮交易の拠点を求め、ハドソン川河口の要衝に植民地を建設したことが背景となった。', process:'宗教的な排他性を重視しなかったことから多様な出自の商人・入植者が集まる国際色豊かな交易都市として発展したが、本国の関心・投資は主にアジア交易に向けられ北米植民地への軍事的・人的投資は一貫して手薄であったため、1664年に無血のままイングランド艦隊に接収されニューヨークと改称された。', significance:'1667年のブレダの和約でオランダは南米の砂糖植民地スリナムを対価に確保しており、当時は北米の毛皮植民地よりも熱帯の砂糖植民地の方が経済的価値が高いと判断されていたことを示している。', debate:'この陥落は、オランダが世界的な商業覇権を維持しつつも北米大陸への軍事的関与を選択的に縮小したという、帝国の資源配分の論理を映し出す事例としてどう評価すべきかが論じられる。'} },
+  { id:'peter_stuyvesant', name:'ペーター・スタイフェサント', category:'person', parentId:'new_netherland', lat:40.71, lng:-74.01, start:1610, end:1672, region:'ニューネーデルラント',
+    desc:{background:'カリブ海での軍務中に片脚を失いながらも精力的な統治を続けたことが、ニューネーデルラント最後の総督としての彼の専制的な統治スタイルの背景となった。', process:'市街地の整備(現在のウォール街の起源となる防護柵の建設)や住民間の紛争調停に尽力したが、その専制的・独善的な統治手法は入植者側の代表参加要求としばしば衝突し、1664年に増強されたイングランド艦隊がニューアムステルダムに迫ると防備の乏しさを見て取り住民の反対を押し切って無血開城を選択した。', significance:'以後この地はイングランド王弟(後のジェームズ2世)にちなみニューヨークと改称された。', debate:'住民の抗戦意欲の乏しさを理由とする無血開城の決断を、賢明な現実主義とみるか、住民の意向を軽視した独断とみるかで評価が分かれる。'} },
+  { id:'thirteen_colonies', name:'北米十三植民地', category:'nation', lat:39.95, lng:-75.16, start:1607, end:1776, region:'北米東海岸(イングランド領)',
+    relatedIds:['stamp_act','boston_massacre','boston_tea_party','continental_congress_first','declaration_independence'],
+    desc:{background:'ジェームズタウン建設(1607年)以降、地理・経済・社会構造の大きく異なるニューイングランド・中部・南部という三地域から構成される植民地群が形成されたことが背景となった。', process:'それぞれの植民地は本国王権から独立した植民地議会を持つ自治的な統治伝統(「有益な怠慢」の状況)を共有しながらも、七年戦争後の本国による課税強化政策(印紙法など)への反発を通じて、地域差を超えた共通の政治的アイデンティティと「代表なくして課税なし」という統一的な抵抗の論理を次第に形成していった。', significance:'この統一的な政治的アイデンティティの形成が独立革命へと向かう決定的な基盤となった。', debate:'地理的・経済的に大きく異なる三地域がなぜ共通の抵抗の論理を形成し得たのか、本国課税政策への反発という共通の脅威がどこまでこの統合を可能にしたかが論じられる。'} },
+  { id:'salem_witch_trials', name:'セイラム魔女裁判', category:'event', lat:42.52, lng:-70.90, start:1692, end:1693, region:'マサチューセッツ湾植民地(セイラム)',
+    desc:{background:'村内の土地・相続をめぐる対立関係、フィリップ王戦争後の社会不安、厳格なピューリタン社会に根強く残る宗教的恐怖(悪魔との契約という観念)が複合的に重なったことが背景となった。', process:'数人の少女の奇矯な言動をきっかけに「魔女」告発の連鎖が広がり、正式な裁判での証拠採用手続きが著しく不備なまま(「幻視証拠」のみを根拠とする有罪判断)最終的に20名が処刑されるに至った。', significance:'事件後まもなく関係した判事や陪審員自身が公に謝罪し、後年州議会による関係者への正式な名誉回復・補償が行われ、演劇(アーサー=ミラー『るつぼ』が冷戦下のマッカーシズムの寓意として翻案)にも繰り返し題材とされた。', debate:'集団心理・魔女狩り的な社会的パニックが適正な司法手続きを容易に踏み荒らし得るという普遍的な教訓を、現代のどのような社会的動員(赤狩りなど)と類比的に理解すべきかが論じられる。'} },
+  { id:'french_indian_war', name:'フレンチ・インディアン戦争(北米における七年戦争)', category:'war', lat:40.44, lng:-79.99, start:1754, end:1763, region:'北米(オハイオ渓谷・五大湖周辺)',
+    desc:{background:'英仏両国が競って権益を主張していたオハイオ渓谷の領有権をめぐる対立が、若きジョージ=ワシントン率いるバージニア民兵とフランス軍との小競り合いを発端に、ヨーロッパの七年戦争と連動して拡大した。', process:'フランスは人口的劣勢を先住民諸部族との同盟関係で補い当初は優勢であったが、本国からの人的・物的増援に勝るイギリス軍が徐々に戦局を挽回し、1759年のケベック(アブラハム平原の戦い)での勝利を経てフランスの北米支配は事実上崩壊した。', significance:'イギリス本国は北米に広大な新領土を得たが、それは同時に膨大な戦費という重荷を背負うことを意味し、本国議会が植民地防衛費用を植民地自身に負担させる論理のもとに課税強化へ転じる直接的な契機となった。', debate:'この戦争の戦後処理(課税強化)こそがアメリカ独立革命の最も重要な構造的遠因であるという理解が広く共有されているが、その因果関係の直接性・不可避性をめぐり評価の余地がある。'} },
+  { id:'treaty_paris_1763', name:'パリ条約(1763年)', category:'treaty', lat:48.86, lng:2.35, start:1763, end:1763, region:'フランス(パリ)',
+    desc:{background:'七年戦争(フレンチ・インディアン戦争)の終結にあたり、イギリスとフランス・スペイン間の広大な領土の帰属を確定する必要が生じたことが背景となった。', process:'フランスはカナダを含む北米大陸東部の領土をほぼ全面的にイギリスに割譲し、対英同盟に加わっていたスペインへの見返りとしてミシシッピ川以西のルイジアナを譲渡した結果、フランスは北米大陸における領土的存在をほぼ完全に失った。', significance:'イギリスは大西洋岸から五大湖・ミシシッピ川に至る広大な領土を獲得し名実ともに北米最大の植民地帝国となったが、フランスという「共通の敵」を失った十三植民地が本国への依存意識を弱める契機ともなった。', debate:'帝国の絶頂がまさに解体の始まりと表裏一体であったという逆説を、この条約はどこまで象徴しているか、新たに獲得した内陸部統治の困難がどこまで意図せざる結果であったかが論じられる。'} },
+  { id:'pontiac_rebellion', name:'ポンティアックの反乱', category:'war', lat:42.33, lng:-83.05, start:1763, end:1766, region:'五大湖周辺(現デトロイト周辺)',
+    desc:{background:'フランス撤退後、イギリスが従来のフランス式の贈答・懐柔を通じた同盟的対応から一転して先住民への物資援助を打ち切り高圧的な姿勢に転じたことが反発を招いた。', process:'オタワ族の首長ポンティアックを中心に宗教的な汎部族主義にも触発された複数部族が連合して蜂起し、五大湖周辺の多くのイギリス軍要塞を陥落させる一時的な成功を収めたが、最終的に鎮圧された。', significance:'この反乱を受けイギリス本国は入植者のアパラチア山脈以西への進出を一律に禁じる「1763年宣言」を発したが、西方への土地拡大を望む植民地入植者の強い不満を招き、本国の思惑と植民地の利害が正面から衝突した。', debate:'イギリス軍が天然痘に感染した毛布を意図的に先住民へ贈与したとされる史料は、生物兵器的行為の初期の記録としてその実態・意図をめぐり議論される。'} },
+  { id:'state_constitutions_1776', name:'各邦(ステート)憲法の制定', category:'event', lat:39.95, lng:-75.16, start:1776, end:1780, region:'北米十三植民地(独立後の各邦)',
+    desc:{background:'独立宣言の前後、各植民地が王権に由来する旧来の勅許状体制を廃し、人民主権の理念に基づく統治形態への転換を必要としたことが背景となった。', process:'多くの邦憲法は権力分立と権利章典を明記し、ジョン=アダムズが起草に関わったマサチューセッツ邦憲法(1780年)は憲法制定のために特別に選出された「憲法制定会議」を通常の立法府と切り離して開催するという先例的手続きを確立した。', significance:'この時期は各邦がそれぞれ独自に統治原理を試行する実験的段階であり、財産資格による選挙権制限の緩和幅や州教会の存続の是非などの違いは、後に連邦全体の統治体制を設計する際の重要な比較材料となった。', debate:'各邦の多様な実験が、後の合衆国憲法制定過程においてどこまで積極的な参照モデルとして、あるいは反面教師として機能したかが論じられる。'} },
+  { id:'western_land_cession', name:'西部土地要求の連邦委譲', category:'event', lat:39.00, lng:-83.00, start:1780, end:1802, region:'アメリカ合衆国(オハイオ渓谷以西)',
+    desc:{background:'独立戦争中、旧来の勅許状で西方の広大な土地に領有権を主張していた邦と、そうした西方への領土的根拠を持たない邦との間で深刻な対立が生じたことが背景となった。', process:'土地なき邦は特定の邦のみが広大な西部の富を独占すれば連邦内の均衡が崩れると強く反発し、メリーランドは西部土地要求の連邦への譲渡が実現するまで連合規約の批准を拒否し続けたが、1780〜81年にバージニアなど各邦が順次西部の領有権主張を大陸会議へ委譲することで解消された。', significance:'この土地委譲により西部の土地が特定の邦にではなく連邦全体の共有財産として一元的に管理される道が開かれ、後の北西部条例による秩序だった新州編入システムを可能にした制度的前提となった。', debate:'連合規約という最初の中央政府基本法の発効自体がこの土地問題の解決に依存していたという事実は、初期アメリカの連邦統合における領土問題の中心性をどこまで示すものかが論じられる。'} },
+  { id:'stamp_act', name:'印紙法', category:'event', lat:39.95, lng:-75.16, start:1765, end:1765, region:'北米十三植民地',
+    desc:{background:'七年戦争の戦費や戦後も引き続き駐留させる本国正規軍の維持費の一部を植民地にも直接負担させる目的が、イギリス議会による課税の背景となった。', process:'従来の航海法などが対外通商を規制する「外部税」であったのに対し印紙法は植民地内部の取引に直接課す「内部税」であった点が特に強い反発を招き、「代表なくして課税なし」という抵抗のスローガンのもと植民地代表による初の共同抗議行動(印紙法会議)や本国商品の輸入不買運動が組織された結果、翌1766年に法は撤廃された。', significance:'この経験は植民地側に本国への抵抗の組織化手法と連帯意識を学ばせる一方、本国議会は「植民地に関するあらゆる事項を立法する権限を持つ」とする宣言法を可決しており、本国側の統治原則との根本的な溝を露呈させる出発点となった。', debate:'内部税と外部税の区別という植民地側の論理が、本国側の主権の不可分性という原則とどう根本的に相容れなかったか、両者の統治観の対立構造が論じられる。'} },
+  { id:'boston_massacre', name:'ボストン虐殺事件', category:'event', lat:42.36, lng:-71.06, start:1770, end:1770, region:'マサチューセッツ植民地(ボストン)',
+    desc:{background:'タウンゼンド諸法への反発から本国が治安維持のため増派した駐留イギリス軍と、失業に苦しむ市民労働者との日常的な軋轢が積み重なっていたことが背景となった。', process:'雪玉を投げつける群衆と警備兵との小競り合いが発砲事件に発展し5名の市民が死亡し、植民地側の新聞・パンフレットを通じて「圧政の象徴・大量虐殺」として大々的に宣伝された。', significance:'対英感情の悪化を大きく煽り、独立への世論形成に絶大な影響を与えたが、この裁判では独立の主導者となるジョン=アダムズ自身が英兵の弁護を引き受け法の適正手続きを守り抜いた。', debate:'政治的宣伝としてのこの事件が与えた影響は、法的な事実関係(正当防衛的側面もあったとされる)以上に絶大であったとされ、歴史的記憶と実際の事実との乖離という問題を提起する。'} },
+  { id:'boston_tea_party', name:'ボストン茶会事件', category:'event', lat:42.36, lng:-71.06, start:1773, end:1773, region:'マサチューセッツ植民地(ボストン)',
+    desc:{background:'経営難に陥った東インド会社を救済するため、同社に植民地での茶販売の実質的な独占権を与える茶法(1773年)が制定されたことが反発を招いた。', process:'植民地側にとってこの法は「安価な茶と引き換えに議会の課税権を黙認させようとする巧妙な罠」と映り、急進派団体「自由の息子たち」が先住民に扮してボストン港に停泊中の商船を襲撃し積荷の茶箱342個を海に投棄した。', significance:'イギリス本国はボストン港の閉鎖などの懲罰的措置(「耐え難き諸法」)で応じたが、この過酷な報復がかえって他の植民地の同情と連帯を招き、1774年の第一回大陸会議招集という統一行動を制度化する決定的な転換点となった。', debate:'単なる経済問題を超えた原則の問題として捉えられたこの抗議行動を、本国側の過剰な報復とあわせて、双方の対応がどこまで事態を後戻りできない段階へ押し進めたかが論じられる。'} },
+  // ===================== アメリカ独立革命 =====================
+  { id:'continental_congress_first', name:'第一回大陸会議', category:'event', lat:39.95, lng:-75.16, start:1774, end:1774, region:'ペンシルベニア植民地(フィラデルフィア)',
+    desc:{background:'「耐え難き諸法」への対応を協議する必要から、ジョージアを除く12植民地の代表56名がフィラデルフィアに集ったことが背景となった。', process:'本国との決別ではなく王権への忠誠を保ちつつ議会の課税権のみを否定する穏健な立場から、対英通商断絶(大陸連合の結成)と国王への請願を決議し、各邦での不買同盟の遵守を監視する地方委員会網を組織した。', significance:'この地方委員会網は後の戦時動員体制の原型となり、翌年のレキシントン・コンコードでの武力衝突を経て招集された第二回大陸会議は独立を宣言し戦争を指導する事実上の中央政府へと急速に役割を変えていった。', debate:'当初の穏健な権利回復要求が、なぜわずか1年足らずで独立宣言・戦争指導という段階へ急速に転換したのか、その転換の決定的契機がどこにあったかが論じられる。'} },
+  { id:'lexington_concord', name:'レキシントン・コンコードの戦い', category:'war', lat:42.45, lng:-71.23, start:1775, end:1775, region:'マサチューセッツ植民地',
+    desc:{background:'マサチューセッツ邦の武器庫(コンコード)を密かに押収・破壊しようとしたイギリス正規軍部隊の動きを、植民地民兵(ミニットマン)が事前に察知していたことが背景となった。', process:'レキシントンの村の広場、続いてコンコードの橋で武力衝突が発生し、どちらが最初に発砲したかは今も確定していないが、撤退するイギリス軍を各地から集結した民兵が街道沿いから執拗に攻撃し多数の死傷者を与えた。', significance:'この戦闘はアメリカ独立戦争の事実上の開戦となり、以後ボストンはマサチューセッツ民兵によって包囲され、植民地側は請願による和解の道から本格的な武装抵抗の段階へと不可逆的に踏み出した。', debate:'詩人エマソンが「世界に鳴り響いた銃声」と称したこの最初の一発の発射者・発射意図は、開戦責任の所在という歴史的に重要な問いと結びついて論じられる。'} },
+  { id:'george_washington', name:'ジョージ・ワシントン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1732, end:1799, region:'アメリカ合衆国(バージニア)',
+    desc:{background:'フレンチ・インディアン戦争でバージニア民兵を率いた経験が、大陸会議による大陸軍総司令官任命の背景となった。', process:'物資・訓練とも劣勢で任期満了で頻繁に入れ替わる民兵主体の軍を率いて8年に及ぶ独立戦争を指導し、デラウェア川奇襲(トレントンの戦い)やヨークタウンでの決定的勝利で名声を確立した。', significance:'戦後、軍を私兵として権力掌握に用いる誘惑(ニューバーグ陰謀事件)を退けて速やかに軍を解散させ、初代大統領として二期を務めた後に自発的な政権移譲(三選辞退)を行い、権力の平和的委譲という共和政の伝統を確立した。', debate:'単なる軍事的英雄以上に近代共和政の規範そのものを体現した人物と評価されるが、この自発的な権力放棄が当時のヨーロッパ君主制の常識でいかに異例であったかという比較政治史的意義が論じられる。'} },
+  { id:'john_adams', name:'ジョン・アダムズ', category:'person', parentId:'united_states', lat:42.25, lng:-71.00, start:1735, end:1826, region:'アメリカ合衆国(マサチューセッツ)',
+    desc:{background:'ボストン虐殺事件で世論の圧力に抗して英兵の弁護を引き受けるなど、法の支配への強い信念を持つ弁護士としての経歴が政治的立場の基盤となった。', process:'大陸会議では独立宣言の起草委員に加わりジェファーソンを強く推す一方、自らはマサチューセッツ邦憲法(1780年)を起草し、第2代大統領としてフランスとの対立(XYZ事件)の中で開戦を望む世論に抗して和平路線を貫き大規模な対仏戦争を回避した。', significance:'同時に治安維持の名目で反対派を弾圧しうる外国人・治安諸法(1798年)に署名しており、政敵ジェファーソンとの晩年の和解の書簡往復を経て、独立宣言採択からちょうど50年後の1826年7月4日にジェファーソンと同日に世を去った。', debate:'外国人・治安諸法への署名は、建国期における言論の自由と国家安全保障の緊張関係を示す論争的な事例として、彼の和平路線の評価とあわせて議論される。'} },
+  { id:'thomas_jefferson', name:'トーマス・ジェファーソン', category:'person', parentId:'united_states', lat:38.03, lng:-78.48, start:1743, end:1826, region:'アメリカ合衆国(バージニア)',
+    desc:{background:'ロックの自然権思想やスコットランド啓蒙思想への深い理解が、独立宣言起草という重責を担う思想的基盤となった。', process:'「すべての人間は平等に造られ」との一節で統治の正統性を人民の同意に求める社会契約論を定式化し、初代国務長官として連邦派と対立して反連邦派(民主共和党)を組織し、第3代大統領としてルイジアナ買収を実現して国土を倍増させた。', significance:'独立宣言の理念は後の合衆国憲法・権利章典の思想的基盤となったほか、フランス人権宣言やラテンアメリカ諸国の独立宣言、20世紀のベトナム独立宣言に至るまで世界的な影響を及ぼした。', debate:'ルイジアナ買収が自らの厳格な憲法解釈とは矛盾する権限の拡大解釈を要したという逆説、および自身が生涯多数の奴隷を所有し続けたという自由・平等の理念と現実との深刻な矛盾が、今日のアメリカ史研究における重要な批判的検討課題となっている。'} },
+  { id:'benjamin_franklin', name:'ベンジャミン・フランクリン', category:'person', parentId:'united_states', lat:39.95, lng:-75.16, start:1706, end:1790, region:'アメリカ合衆国(フィラデルフィア)',
+    desc:{background:'印刷業者・出版者として財を成し、科学者としても国際的な名声を得た博学の経歴が、外交における独自の影響力の基盤となった。', process:'独立宣言・パリ講和条約(1783年)・合衆国憲法という建国の三大文書すべての起草・交渉に関わり、フランス宮廷での巧みな外交により、サラトガの勝利を機にフランスからの公式参戦・軍事支援を引き出した。', significance:'この軍事支援は植民地側の勝利にとって軍事力そのものに劣らず不可欠な貢献であり、憲法制定会議では高齢のため直接の起草作業からは退いていたがその存在自体が会議に権威と正統性を与えた。', debate:'「文明の対極にある高潔な新世界人」というイメージ演出による社交界での人気獲得が、実際の外交成果(フランス参戦)にどこまで直接寄与したかが論じられる。'} },
+  { id:'declaration_independence', name:'アメリカ独立宣言', category:'event', lat:39.95, lng:-75.16, start:1776, end:1776, region:'ペンシルベニア(フィラデルフィア)',
+    desc:{background:'第二回大陸会議が独立という選択を正当化する理論的文書を必要としたことが、ジェファーソンによる起草の背景となった。', process:'前半部でロック流の自然権思想と人民主権論(革命権の理論)を掲げて統治の一般原理を示し、後半部で国王ジョージ3世による具体的な権利侵害を列挙して本国からの分離が正当であることを論証する二段構えの論理構成をとった。', significance:'この理念は合衆国憲法・権利章典の思想的基盤となったほか、フランス革命の人権宣言、19世紀のラテンアメリカ諸国、20世紀のベトナム独立宣言(ホー=チ=ミンが冒頭で引用)に至るまで世界各地の独立・革命運動の理念的模範として繰り返し参照される、近代政治思想史上最も影響力の大きい文書の一つである。', debate:'この文書が掲げた「すべての人間は平等」という理念と、起草者ジェファーソン自身を含む奴隷所有という現実との矛盾は、独立宣言の普遍性の主張そのものを問い直す重要な論点である。'} },
+  { id:'american_revolutionary_war', name:'アメリカ独立戦争', category:'war', lat:40.10, lng:-75.47, start:1775, end:1783, region:'北米十三植民地',
+    relatedIds:['george_washington','battle_saratoga','battle_yorktown','treaty_paris_1783'],
+    desc:{background:'イギリス本国からの独立をめぐる対立が、大陸軍・民兵と本国正規軍(および雇われたドイツ人傭兵)との武力衝突へと発展したことが開戦の背景となった。', process:'開戦当初は装備・訓練・財政基盤のいずれにおいても劣勢な植民地側が苦戦を強いられたが、1777年のサラトガの戦いでの勝利を機にフランスが公式参戦し、スペイン・オランダも対英で参戦、武装中立同盟がイギリスを外交的に孤立させたことで戦争は国際的な対立へと拡大し、ヨークタウンでの英軍降伏により事実上の勝敗が決した。', significance:'1783年のパリ条約でアメリカ合衆国の独立が国際的に承認され、この戦争は単なる植民地の反乱にとどまらず七年戦争以来の英仏植民地帝国間の抗争が形を変えて再燃した国際戦争としての性格も強く持つ。', debate:'この戦争の勝敗を決した最大の要因を、植民地側の粘り強い抵抗に求めるか、フランスをはじめとする国際的な対英包囲網の形成に求めるかで力点が分かれる。'} },
+  { id:'battle_saratoga', name:'サラトガの戦い', category:'war', lat:43.00, lng:-73.65, start:1777, end:1777, region:'ニューヨーク植民地(サラトガ)',
+    desc:{background:'カナダから南下してニューイングランドと他植民地を分断しようとしたイギリス軍(バーゴイン将軍)が、補給線の伸び切りという弱点を抱えていたことが背景となった。', process:'民兵の頑強な抵抗により孤立したイギリス軍が大陸軍(実質的にはベネディクト=アーノルドの活躍が大きい)に包囲されて降伏した。', significance:'この勝利はアメリカ側の勝算をヨーロッパ列強に印象づける決定的な証拠となり、長らく水面下でのみ支援を行っていたフランスが公然と参戦を決断する直接の契機となった。', debate:'この戦いで最も勇猛な戦功を挙げたアーノルドが後に寝返りイギリス側のスパイとなったことは、勝利と裏切りが同じ戦役に共存するという逸話として、個人の功名心と大義との関係を考えさせる事例である。'} },
+  { id:'valley_forge_winter', name:'バレーフォージの越冬', category:'event', lat:40.10, lng:-75.47, start:1777, end:1778, region:'ペンシルベニア植民地',
+    desc:{background:'フィラデルフィア陥落後、ワシントン率いる大陸軍が過酷な冬を過ごす必要に迫られたことが背景となった。', process:'食料・衣類・靴の深刻な不足と天然痘などの疫病により約1万人の兵のうち2千人以上が命を落とす苦難を経験する一方、プロイセン人将校フォン=シュトイベンによる欧州式の統一的な軍事教練の導入で大陸軍の規律と組織的な戦闘能力が飛躍的に向上した。', significance:'この最も苦しい時期を耐え抜いた経験とその後の組織改革は、独立戦争後半のヨークタウンでの正規戦的勝利を可能にした実務的な転機となった。', debate:'単なる忍耐の物語としてだけでなく、この軍事教練導入がもたらした軍事史的意義をどう位置づけるべきかが論じられる。'} },
+  { id:'battle_yorktown', name:'ヨークタウンの戦い', category:'war', lat:37.24, lng:-76.51, start:1781, end:1781, region:'バージニア植民地(ヨークタウン)',
+    desc:{background:'半島の先端に布陣していたコーンウォリス率いる英軍を、米仏連合陸軍が包囲する好機が生まれたことが背景となった。', process:'フランス艦隊による海上封鎖(シェサピーク湾海戦での英救援艦隊撃退)と連携し、陸海両面から完全に包囲し降伏に追い込んだ。', significance:'この降伏によりイギリス本国の議会内では継戦を求める声が急速に失われ、以後和平交渉が本格化して1783年のパリ条約による独立承認へとつながった。', debate:'北米大陸での局地的勝利のみならず、フランス海軍が一時的にせよ大西洋の制海権を確保できたという国際的な軍事バランスの好機が重なって初めて実現した勝利であり、単独では成し得なかった米仏共同作戦の性格をどう評価すべきかが論じられる。'} },
+  { id:'treaty_paris_1783', name:'パリ条約(1783年)', category:'treaty', lat:48.86, lng:2.35, start:1783, end:1783, region:'フランス(パリ)',
+    desc:{background:'ヨークタウンでの英軍降伏を受け、イギリスがアメリカとの講和交渉に応じる必要が生じたことが背景となった。', process:'イギリスはアメリカ合衆国の独立を正式に承認し、ミシシッピ川以東・五大湖以南・フロリダ以北という広大な領土をアメリカに割譲したが、これはフランクリン・ジョン=アダムズ・ジョン=ジェイら米代表団が同盟国フランスの意向を離れて英側と独自に交渉を進めた老練な外交手腕の成果でもあった。', significance:'新生アメリカ合衆国は国際的に承認された主権国家となり後の西方拡大の広大な土台を得たが、割譲地における先住民の権利や独立戦争中に本国側についたロイヤリストの財産保護は条約上ほぼ考慮されなかった。', debate:'この寛大な領土割譲を可能にした米代表団の独自交渉は、同盟国フランスへの信義とアメリカ自身の国益とのどちらを優先すべきかという外交倫理上の問題を提起する。'} },
+  { id:'united_states', name:'アメリカ合衆国', category:'nation', lat:38.90, lng:-77.04, start:1776, end:2025, region:'北米東部から大陸全域へ',
+    relatedIds:['george_washington','thomas_jefferson','benjamin_franklin','us_constitution','bill_of_rights','declaration_independence','american_revolutionary_war','louisiana_purchase','civil_war','great_depression','new_deal','wwii_north_america','cold_war_north_america','civil_rights_act_1964','september_11_attacks'],
+    desc:{background:'独立宣言(1776年)により誕生した新国家が、当初は各邦の主権を強く残した「連合規約」による緩やかな連合体制をとったことが出発点となった。', process:'中央政府が独自の徴税権・通商規制権を持たない構造的脆弱性が財政難や州間の通商摩擦を招き、シェイズの反乱(1786〜87年)が示した秩序維持能力の欠如への危機感も重なって、1787年の憲法制定会議で連邦政府の権限を大幅に強化した新憲法が起草された。', significance:'以後、西方への領土拡大、南北戦争による連邦の再統合、二度の世界大戦を経た超大国化、冷戦を経て今日に至るまで、共和政・連邦制・三権分立を柱とする統治モデルを維持しながら大陸規模の国家へと発展を続けている。', debate:'連合規約から連邦憲法への転換を、中央政府強化という必然的な国家形成過程とみるか、各邦の自治を重んじる建国当初の理念からの後退とみるかで、アメリカ建国史における評価軸が分かれる。'} },
+  { id:'us_constitution', name:'合衆国憲法の制定', category:'event', lat:39.95, lng:-75.16, start:1787, end:1788, region:'ペンシルベニア(フィラデルフィア)',
+    desc:{background:'連合規約下の中央政府の弱体さ(徴税権・通商規制権の欠如、硬直的な改正手続き)を克服する必要から、フィラデルフィアに代表が集ったことが背景となった。', process:'人口比例の下院と各州平等の上院という「大妥協」で大州・小州の利害を調整し、奴隷を人口の5分の3として算入する「五分の三条項」など道徳的に深刻な問題を含む利害調整を経て、三権分立と抑制均衡を核とする連邦制を確立し、『ザ=フェデラリスト』による理論的擁護もあって1788年に発効した。', significance:'世界最古級の成文憲法として今日まで存続しており、強力な中央政府樹立に反対する反連邦派との激しい論争を経て成立した点で、統治理論の実践的到達点として評価される。', debate:'「五分の三条項」や奴隷貿易継続容認という妥協が、独立宣言の理念(平等)との根本的矛盾を憲法の基礎に組み込んだことをどう総括すべきかは、アメリカ憲政史上最も深刻な論点の一つである。'} },
+  { id:'bill_of_rights', name:'権利章典(合衆国憲法修正第1〜10条)', category:'event', lat:39.95, lng:-75.16, start:1791, end:1791, region:'アメリカ合衆国',
+    desc:{background:'強力な中央政府の樹立に不安を抱いた反連邦派を懐柔し、憲法批准を確実にする必要が生じたことが背景となった。', process:'マディソンが主導して起草した最初の10箇条の修正条項が、信教・言論・出版・集会の自由(修正第1条)、武器保有権(修正第2条)、適正手続きの保障(修正第5条)などを定めた。', significance:'以後のアメリカにおける市民的自由の法的基盤として機能し続けており、「政府が国民に与える権利の一覧」ではなく「もともと国民が持つ自然権を政府が侵害することを禁じる制限列挙」という論理構成をとる点は独立宣言の理念と一貫している。', debate:'修正第10条(連邦政府に明示的に与えられていない権限は州または人民に留保)は州権論の重要な憲法上の根拠となっており、連邦権限と州権のどちらを優先すべきかという解釈上の対立が今日まで続いている。'} },
+  { id:'northwest_ordinance', name:'北西部条例', category:'event', lat:40.00, lng:-83.00, start:1787, end:1787, region:'アメリカ合衆国(オハイオ川以北・ミシシッピ川以東)',
+    desc:{background:'各邦が委譲した西部の土地を、既存の邦の付属領としてではなく将来的に対等な新州へ昇格させていく手続きを定める必要が生じたことが背景となった。', process:'人口が一定数(6万人)に達した準州は既存の13邦と全く対等な資格で連邦に加盟できると定め、同時にこの地域における奴隷制を将来にわたり禁止する条項を含んだ。', significance:'多くの旧世界の帝国が新領土を本国より劣位の植民地として恒久的に扱ったのとは対照的に「植民地」を生み出さず対等な構成体の追加のみによって連邦を拡大するという画期的な統治原理を確立し、その後のアメリカ大陸規模への拡大の基本モデルとなった。', debate:'奴隷制禁止条項は、奴隷制の地理的拡大の可否をめぐる南北間の緊張(後のミズーリ妥協・カンザス=ネブラスカ法にまで連なる論争)の最も早い法的先例としても重要である。'} },
+  { id:'vermont_admission', name:'ヴァーモント準州の連邦加盟', category:'event', lat:44.26, lng:-72.58, start:1791, end:1791, region:'アメリカ合衆国(ヴァーモント)',
+    desc:{background:'ニューヨーク・ニューハンプシャー両邦がそれぞれ領有権を主張して係争していたヴァーモントが、独立戦争前後から事実上独自の統治を続けていたことが背景となった。', process:'両邦との領土問題を金銭決着させた上で、原初の13邦のいずれにも属さない史上初の「新規加盟州」として連邦に迎え入れられた。', significance:'北西部条例が定めた「対等な新州の追加」という原理が実際に機能することを証明した最初の実例であり、直後のケンタッキー・テネシーの加盟など以後の合衆国の大陸規模への拡大パターンを確立する重要な先例となった。', debate:'ヴァーモントが1777年以降奴隷制を明文で禁止する先駆的な規定を持っていたことが、その後の連邦加盟時の奴隷州・自由州のバランス問題にどのような影響を与えたかが論じられる。'} },
+  // ===================== 建国期・領土拡大 =====================
+  { id:'louisiana_purchase', name:'ルイジアナ買収', category:'treaty', lat:29.95, lng:-90.07, start:1803, end:1803, region:'アメリカ合衆国・フランス',
+    desc:{background:'サン=ドマング(現ハイチ)での黒人奴隷蜂起の鎮圧失敗により、北米に広大な帝国を再建するというナポレオンの構想が頓挫し、加えて対英再戦への軍資金確保を迫られたことが背景となった。', process:'当初アメリカ側が求めていたニューオーリンズ一港の売却交渉の枠を超えて、ナポレオンがルイジアナ領全体の売却を持ちかけ、ジェファーソン大統領はこれに応じ破格の安価で合衆国の国土をほぼ倍増させた。', significance:'この買収により西方への広大なフロンティアが開かれ、後のルイス・クラーク探検隊派遣と19世紀を通じた大陸規模の領土拡大の出発点となった。', debate:'連邦憲法には土地買収に関する明文規定がなく、日頃「厳格な憲法解釈」を掲げる自身の立場と矛盾する権限の拡大解釈を行わざるを得なかったというジェファーソン自身の思想的葛藤は、実利と理念のどちらを優先すべきかという重要な論点を提起する。'} },
+  { id:'lewis_clark_expedition', name:'ルイス・クラーク探検隊', category:'event', lat:38.63, lng:-90.20, start:1804, end:1806, region:'アメリカ合衆国西部',
+    desc:{background:'買収したばかりのルイジアナ領を経て太平洋岸への実行可能な陸路を探査する必要が、ジェファーソン大統領による探検隊派遣の背景となった。', process:'先住民ショショーニ族出身の女性案内人サカガウィアの助力を得て、セントルイスから大陸分水嶺を越え太平洋岸(現オレゴン州)に到達し、動植物相・地理・先住民諸部族に関する詳細な科学的記録を持ち帰った。', significance:'西部の地理的知識が大きく前進し、太平洋岸への到達という実績自体が後のオレゴン地方の領有権をめぐるイギリスとの交渉においてアメリカ側の主張を補強する外交的根拠としても援用された。', debate:'サカガウィアの案内・交渉における役割の大きさをどう評価するか、この探検の成功が彼女個人の貢献にどこまで依存していたかが論じられる。'} },
+  { id:'war_of_1812', name:'米英戦争(1812年戦争)', category:'war', lat:39.27, lng:-76.58, start:1812, end:1815, region:'アメリカ合衆国・イギリス領カナダ',
+    desc:{background:'ナポレオン戦争のさなかイギリス海軍が中立国アメリカの商船を臨検し乗組員を強制徴用したこと、イギリスがカナダを拠点に先住民の対米抵抗運動を支援していたことへの反発が開戦の背景となった。', process:'首都ワシントンが一時イギリス軍に占領され大統領官邸・議事堂などが焼き払われる屈辱を被った一方、ボルチモアの防衛戦での星条旗の様子が国歌「星条旗」の詞の題材となり、1815年のガン条約で領土変更なく戦前の状態に復する形で終結した。', significance:'イギリス領カナダ側では侵攻を撃退したことがカナダ人としての独自のアイデンティティ形成を促す最初の契機となった。', debate:'この開戦とほぼ同時期にニューイングランド諸州が戦争に反発してハートフォード会議で連邦離脱すら議論したことは、後の南部諸州による連邦離脱論(南北戦争)の思想的先例としてどこまで連続性を持つかが論じられる。'} },
+  { id:'james_madison', name:'ジェームズ・マディソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1751, end:1836, region:'アメリカ合衆国(バージニア)',
+    desc:{background:'憲法制定会議での詳細な議事録を単独で記録した経験が、統治構造の理論的骨格を主導的に設計する「合衆国憲法の父」としての地位の背景となった。', process:'ハミルトン・ジェイと共著した『ザ=フェデラリスト』では広大な共和国こそ多数派の専制を抑止しうるという独創的な統治理論を展開したが、政権発足後はハミルトンの強力な中央集権路線に反発してジェファーソンとともに反連邦派を組織し、第4代大統領として米英戦争を指導した。', significance:'自らが設計した強力な中央政府の運用をめぐって立場を転じた点は興味深く、首都ワシントンの陥落を許すなど戦争指導者としての評価は必ずしも高くない。', debate:'憲法設計者としての理論的功績と、実際の大統領としての戦争指導の評価との落差は、理論と実務の間の緊張関係を考える事例として論じられる。'} },
+  { id:'james_monroe', name:'ジェームズ・モンロー', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1758, end:1831, region:'アメリカ合衆国',
+    desc:{background:'米英戦争後の国民的団結感の高まりを背景に、既存の連邦派・民主共和党の対立が事実上解消した「好感情の時代」に政権を担ったことが背景となった。', process:'フロリダのスペインからの買収(アダムズ=オニス条約、1819年)を実現するなど領土拡大を進め、1823年にヨーロッパ列強によるアメリカ大陸への新たな介入を拒否する「モンロー教書」を発した。', significance:'「モンロー主義」として以後アメリカ外交の基本原則として長く継承された。', debate:'この教書が実質的に国務長官ジョン=クインシー=アダムズが起草したとされることは、政策の発案者と発表者(大統領)のどちらにその歴史的功績を帰すべきかという問題を提起する。'} },
+  { id:'monroe_doctrine', name:'モンロー教書(モンロー主義)', category:'event', lat:38.90, lng:-77.04, start:1823, end:1823, region:'アメリカ合衆国',
+    desc:{background:'中南米諸国が次々とスペインから独立を達成する中、神聖同盟がスペインの旧植民地支配権回復を軍事的に支援する可能性が取り沙汰されたことが背景となった。', process:'ヨーロッパ列強による南北アメリカ大陸への新たな植民地化・政治介入を拒否する一方、アメリカもヨーロッパ諸国間の内政問題には関与しないという相互不干渉の原則を掲げた。', significance:'19世紀後半以降アメリカの国力が増大するにつれて「西半球はアメリカの勢力圏である」とする拡大解釈とともに援用され、20世紀のアメリカによる中南米への軍事・経済的介入を正当化する理念的枠組みとして長く機能した。', debate:'発表当時のアメリカに単独でこの原則を軍事的に担保する国力はなく、実際にはイギリス海軍の制海権による事実上の抑止力に依存していた側面が大きいという実態と、後の拡大解釈との乖離が論じられる。'} },
+  { id:'indian_removal_act', name:'インディアン強制移住法', category:'event', lat:38.90, lng:-77.04, start:1830, end:1830, region:'アメリカ合衆国',
+    desc:{background:'アンドリュー=ジャクソン大統領のもとで、ミシシッピ川以東の先住民諸部族の土地を白人入植地として開放しようとする政治的圧力が高まっていたことが背景となった。', process:'移住は形式上「自発的な条約締結」を通じて行うものと規定されていたが、実際には軍事的圧力や欺瞞的な条約締結によって強行され、連邦最高裁が『ウスター対ジョージア州』判決(1832年)でチェロキー族の主権的地位を認めたにもかかわらずジャクソン政権は判決の執行を事実上拒否した。', significance:'この経緯は司法権による違憲・違法の判断が行政権の意思によって事実上無効化されうるという、三権分立の限界を露呈させた事例として、アメリカ憲政史上最も深刻な論争を呼ぶ先例の一つである。', debate:'最高裁判決が執行されなかったという事実が、三権分立の理念そのものにどのような構造的限界を示しているかは、憲政史上の根本的な論点である。'} },
+  { id:'andrew_jackson', name:'アンドリュー・ジャクソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1767, end:1845, region:'アメリカ合衆国',
+    desc:{background:'米英戦争での軍功(ニューオーリンズの戦いでの大勝)による全国的な名声が、既存の東部エリート層による寡頭的政治運営に対抗する第7代大統領当選の背景となった。', process:'白人男性の普通選挙権拡大と大衆政党組織の確立を通じた「庶民の政治」を掲げるジャクソニアン=デモクラシーを推進し、国立第二合衆国銀行の解体や、サウスカロライナ邦の「無効化危機」において連邦の至上性を武力行使も辞さない姿勢で守った。', significance:'先住民政策では連邦最高裁の判断を事実上無視してインディアン強制移住法を執行するなど苛烈な強硬路線をとった。', debate:'その評価は「民主主義の拡大者」と「人道に対する加害者」という両極端の間で今日まで大きく分かれており、民衆の意思の拡大と特定集団(先住民)への抑圧が同一人物のもとでどう両立していたかが論じられる。'} },
+  { id:'trail_of_tears', name:'涙の道', category:'event', lat:35.47, lng:-83.31, start:1838, end:1839, region:'アメリカ南東部からオクラホマ準州',
+    desc:{background:'インディアン強制移住法に基づき、チェロキー族をはじめとする南東部の先住民諸部族の移住が連邦軍の監視下で進められたことが背景となった。', process:'多くの場合冬季という最も過酷な時期に約1300キロメートルの距離を主に徒歩で移動させられ、食料・防寒具の慢性的な不足と劣悪な衛生環境による疫病の蔓延により、移住させられた人々のうち推定4分の1が道中または移住直後に命を落とした。', significance:'この過程は当事者自身によって「涙の道」と呼ばれ、法的手続き(条約締結という形式)を経ながらも実質的には強制と欺瞞に基づく民族浄化的な政策が遂行され得るという教訓を残した。', debate:'近代国家における「合法性」と「正義」の乖離を考える上での重要な歴史的教材として、この事例がどこまで現代の人権論に接続されるべきかが論じられる。'} },
+  { id:'texas_revolution', name:'テキサス独立革命', category:'revolution', lat:29.43, lng:-98.49, start:1835, end:1836, region:'メキシコ領テキサス',
+    desc:{background:'メキシコが独立後の混乱期に北部辺境の開発を促進するためアメリカからの移民を条件付きで受け入れたところ、想定を大きく超える規模でアメリカ人入植者が流入したことが背景となった。', process:'奴隷制廃止(1829年)や中央集権化(1835年憲法)を進める大統領サンタ=アナの政策との対立が深まり独立戦争が勃発し、アラモ砦の玉砕を経てサム=ヒューストン率いる軍がサンジャシントの戦いでメキシコ軍を破りサンタ=アナ自身を捕虜としてテキサス共和国の独立を事実上勝ち取った。', significance:'奴隷制存続州としてのテキサス併合は当初奴隷州・自由州の均衡を崩すとして長く見送られていたが、1845年のアメリカへの併合は国境画定問題とも絡んで後のメキシコ・アメリカ戦争を誘発する直接の引き金となった。', debate:'メキシコ側の当初の受け入れ政策の意図せざる結果として、想定を超えるアメリカ人入植が独立運動を生んだという経緯は、移民政策と国家主権の関係を考える上で重要な事例である。'} },
+  { id:'mexican_american_war', name:'アメリカ・メキシコ戦争', category:'war', lat:19.42, lng:-99.18, start:1846, end:1848, region:'メキシコ・アメリカ合衆国国境地帯',
+    relatedIds:['treaty_guadalupe_hidalgo'],
+    desc:{background:'テキサス併合(1845年)後の国境画定をめぐる対立と、太平洋岸までの領土拡張を国家の使命とする「明白なる天命」の世論的高揚が、ポーク大統領による開戦の背景となった。', process:'米軍はメキシコ領内深くに侵攻し首都メキシコ市まで攻略する圧倒的優勢のうちに勝利し、1848年のグアダルーペ・イダルゴ条約でカリフォルニア・ニューメキシコを含む広大な領土を獲得した。', significance:'メキシコにとっては国土の半分近くを喪失する屈辱的な敗北となって両国関係に長く影を落とす一方、アメリカ国内では獲得した新領土における奴隷制の可否をめぐる論争を再燃させ、南北戦争へと向かう政治的分断を決定的に深める結果を招いた。', debate:'当時のアメリカ国内でも奴隷制拡大への懸念からこの戦争に反対する声(北部のホイッグ党、若手議員リンカンの「スポット決議」)が根強くあり、この戦争の正当性そのものが当時から論争の的であった。'} },
+  { id:'treaty_guadalupe_hidalgo', name:'グアダルーペ・イダルゴ条約', category:'treaty', lat:19.49, lng:-99.12, start:1848, end:1848, region:'メキシコ',
+    desc:{background:'アメリカ・メキシコ戦争での軍事的完全勝利が、メキシコに対する広範な領土割譲要求を可能にする交渉上の優位をアメリカにもたらした。', process:'メキシコはテキサスの併合を承認するとともに現在のカリフォルニア・ネバダ・ユタ・アリゾナ・ニューメキシコの大半に及ぶ広大な北部領土を1500万ドルの支払いと引き換えにアメリカに割譲し、割譲地に残ったメキシコ系住民には条約上市民権と財産権の保護が約束された。', significance:'実際には割譲後に制定された州法や度重なる訴訟を通じて多くの旧メキシコ系地主の土地が実質的に収奪されるケースが相次いだ。', debate:'条約上の保障と現実の統治との乖離を示す事例として、今日のメキシコ系アメリカ人史研究でも重視されており、法的な権利保障がどこまで実効性を持ちうるかという普遍的な問いを提起する。'} },
+  { id:'california_gold_rush', name:'カリフォルニア・ゴールドラッシュ', category:'event', lat:38.80, lng:-120.89, start:1848, end:1855, region:'アメリカ合衆国(カリフォルニア)',
+    desc:{background:'グアダルーペ・イダルゴ条約でアメリカ領となった直後のカリフォルニアで金鉱が発見されたことが、世界各地からの移民殺到の直接的契機となった。', process:'急激な人口流入によりカリフォルニアはわずか2年ほどで准州の段階を経ずに州への昇格を果たし(奴隷州・自由州の均衡問題を再燃させ1850年の妥協を必要とした)、サンフランシスコは一寒村から国際商業都市へと急変貌した。', significance:'先住民社会は入植者の急増とそれに伴う組織的暴力・強制労働によって人口が数十年で激減する壊滅的な打撃を受け、中国系移民など新参の労働者集団への排斥運動も早くもこの時期から激化した。', debate:'急速な経済的発展の裏で先住民社会の破壊と移民排斥がほぼ同時進行したという事実を、この「フロンティアの繁栄」の物語とどう統合的に理解すべきかが論じられる。'} },
+  { id:'missouri_compromise', name:'ミズーリ妥協', category:'treaty', lat:38.90, lng:-77.04, start:1820, end:1820, region:'アメリカ合衆国',
+    desc:{background:'ルイジアナ買収地から編成されたミズーリが奴隷州として連邦加盟を申請したことで、当時11対11で均衡していた奴隷州・自由州の議会内勢力バランスが崩れる危機感が背景となった。', process:'ヘンリー=クレイの仲介によりミズーリを奴隷州として、メイン州を自由州として同時に連邦加盟させ均衡を回復するとともに、ルイジアナ買収地のうち北緯36度30分以北では将来的に奴隷制を禁止すると定める地理的境界線を設定する妥協が成立した。', significance:'この妥協は南北間の緊張を約30年にわたり先送りする効果を持ったが、老齢のジェファーソンはこの論争を「夜中の警鐘のように私を震撼させた」と評し、連邦の統一そのものを揺るがしかねない根本対立の存在を早くも予見していた。', debate:'この地理的境界による解決策は、後のメキシコ・アメリカ戦争での領土拡大によって同じ問題が別の形で再燃した際、カンザス=ネブラスカ法によって破棄されることになり、妥協による問題の先送りが根本的解決になり得たかが問われる。'} },
+  { id:'james_k_polk', name:'ジェームズ・K・ポーク', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1795, end:1849, region:'アメリカ合衆国',
+    desc:{background:'ジャクソンの門下生としての政治的経歴が「暗黒馬」候補から第11代大統領選出への足がかりとなった。', process:'就任前に掲げた「太平洋岸までの領土拡張」など明確な公約をすべて一期4年のうちに実現し、オレゴン地方の国境画定ではイギリスとの交渉で北緯49度線を採用する妥協をまとめ、続いてメキシコとの間ではアメリカ・メキシコ戦争を開戦してカリフォルニア・ニューメキシコを含む広大な領土を獲得した。', significance:'アメリカ大統領史上稀に見る実務的達成度の高さを持つ人物と評価されるが、この急速な領土拡大こそが獲得地における奴隷制の可否をめぐる南北対立を先鋭化させた。', debate:'彼自身が退任直後に病没した後の1850年代における連邦分裂への道を準備することになったという逆説を、公約実現の「成功」とその後の帰結の「失敗」としてどう総合的に評価すべきかが論じられる。'} },
+  // ===================== 南北戦争と再建 =====================
+  { id:'kansas_nebraska_act', name:'カンザス・ネブラスカ法', category:'event', lat:39.05, lng:-95.68, start:1854, end:1854, region:'アメリカ合衆国',
+    desc:{background:'ミズーリ妥協で定められた地理的境界に代わり、新たに編成する準州の奴隷制の是非をその地域の入植者自身の住民投票に委ねるという「人民主権」の論理が提唱されたことが背景となった。', process:'この法によりミズーリ妥協の境界線が反故にされたことで、奴隷制拡大反対派・賛成派の双方が組織的に入植者を送り込んで実力で既成事実を作ろうと競い合う「流血のカンザス」と呼ばれる武力衝突が数年にわたり頻発した。', significance:'この法の成立はそれまで妥協を模索してきたホイッグ党を事実上崩壊させ、奴隷制拡大に断固反対する立場で結集した新党・共和党の結成(1854年)を促し、既存の二大政党制の対立軸そのものを組み替えた。', debate:'「地域自治」という一見中立的な理念(人民主権)が奴隷制問題に適用された結果、かえって暴力的対立を招いたという逆説は、地域自治と道徳的問題の関係を考える重要な事例である。'} },
+  { id:'dred_scott_decision', name:'ドレッド・スコット判決', category:'event', lat:38.63, lng:-90.20, start:1857, end:1857, region:'アメリカ合衆国(セントルイス)',
+    desc:{background:'自由州イリノイ・自由準州ウィスコンシンに一時居住した経験を根拠に自由の身分を求めて訴訟を起こした奴隷ドレッド=スコットの事案が、連邦最高裁に持ち込まれたことが背景となった。', process:'南部出身のトーニー首席裁判官が主導する連邦最高裁は、黒人は自由黒人であっても市民として想定されておらず訴訟資格すら持たないと判断し、さらに連邦議会が準州における奴隷制を禁止する権限自体を憲法上持たないと判示した。', significance:'奴隷制反対派が長年頼みとしてきた「連邦議会の立法による奴隷制拡大阻止」という穏健な政治的解決策の憲法上の可能性そのものを否定するものであった。', debate:'この判決は共和党をはじめとする奴隷制反対派の危機感を決定的に強め、南北間の政治的対立を「もはや通常の立法過程では解決不能」な段階にまで先鋭化させたことをどう評価すべきかが論じられる。'} },
+  { id:'abraham_lincoln', name:'エイブラハム・リンカン', category:'person', parentId:'united_states', lat:39.80, lng:-89.64, start:1809, end:1865, region:'アメリカ合衆国(イリノイ)',
+    desc:{background:'1858年の上院議員選挙でスティーヴン=ダグラスと戦わせた「リンカン=ダグラス論争」を通じて全国的な知名度を得たことが、大統領選出馬の背景となった。', process:'奴隷制のこれ以上の拡大には反対するが南部での既存の奴隷制自体は当面容認するという穏健な立場で当選し、南部諸州の連邦離脱を受け連邦の維持を戦争の最優先の大義として掲げ、1863年に奴隷解放宣言を発して戦争目的を拡大し、ゲティスバーグ演説で民主政の理念を簡潔に表現した。', significance:'南北戦争を単なる連邦維持の内戦から人類普遍の自由と民主政の理念をめぐる戦いへと再定義したが、南軍降伏からわずか5日後に暗殺され、融和的な再建政策の実現は後任ジョンソン政権に委ねられた。', debate:'急進的な即時廃止論者ではなかった彼の当初の立場と、戦争を通じて奴隷制廃止という道義的大義を掲げるに至った転換の過程は、政治的現実主義と道徳的理想主義の関係を考える重要な事例である。'} },
+  { id:'confederate_states', name:'アメリカ連合国(南部連合)', category:'nation', lat:32.38, lng:-86.30, start:1861, end:1865, region:'アメリカ南部諸州',
+    desc:{background:'奴隷制拡大反対を掲げるリンカンの大統領当選(1860年11月)を機に、奴隷制とプランテーション経済に基盤を置く南部諸州が連邦議会でこの先自分たちの利益が保護され得ないとの危機感を強めたことが背景となった。', process:'州権の擁護を独立の大義として憲法上正面から掲げたが、その論理の根底には奴隷制という特定の財産制度の維持という具体的利害が存在し、工業力・人口・鉄道網・海軍力のいずれにおいても北部に著しく劣勢であったにもかかわらず優れた将帥と本土防衛の地の利を頼みに4年にわたり抗戦した。', significance:'国際的な承認も得られないまま1865年のリー将軍の降伏をもって崩壊し、連邦への再統合(再建期)を迎えることになった。', debate:'州権論そのものが目的というより奴隷制維持のための手段であったことが歴史学的にはほぼ一致した理解となっているが、この解釈と「失われた大義」史観との対立は南部の歴史認識をめぐる今日的な論争の核心である。'} },
+  { id:'jefferson_davis', name:'ジェファーソン・デイヴィス', category:'person', parentId:'confederate_states', lat:32.38, lng:-86.30, start:1808, end:1889, region:'アメリカ連合国',
+    desc:{background:'メキシコ・アメリカ戦争での軍功や連邦上院議員・陸軍長官としての経歴が、アメリカ連合国初代大統領選出の背景となった。', process:'州権の分権的理念を独立の大義として掲げて連合を指導したが、その理念自体が戦時における中央集権的な戦争遂行を著しく困難にする足枷となり、各州知事との権限をめぐる対立が終始戦争遂行の妨げとなった。', significance:'南軍降伏後に捕縛され反逆罪で収監されたが訴追は見送られ、晩年は「失われた大義」の論理(奴隷制ではなく州権こそが戦争の真の争点であったとする歴史修正的解釈)を擁護する回顧録を執筆し、この史観は20世紀前半の南部で長く影響力を持ち続けた。', debate:'自身は分離独立に当初やや消極的であったにもかかわらず連合の指導者となったという経緯と、彼が擁護した「失われた大義」史観の歴史的正確性との間の緊張が論じられる。'} },
+  { id:'civil_war', name:'南北戦争', category:'war', lat:39.83, lng:-77.23, start:1861, end:1865, region:'アメリカ合衆国全域',
+    relatedIds:['abraham_lincoln','battle_gettysburg','emancipation_proclamation','robert_e_lee','ulysses_s_grant'],
+    desc:{background:'奴隷制の存廃(より直接的にはその西部への拡大の可否)と連邦離脱の可否をめぐる対立が、合衆国と南部連合との全面戦争へと発展したことが背景となった。', process:'当初は南部の優れた将帥の巧みな用兵に苦戦した北軍だったが、工業力・人口・海軍力の圧倒的優位とグラント将軍の消耗戦戦略、シャーマン将軍の「海への進軍」を通じて次第に戦局を有利に進め、1865年のリー将軍降伏で終結した。', significance:'アメリカ史上最大の犠牲(推定62万人)を出したこの内戦を通じて奴隷制は憲法修正第13条により法的に廃止され連邦の分離不可能性が実力で確定されたが、戦後の南部社会には長期にわたる経済的荒廃と人種問題(ジム=クロウ体制)が深く残された。', debate:'シャーマンの「海への進軍」に象徴される総力戦(民間人への被害も伴う近代戦の先駆け)の是非、および法的な奴隷制廃止が実質的な人種平等にどこまで結びついたかが、戦争の「達成」を評価する上での重要な論点である。'} },
+  { id:'battle_gettysburg', name:'ゲティスバーグの戦い', category:'war', lat:39.83, lng:-77.23, start:1863, end:1863, region:'ペンシルベニア州(ゲティスバーグ)',
+    desc:{background:'長引く戦争で疲弊した南部の継戦意欲を維持するための決定的勝利を狙い、リー将軍が北部への大規模侵攻を試みたことが背景となった。', process:'ミード将軍率いる北軍と3日間にわたり激突し、3日目の「ピケットの突撃」が壊滅的な損害を出して失敗に終わり南軍は撤退を余儀なくされた。', significance:'この敗北により南軍の北部侵攻は事実上潰え、西部戦線でのグラント将軍によるビックスバーグ攻略と合わせて戦争の帰趨を大きく北軍優位に傾ける決定的な転換点となり、戦没者墓地献納式でのリンカンのゲティスバーグ演説は民主政の理念を凝縮した名演説として残った。', debate:'南北戦争最大にして最も犠牲者の多い戦闘であったこの一戦が、なぜ戦争全体の帰趨を決定づけたのか、その軍事的・心理的影響の大きさが論じられる。'} },
+  { id:'emancipation_proclamation', name:'奴隷解放宣言', category:'event', lat:38.90, lng:-77.04, start:1863, end:1863, region:'アメリカ合衆国',
+    desc:{background:'戦局の膠着と国際世論(奴隷制廃止に傾くイギリス世論)への配慮が、リンカンによる戦争目的拡大の背景となった。', process:'軍最高司令官としての戦時大権に基づき、1863年1月1日時点で「反乱状態」にある南部諸州における奴隷を法的に解放するとしたが、北部側にとどまっていた奴隷州や北軍が既に占領していた南部地域は意図的に適用対象から除外された。', significance:'戦争の目的に「奴隷制廃止」という道義的大義を正式に加えたことで南部連合を公式に承認・支援する国際的可能性を封じ込め、解放された黒人の北軍への従軍参加(約18万人)を促し戦争の性格を根本的に転換させた。', debate:'この布告のみで即座にすべての奴隷が解放される実際的効力はきわめて限定的であったことをどう評価すべきか、その限定的な法的射程を全面化した1865年の憲法修正第13条との関係が論じられる。'} },
+  { id:'robert_e_lee', name:'ロバート・E・リー', category:'person', parentId:'confederate_states', lat:37.38, lng:-78.80, start:1807, end:1870, region:'アメリカ連合国(バージニア)',
+    desc:{background:'合衆国陸軍工兵将校として卓越した評価を得ていたが、出身州バージニアの連邦離脱を受けて州への忠誠を優先し南軍への参加を選んだことが背景となった。', process:'北バージニア軍司令官として数的劣勢にもかかわらず大胆な兵力分散・奇襲によって北軍を度々苦しめたが、ゲティスバーグでの敗北を境に劣勢に転じ、1865年アポマトックスでグラント将軍に降伏した。', significance:'その卓越した軍才と高潔な人格への評価は南部社会で長く神格化され「失われた大義」史観の象徴的存在とされたが、近年は奴隷制の擁護者・実践者としての側面をめぐる歴史的評価の見直しが進んでいる。', debate:'記念碑撤去問題など現代アメリカの人種をめぐる政治的論争に直結する存在であり、軍事的才能と人格の高潔さへの評価と、奴隷制擁護者としての実態とをどう統合的に評価すべきかが論じられる。'} },
+  { id:'ulysses_s_grant', name:'ユリシーズ・S・グラント', category:'person', parentId:'united_states', lat:39.83, lng:-77.23, start:1822, end:1885, region:'アメリカ合衆国',
+    desc:{background:'メキシコ・アメリカ戦争に従軍後一時軍を退いていたが、南北戦争で復帰し西部戦線での勝利を経て北軍全体の総司令官に任命されたことが背景となった。', process:'圧倒的な物量を活かした消耗戦戦略でリー将軍を追い詰め南北戦争を勝利に導き、戦後は第18代大統領として南部再建における解放奴隷の市民権保護やクー=クラックス=クランの取り締まりに一定の真摯な努力を払った。', significance:'政権内で相次いだ汚職スキャンダルが政権の威信を傷つけ、また北部世論自体が再建政策への関心を次第に失っていったことで、再建の理念は彼の在任中に既に後退を始めていた。', debate:'近年再評価されている再建政策への真摯な取り組みと、政権を彩った汚職スキャンダルという両面をどう統合的に評価すべきかが論じられる。'} },
+  { id:'reconstruction_era', name:'再建期', category:'event', lat:38.90, lng:-77.04, start:1865, end:1877, region:'アメリカ南部諸州',
+    desc:{background:'南北戦争終結後、連邦への南部諸州の再統合と解放された黒人の市民権保障という二つの課題への取り組みが必要とされたことが背景となった。', process:'憲法修正第13〜15条により黒人の法的地位は劇的に前進し一時的に多くの黒人が公職に就く「急進的再建」の時期を迎えたが、南部白人による組織的なテロ(クー=クラックス=クラン)や北部世論の関心低下、1877年の妥協(共和党候補ヘイズの当選を南部民主党が黙認する代わりに南部からの連邦軍撤退を約束)を経て再建は事実上終了した。', significance:'以後南部では黒人を法的に再び従属的地位に置く人種隔離法制(ジム=クロウ法)が20世紀半ばの公民権運動に至るまで長期にわたり定着していった。', debate:'「急進的再建」で達成された黒人の政治参加が、なぜわずか十数年で後退を余儀なくされたのか、1877年の妥協という政治的取引の道義的責任がどこにあるかが論じられる。'} },
+  { id:'andrew_johnson', name:'アンドリュー・ジョンソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1808, end:1875, region:'アメリカ合衆国',
+    desc:{background:'南部テネシー出身でありながら連邦離脱に反対し続けた数少ない南部選出上院議員として、リンカンにより挙国一致内閣を象徴する副大統領候補に選ばれたことが背景となった。', process:'旧奴隷主層に融和的な自らの再建方針(元南部連合指導者の広範な恩赦)を議会共和党の急進派が主導する「議会再建」路線に対して繰り返し拒否権を行使して押し通そうとしたため議会との深刻な対立を招いた。', significance:'この対立は合衆国史上初の大統領弾劾訴追にまで発展し、上院での採決はわずか1票差で有罪(弾劾による罷免)を免れた。', debate:'この弾劾の経緯は大統領と議会との対立が先鋭化した際に弾劾制度がいかに政治的な武器として用いられうるかを示す最初期の重要な先例として論じられる。'} },
+  { id:'lincoln_assassination', name:'リンカン暗殺', category:'event', lat:38.90, lng:-77.03, start:1865, end:1865, region:'アメリカ合衆国(ワシントンD.C.)',
+    desc:{background:'南部の大義に固執する著名な俳優ジョン=ウィルクス=ブースが、南軍降伏(アポマトックス)直後の政権中枢を標的とする組織的な陰謀を企てたことが背景となった。', process:'ワシントンのフォード劇場で観劇中のリンカン大統領が背後から銃撃され翌朝死去し、同時に国務長官シュワードも別動の共犯者に襲撃され重傷を負った。', significance:'融和的な再建政策を自ら主導するはずだった指導者を最も重要な局面で失ったことで、後任のジョンソンのもとで再建政策は旧奴隷主層への融和を優先する方向へと転換した。', debate:'この指導者の不在が結果的に再建期の混迷と早期の頓挫につながったとする評価が歴史学において広く共有されているが、リンカンが存命であれば再建がどこまで異なる道をたどったかは検証不能な「if」の議論である。'} },
+  // ===================== カナダ史・イギリスとカナダの関係 =====================
+  { id:'canada_dominion', name:'カナダ(自治領・カナダ連邦)', category:'nation', lat:45.42, lng:-75.70, start:1867, end:2025, region:'北米北部大陸全域',
+    relatedIds:['canadian_confederation','john_a_macdonald','canadian_pacific_railway','riel_rebellions','louis_riel','durham_report','balfour_declaration_1926','statute_of_westminster','canada_act_1982','canada_wwi_vimy','suez_crisis_pearson'],
+    desc:{background:'英領北アメリカ法により1867年に自治連邦が成立し、オンタリオ・ケベック・ノバスコシア・ニューブランズウィックの4州で発足したことが出発点となった。', process:'西部準州やブリティッシュコロンビア、ニューファンドランド(1949年最後に加盟)などを順次編入し、ダラム報告書に始まる責任政治の確立、第一次世界大戦での軍事的貢献を経たバルフォア報告・ウェストミンスター憲章による対等な主権国家としての地位確立、1982年のカナダ憲法完全帰属に至るまで漸進的かつ平和的に完全な主権を獲得した。', significance:'戦争や急進的独立運動を経ることなく約150年をかけて主権を獲得したという、比較植民地史上きわめて特異な歩みを持ち、英語系・フランス系の二文化主義と多文化主義を国是とする独自の国家像を築いてきた。', debate:'ケベック州の分離独立問題(1980・1995年住民投票)に象徴されるように、英仏二系統の統合という建国以来の根本的な課題は今日まで完全には解消されておらず、この漸進的独立モデルの「成功」の限界がどこにあるかが論じられる。'} },
+  { id:'quebec_act', name:'ケベック法', category:'event', lat:46.81, lng:-71.21, start:1774, end:1774, region:'イギリス領カナダ(ケベック)',
+    desc:{background:'七年戦争後にイギリス領となった旧フランス領ケベックの統治体制を定める必要が背景となった。', process:'フランス系住民のカトリック信仰の自由やフランス民法の継続使用を認め、統治領域をオハイオ渓谷方面にまで拡大したが、南の十三植民地からは代議制議会を設置しない専制的統治やプロテスタント優位の英植民地世界におけるカトリック優遇として強く反発され「耐え難き諸法」の一つに数えられた。', significance:'この法によるフランス系住民の懐柔策が功を奏したことで、アメリカ独立戦争中に大陸軍がケベック侵攻(1775年)を試みた際も現地住民の広範な支持を得られず撃退され、結果としてケベックが英領にとどまる要因となった。', debate:'この経緯は現在まで続くカナダの英仏二文化主義の法的起点として、植民地統治における「懐柔」戦略が長期的な国家形成にどこまで規定的であったかが論じられる。'} },
+  { id:'loyalist_migration', name:'王党派(ロイヤリスト)の北方移住', category:'event', lat:45.42, lng:-75.70, start:1783, end:1785, region:'イギリス領カナダ(オンタリオ・ノバスコシア)',
+    desc:{background:'アメリカ独立戦争でイギリス本国への忠誠を貫いた「ロイヤリスト」約4〜5万人が、独立達成後のアメリカでの迫害・私刑・財産没収を逃れる必要に迫られたことが背景となった。', process:'残存イギリス領(ノバスコシア・後のニューブランズウィック、現在のオンタリオ)へ大規模に移住し、従来フランス系中心であったケベックとは異なる英語系人口が北方植民地で急激に増加した。', significance:'両者の統治上の要求を調整する必要から、ケベックを英語系中心のアッパー・カナダとフランス系中心のロウアー・カナダに分割する1791年憲法制定法が制定された。', debate:'独立という「アメリカの成功物語」の陰で生まれた敗者たち(ロイヤリスト)の存在が、逆説的に隣国カナダの英語系人口の基盤と独自のアイデンティティを形成したという対照的な帰結が論じられる。'} },
+  { id:'rebellions_1837', name:'1837年反乱(上下カナダ反乱)', category:'revolution', lat:45.50, lng:-73.57, start:1837, end:1838, region:'イギリス領カナダ(アッパー・ロウアーカナダ)',
+    desc:{background:'本国が任命する総督とその意向を代弁する非民選の行政参事会が、選挙で選ばれた議会の意向を無視して統治する体制への不満が背景となった。', process:'ロウアーカナダ(フランス系指導者パピノー)とアッパーカナダ(英語系改革派マッケンジー)でほぼ同時期に武装蜂起が発生したが、いずれも本国からの正規軍によって短期間で鎮圧され指導者は処刑または国外逃亡を強いられた。', significance:'事態を憂慮した本国政府が事後処理のため派遣したダラム卿の調査は、反乱の根本原因が制度的な統治の欠陥にあることを見抜き、後の「ダラム報告書」を生み出す直接の契機となった。', debate:'武装蜂起という手段自体は失敗に終わったが、その失敗が結果的により重要な統治改革(責任政治の導入)を促したという逆説をどう評価すべきかが論じられる。'} },
+  { id:'durham_report', name:'ダラム報告書', category:'event', lat:45.50, lng:-73.57, start:1839, end:1839, region:'イギリス領カナダ',
+    desc:{background:'1837年反乱の原因調査のため本国から派遣されたダラム卿が、わずか数か月の現地滞在で状況を分析したことが背景となった。', process:'ロウアーカナダの混乱を「一つの国家の内部に存在する二つの民族の対立」と捉え、フランス系住民をイギリス系の中に同化させることを企図して上下カナダの再統合を提言する一方、「責任政治」の導入を強く勧告した。', significance:'この報告書は大英帝国の植民地統治史上画期的な提言であり、後のオーストラリア・ニュージーランドなど他の「白人自治植民地」における自治拡大のモデルケースとなった。', debate:'フランス系文化の独自性を軽視する同化主義的な提言部分は今日から見れば明らかな誤算であったが、責任政治の導入という自由主義的改革の側面とどう総合的に評価すべきかが論じられる。'} },
+  { id:'act_of_union_1840', name:'連合法(1840年)とカナダ地方の再統一', category:'event', lat:45.50, lng:-73.57, start:1840, end:1841, region:'イギリス領カナダ',
+    desc:{background:'ダラム報告書の勧告に基づき、フランス系住民をイギリス系の中に文化的・政治的に同化させる意図が背景となった。', process:'アッパーカナダとロウアーカナダを一つの「カナダ地方」に再統合し、人口では優勢であったフランス系の政治的影響力を抑えるため両地域から同数の議席を配分したが、これは後にフランス系人口の急速な増加によって実態と乖離し「二重多数派」問題を生む一因となった。', significance:'この統合を機に責任政治の実現を求める運動が本格化し、1848年にカナダ地方でも責任政治が本国により正式に容認されるに至った。', debate:'この一連の経緯は大英帝国が力による統制ではなく段階的な自治拡大によって植民地の離反を防ごうとする統治実験の中間段階として、その意図と結果の乖離がどう評価されるべきかが論じられる。'} },
+  { id:'canadian_confederation', name:'カナダ連邦の成立', category:'event', lat:45.42, lng:-75.70, start:1867, end:1867, region:'カナダ',
+    desc:{background:'アメリカ南北戦争後の合衆国による北方併合への警戒感、鉄道建設・経済発展のための広域的な市場統合の必要性、カナダ地方における英仏二系統間の政治的行き詰まりという三つの要因が重なったことが背景となった。', process:'シャーロットタウン・ケベックでの一連の会議を経て英領北アメリカ法により成立し、オンタリオ・ケベック・ノバスコシア・ニューブランズウィックの4州で発足、以後西部準州やブリティッシュコロンビアなどを順次編入した。', significance:'「ドミニオン(自治領)」という統治形態は、独立という急進的な選択肢と完全な植民地統治という保守的な選択肢の中間に位置する漸進的な自治拡大のモデルとして、後の大英帝国内の他の白人系植民地にも踏襲される先例となった。', debate:'三つの背景要因(対米警戒・経済統合・政治的行き詰まり)のうちどれが結成の決定的な推進力であったかについて、カナダ建国史における力点の置き方が論じられる。'} },
+  { id:'john_a_macdonald', name:'ジョン・A・マクドナルド', category:'person', parentId:'canada_dominion', lat:45.42, lng:-75.70, start:1815, end:1891, region:'カナダ',
+    desc:{background:'カナダ連邦結成運動を主導した経験が、初代首相就任の背景となった。', process:'東西を結ぶカナダ太平洋鉄道の建設を国家統合の柱として強力に推進し、鉄道建設利権をめぐる贈収賄疑惑(太平洋スキャンダル)で一時失脚するも政界に復帰して国家統合の完成を見届け、保護貿易によって国内製造業を育成する「国家政策」を掲げた。', significance:'大西洋岸から太平洋岸に至る広大な領土の政治的・経済的一体性を確保し、以後長くカナダの経済政策における対米自立志向の原型となった。', debate:'西部の先住民・メティの土地権利を軽視した入植政策やルイ=リエルの反乱への強硬な対応、中国系移民への差別的な人頭税の導入は、今日のカナダ史においてその「建国の父」としての評価と併せて厳しく再検討されている。'} },
+  { id:'canadian_pacific_railway', name:'カナダ太平洋鉄道の完成', category:'event', lat:51.44, lng:-117.46, start:1881, end:1885, region:'カナダ(ブリティッシュコロンビア)',
+    desc:{background:'連邦参加の条件として鉄道敷設を求めた太平洋岸のブリティッシュコロンビア州との結合が、この大陸横断鉄道建設の背景となった。', process:'険しいロッキー山脈越えの難工事には約1万5千人規模の中国系移民労働者が白人労働者より低い賃金かつ危険な作業を担わされ、推定数百人規模の死者を出しながら従事し、鉄道完成のわずか数か月後に中国系移民の入国に人頭税を課す法律が制定された。', significance:'この鉄道の完成により東西カナダの実質的な経済的・軍事的統合が達成され、1885年のノースウェスト反乱に際して連邦軍を短期間で西部へ大量輸送できたことは国家統合そのものを担保する戦略的意味を持っていた。', debate:'建設への多大な貢献とその後の処遇の落差(人頭税)は今日厳しく批判の対象となっており、国家的インフラ事業における移民労働力の貢献と権利保護の不均衡が論じられる。'} },
+  { id:'louis_riel', name:'ルイ・リエル', category:'person', lat:49.90, lng:-97.14, start:1844, end:1885, region:'カナダ(レッドリバー・マニトバ)',
+    desc:{background:'フランス系と先住民の混血であるメティの指導者として、連邦政府が現地住民の同意を得ないまま進めた土地測量・入植政策への反発が背景となった。', process:'レッドリバーの反乱(1869〜70年)を主導しマニトバ州の連邦編入とメティの土地権利の一部保障を勝ち取ったが、後のノースウェスト反乱(1885年)では交渉が不調に終わる中で武装蜂起に踏み切って鎮圧され、反逆罪で処刑された。', significance:'フランス系・カトリック系住民からは殉教者と見なされる一方、当時の英語系プロテスタント世論はこの処刑を強く支持し、この評価の対立はケベックとイングリッシュ=カナダとの間の緊張を長く残す事件となった。', debate:'自らを預言者と称する言動が精神疾患によるものか信仰上の確信によるものかという精神鑑定をめぐる激しい議論は、彼の処刑の正当性評価と直結する重要な論点である。'} },
+  { id:'riel_rebellions', name:'メティの反乱(レッドリバー・ノースウェスト反乱)', category:'war', lat:49.90, lng:-97.14, start:1869, end:1885, region:'カナダ西部(マニトバ・サスカチュワン)',
+    desc:{background:'カナダ連邦政府による西部準州の土地測量・入植政策が、先住のメティや先住民の既存の土地利用・権利を無視して進められたことが背景となった。', process:'第一次(レッドリバー、1869〜70年)はマニトバ州設立という形で決着したが、第二次(ノースウェスト、1885年)では連邦との交渉が不調に終わり先住民クリー族の一部合流もあって全面的な武力衝突に発展し、完成間近であったカナダ太平洋鉄道を利用して迅速に派遣された連邦軍により数か月で鎮圧された。', significance:'この二つの反乱は、カナダの西方拡大がアメリカの西部開拓と同様に先住民族・混血集団の土地権利の否定を伴う過程であったことを示す代表例である。', debate:'第一次の成功(交渉による決着)と第二次の失敗(武力鎮圧)という対照的な結末の違いが、連邦政府の対応の変化によるものか、状況の違いによるものかが論じられる。'} },
+  { id:'canada_wwi_vimy', name:'第一次世界大戦とカナダ(ヴィミー・リッジの戦い)', category:'war', lat:50.38, lng:2.77, start:1914, end:1918, region:'カナダ・西部戦線(フランス)',
+    desc:{background:'カナダがドミニオン(自治領)としてイギリスの参戦決定に自動的に従う法的立場にあったことが、第一次世界大戦参戦の背景となった。', process:'西部戦線に派遣されたカナダ軍団は1917年、それまで英仏軍が繰り返し攻略に失敗していたヴィミー・リッジ高地を、全軍団を史上初めて統一指揮下に置く「創造的戦術」によって攻略する戦果を挙げた。', significance:'この勝利はカナダ軍・カナダという国家の存在感を国際的に際立たせ、カナダが単なる従属的な植民地ではなく独自の国益・発言権を持つ政治的主体として国際社会に認知される画期となり、戦後国際連盟に独自の議席を得るに至った。', debate:'一つの戦闘での軍事的成功が、これほどまでに国家的アイデンティティの確立と国際的地位の向上に結びついた背景には何があったのかが論じられる。'} },
+  { id:'balfour_declaration_1926', name:'バルフォア報告(1926年)', category:'event', lat:51.51, lng:-0.13, start:1926, end:1926, region:'イギリス・カナダ・帝国会議',
+    desc:{background:'第一次世界大戦での自治領各国の多大な貢献と、それに伴う政治的発言権拡大の要求が背景となった。', process:'帝国会議において、イギリス本国とカナダなど自治領との関係を「いずれも大英帝国内において対等な地位にあり、内政・外交のいずれにおいても互いに従属しない」共同体と定義した。', significance:'従来「本国」と「植民地」という上下関係で理解されてきた帝国内の構造を、対等な主権国家群の緩やかな連合(「英連邦」概念の実質的な誕生)へと転換する理念的な画期となった。', debate:'この理念的な宣言に法的な実効性を与えるまでに1931年のウェストミンスター憲章を要したことは、理念の表明と法制化との間の時間差がどのような政治的意味を持つかを考えさせる。'} },
+  { id:'statute_of_westminster', name:'ウェストミンスター憲章', category:'treaty', lat:51.51, lng:-0.13, start:1931, end:1931, region:'イギリス・カナダなど自治領',
+    desc:{background:'バルフォア報告(1926年)が示した自治領の対等な地位という理念を法制化する必要が背景となった。', process:'カナダをはじめとする自治領は、イギリス議会の立法がもはや自国に自動的に適用されることはなく、自国議会が本国議会と対等に独自の立法を行う法的権限を正式に獲得した。', significance:'この憲章によりカナダは法的には主権国家としての実質をほぼ完全に獲得したが、憲法そのものの改正権限は依然としてイギリス議会に残されるという変則的な状態が1982年まで続いた。', debate:'1926年のカナダにおける「キング=バング事件」のような総督の権限をめぐる曖昧さの解消が、この憲章の成立をどこまで後押ししたかが論じられる。'} },
+  { id:'canada_declares_war_1939', name:'カナダの独自参戦(第二次世界大戦)', category:'event', lat:45.42, lng:-75.70, start:1939, end:1939, region:'カナダ',
+    desc:{background:'ウェストミンスター憲章によって外交上の完全な自律性を得ていたカナダが、この自律性を実際に行使する機会を迎えたことが背景となった。', process:'イギリスの対独宣戦布告からあえて1週間ほど間をおいた上で、自国議会の独自の審議・議決を経て参戦を決定した。', significance:'この「1週間の間隔」は実質的な軍事協力の内容では本国とほぼ同一歩調をとりながらも、参戦がカナダ自身の主権的な意思決定であることを内外に印象づける象徴的だが極めて重要な政治的演出であった。', debate:'第一次世界大戦時にドミニオンとして自動的に従わざるを得なかった状況との対比が、カナダの外交的自立の到達点をどう示しているかが論じられる。'} },
+  { id:'suez_crisis_pearson', name:'スエズ危機とピアソンの国連平和維持活動', category:'event', lat:30.00, lng:32.35, start:1956, end:1957, region:'エジプト・国際連合',
+    desc:{background:'エジプトのナセル大統領によるスエズ運河国有化を機に、旧宗主国イギリス・フランスがイスラエルと共謀して軍事介入した「スエズ危機」で、両国が国際的に孤立したことが背景となった。', process:'カナダ外相レスター=ピアソンが国連の権威のもとで中立的な多国籍部隊を派遣し当事国の軍を段階的に撤退させるという「国連緊急軍(UNEF)」の創設を提案してこれを実現させた。', significance:'この功績によりピアソンは1957年のノーベル平和賞を受賞し、この事例は「国連平和維持活動(PKO)」という国際紛争解決の新たな手法の実質的な確立として国際政治史上重要である。', debate:'旧宗主国イギリス・フランスの帝国的な単独行動を、その旧植民地であったカナダが多国間外交によって収拾するという構図が、20世紀の国際秩序の転換をどう象徴しているかが論じられる。'} },
+  { id:'canada_act_1982', name:'カナダ憲法の完全帰属(1982年憲法・カナダ法)', category:'event', lat:45.42, lng:-75.70, start:1982, end:1982, region:'カナダ・イギリス',
+    desc:{background:'ウェストミンスター憲章(1931年)以降も、カナダの根本法である英領北アメリカ法の改正権限だけはイギリス議会に残されるという変則的な状態が続いていたことが背景となった。', process:'トルドー首相のもとでの連邦・各州間の長期にわたる困難な交渉(ケベック州が最終的にこの合意への署名を拒否したまま今日に至る)を経て、イギリス議会がカナダ法(1982年)を制定してこの改正権限を完全にカナダ自身の手に委譲した。', significance:'同時に制定された「権利と自由の憲章」は、以後のカナダにおける司法審査を通じた人権保障の中心的な法的基盤となった。', debate:'大英帝国の解体という世界史的過程が、戦争や急進的な独立運動によってではなく半世紀以上にわたる漸進的で平和的な法的手続きの積み重ねによって完了した稀有な事例として、この達成の意義が論じられる一方、ケベック州の署名拒否が残した課題も重要である。'} },
+  { id:'quebec_referendums', name:'ケベック州主権(独立)住民投票', category:'event', lat:46.81, lng:-71.21, start:1980, end:1995, region:'カナダ(ケベック州)',
+    desc:{background:'フランス系住民が多数を占めるケベック州で、1960年代の「静かな革命」を背景にフランス系住民の経済的・文化的自立意識が急速に高まったことが背景となった。', process:'州政府与党ケベック党のもとで実施された1980年投票では独立反対が明確な多数を占めたが、1995年の再度の投票では独立反対がわずか1%未満というきわめて僅差で辛勝した。', significance:'この結果を受け連邦最高裁は後年、州が一方的に分離独立を宣言することの合法性を否定しつつも、明確な多数の意思が示された場合には連邦側に誠実な交渉義務があるとする判断(2000年明確性法の制定につながる)を示した。', debate:'英仏二言語・多文化主義を国是とするカナダの国家統合が、法的には解決済みとされながらも今日まで続く根本的な緊張を内包していることをどう理解すべきかが論じられる。'} },
+  // ===================== メキシコ史(独立〜革命) =====================
+  { id:'mexican_independence_war', name:'メキシコ独立戦争', category:'war', lat:21.15, lng:-101.72, start:1810, end:1821, region:'ヌエバ・エスパーニャ',
+    relatedIds:['miguel_hidalgo','agustin_iturbide'],
+    desc:{background:'ナポレオンによるスペイン本国占領(1808年)がスペイン王権の正統性そのものを揺るがし、植民地における統治権の所在をめぐる政治的空白を生んだことが直接の契機となった。', process:'神父ミゲル=イダルゴの蜂起の呼びかけは当初先住民・混血層を中心とする社会変革的な民衆蜂起であったが、指導者イダルゴ・モレロスの相次ぐ処刑後、本国での自由主義革命がクリオーリョの既得権益を脅かすことを警戒した保守的なクリオーリョ勢力が一転してイトゥルビデのもとで独立側に転じ、1821年のコルドバ条約により独立が達成された。', significance:'当初の急進的な社会変革の理念は結果的に後退し、独立後も土地・身分をめぐる格差構造の多くが温存された。', debate:'この逆説的な結末(急進的蜂起が保守的独立に転化)は、ラテンアメリカ独立運動の多くに共通する特徴として、独立運動の「担い手」と「受益者」の乖離という重要な論点を提起する。'} },
+  { id:'miguel_hidalgo', name:'ミゲル・イダルゴ', category:'person', parentId:'mexican_independence_war', lat:21.15, lng:-101.72, start:1753, end:1811, region:'ヌエバ・エスパーニャ(ドロレス)',
+    desc:{background:'村の司祭でありながら啓蒙思想の書物にも通じ、先住民・混血層の窮状に強い共感を示していたことが、独立計画の背景となった。', process:'計画の露見を察知し予定を早めて1810年9月16日未明に「ドロレスの叫び」を発し、数万人規模の民衆軍を率いて各地を転戦したが軍事的訓練に乏しく決定的な勝機を逃し、翌1811年に捕えられ処刑された。', significance:'彼が掲げた独立と社会的公正(貢納の廃止や奴隷制廃止も布告)の理念は後継者モレロスら独立運動に受け継がれ、独立宣言と同じ9月16日は今日までメキシコの独立記念日として盛大に祝われている。', debate:'首都メキシコ市の目前にまで迫りながら決定的な勝機を逃した判断の遅れは、軍事的経験の乏しさゆえの戦略的失策として後世大きな論争の的となっている。'} },
+  { id:'agustin_iturbide', name:'アグスティン・デ・イトゥルビデ', category:'person', lat:19.43, lng:-99.13, start:1783, end:1824, region:'メキシコ',
+    desc:{background:'当初は独立派鎮圧に当たった王党派の軍人であったが、本国スペインの自由主義革命(1820年)が教会財産の世俗化を志向することを警戒したことが転向の背景となった。', process:'「宗教・独立・統一」の三つの保証を掲げる「イグアラ綱領」を打ち出して独立側に転向し、独立派残党ゲレーロと同盟して1821年のコルドバ条約でメキシコ独立を達成させ、自ら皇帝(アグスティン1世)に即位したが共和主義者の反発を招きわずか1年足らずで退位・国外追放となり、帰国を試みたところを逮捕され処刑された。', significance:'この短命な帝政の失敗は、以後のメキシコが慢性的な政治的不安定(19世紀を通じて頻発する軍事クーデタと憲法の頻繁な改廃)に陥る出発点ともなった。', debate:'独立を実現させた立役者でありながら短期間で追放・処刑されたという経緯は、独立運動の「主導者」の正統性が独立達成後にどう急速に失われうるかを示す事例として論じられる。'} },
+  { id:'benito_juarez', name:'ベニート・フアレス', category:'person', lat:19.43, lng:-99.13, start:1806, end:1872, region:'メキシコ',
+    desc:{background:'先住民サポテカ族出身という異例の経歴で独学により弁護士資格を得て政界に進出したことが、自由主義派の政治家としての地位の背景となった。', process:'教会・軍の特権を制限する改革法(レフォルマ)を推進して保守派との内戦(改革戦争)を勝ち抜いた後、フランス(ナポレオン3世)とこれが擁立したマクシミリアン皇帝による傀儡帝政に対しゲリラ戦を含む抵抗を粘り強く続け、1867年にフランス軍撤退とマクシミリアン処刑を経て共和政を回復させた。', significance:'政教分離と自由主義的近代化を推し進めたその統治は、外国からの軍事介入に抗して主権を守り抜いた「国家的英雄」として、メキシコにおける近代国家建設の重要な礎とされる。', debate:'対外債務の返済停止宣言を口実としたフランスの侵攻は、当時の南北戦争でアメリカがモンロー主義を実力で担保できない状況を狙ったものであったとされ、この国際情勢の隙をどう評価するかが論じられる。'} },
+  { id:'porfirio_diaz', name:'ポルフィリオ・ディアス', category:'person', lat:19.43, lng:-99.13, start:1830, end:1915, region:'メキシコ',
+    desc:{background:'フランス干渉戦争での軍功が、クーデタによる政権奪取と長期独裁体制(ポルフィリアート期)確立の背景となった。', process:'「秩序と進歩」を掲げて外国資本を積極的に誘致して鉄道網整備・鉱工業近代化を進め輸出主導型成長を実現した一方、伝統的な共同体的土地保有(エヒード)が収奪されて多数の農民が土地を失い困窮化するなど深刻な社会格差を拡大させた。', significance:'「無再選」を掲げて政権を得たにもかかわらず後に自ら憲法を改正して再選を重ねるという逆説的な経緯をたどり、この長期独裁下で蓄積された政治的閉塞と経済的矛盾こそが1910年のメキシコ革命勃発の根本的な背景となった。', debate:'表面的な経済発展(輸出主導型成長)と実質的な社会格差拡大という二面性を、どちらにどれだけ重きを置いて評価すべきかは、開発独裁一般の功罪を論じる典型的な論点である。'} },
+  { id:'mexican_revolution', name:'メキシコ革命', category:'revolution', lat:19.43, lng:-99.13, start:1910, end:1920, region:'メキシコ全土',
+    relatedIds:['francisco_madero','pancho_villa','emiliano_zapata','porfirio_diaz'],
+    desc:{background:'ディアス独裁体制下での土地収奪・格差拡大と政治的閉塞への不満が、自由選挙の実現を掲げるマデロの蜂起という発端を生んだ。', process:'マデロ政権樹立後もより急進的な土地改革を求める南部の農民指導者サパタや北部のパンチョ=ビリャらの勢力が中央の統制を離れて独自の要求を掲げ内戦は複雑化・長期化し、マデロ自身も軍部のクーデタで暗殺され、カランサ・オブレゴンら複数の勢力が離合集散を繰り返した。', significance:'推定100万人規模の死者を出す激しい戦乱の末、1917年憲法(土地改革・労働者保護・教会権力制限・地下資源の国家帰属を明記した第27条など、当時世界的に見ても急進的な社会権規定)の制定を経て国家再編が進んだ。', debate:'単なる政権交代にとどまらず後の制度的革命党による長期一党支配体制の基本理念を形成した点で、この革命の「成果」がどこまで農民層の要求を実現し得たかが論じられる。'} },
+  { id:'francisco_madero', name:'フランシスコ・マデロ', category:'person', parentId:'mexican_revolution', lat:19.43, lng:-99.13, start:1873, end:1913, region:'メキシコ',
+    desc:{background:'富裕な地主家庭出身ながらフランス・アメリカで学び自由主義思想に触れたことが、ディアス独裁打倒への蜂起を決意させた背景となった。', process:'「サンルイスポトシ綱領」で武装蜂起を呼びかけディアスを退陣・亡命に追い込み民主的選挙を経て大統領に就任したが、サパタらが求めた急進的な土地改革には地主層への配慮から消極的で農民勢力の支持を急速に失った。', significance:'この政治的孤立に乗じた軍部のクーデタ(ウエルタ将軍)により拘束され暗殺され、この裏切りと暗殺により革命はより急進的で長期化する内戦段階へと突入した。', debate:'政治的自由化には熱心であったが社会経済的改革には消極的であったという彼の限界が、革命のさらなる急進化・長期化をどこまで招いたかが論じられる。'} },
+  { id:'pancho_villa', name:'パンチョ・ビリャ', category:'person', parentId:'mexican_revolution', lat:28.63, lng:-106.07, start:1878, end:1923, region:'メキシコ北部(チワワ)',
+    desc:{background:'貧農出身で若年期には無法者として知られていたことが、北部チワワ州を拠点とする非正規の農民軍(北部師団)組織の背景となった。', process:'機動力に富む騎兵戦術でメキシコ革命の軍事面を主導したが、マデロ暗殺後は立憲派との協力・対立を繰り返し、勢力を後退させるとアメリカがカランサ政権を承認したことへの報復として国境地帯の町コロンバスを越境攻撃(1916年)した。', significance:'これに対しアメリカがパーシング将軍率いる懲罰遠征隊をメキシコ領内に派遣する事態にまで発展し、隣接する大国アメリカが自国の治安・威信を理由にメキシコ領内へ軍事介入する先例となった。', debate:'この越境攻撃事件は両国関係における非対称な力関係を象徴する出来事として、国家間の軍事的均衡が国内の政治的主導権争いにどう連動したかが論じられる。'} },
+  { id:'emiliano_zapata', name:'エミリアーノ・サパタ', category:'person', parentId:'mexican_revolution', lat:18.68, lng:-99.10, start:1879, end:1919, region:'メキシコ南部(モレロス)',
+    desc:{background:'南部モレロス州の農民出身で、地元の共有地(エヒード)がプランテーション拡大のため大地主に収奪されていく現実に直面したことが背景となった。', process:'「土地と自由」を掲げ大地主に奪われた共有地の農民への無条件返還を求める急進的な土地改革要求「アヤラ綱領」を掲げ、彼が率いる「解放軍」は占領地で実際に土地の再分配を実行したが、その徹底した急進性は都市エリート出身の他の革命勢力とはしばしば激しく対立し、最終的には和解を装った政府軍の罠にかかり暗殺された。', significance:'彼の理念は1917年憲法の土地改革条項(第27条)に反映され、後のメキシコにおける農地改革政策(1930年代のカルデナス政権)に長く影響を残し、20世紀後半以降はラテンアメリカ全体の農民運動・先住民運動においても抵抗の象徴として繰り返し参照される存在となった。', debate:'土地なき農民の切実な要求を体現する存在として絶大な支持を集めた彼の急進性が、なぜ革命内部の他勢力との致命的な対立を招いたのか、革命運動内部の路線対立の構造が論じられる。'} },
+  // ===================== 産業化・金ぴか時代・世紀転換期 =====================
+  { id:'transcontinental_railroad_us', name:'アメリカ大陸横断鉄道の完成', category:'event', lat:41.62, lng:-112.55, start:1863, end:1869, region:'アメリカ合衆国(ユタ州プロモントリー)',
+    desc:{background:'南北戦争中、南部選出議員の議会不在という政治的好機を捉えて連邦議会が太平洋鉄道法(1862年)を可決したことが背景となった。', process:'東からユニオン=パシフィック鉄道(アイルランド系移民が中心)、西からセントラル=パシフィック鉄道(中国系移民が建設の中核)がそれぞれ建設を進め、ユタ州プロモントリーサミットで「黄金のスパイク」が打たれて連結・開通した。', significance:'この鉄道により東西の移動期間は数か月から1週間程度に短縮され、単一の全国市場の統合的な形成が飛躍的に進んだ。', debate:'建設のため広大な先住民の土地が接収され、鉄道会社が意図的にバイソンの乱獲・駆除を後押しした(平原先住民の生活基盤を絶つ狙いもあったとされる)ことは、経済的近代化の裏面としてどう総括すべきかが論じられる。'} },
+  { id:'gilded_age_industrialization', name:'金ぴか時代とアメリカの産業化', category:'event', lat:40.71, lng:-74.01, start:1870, end:1900, region:'アメリカ合衆国北東部・中西部',
+    desc:{background:'南北戦争後、鉄鋼・石油・鉄道といった基幹産業で水平統合・垂直統合を通じて巨大企業が形成され、急速な工業化と都市化が進んだことが背景となった。', process:'政府による経済への介入・規制がほぼ皆無に近い「自由放任」の思想的正当化(社会ダーウィニズム)のもと巨大企業が莫大な富を築く一方、劣悪な労働環境に苦しむ労働者との格差が極端に拡大し、労働組合運動やポピュリズム運動が既存の二大政党の枠組みを超えて高まった。', significance:'マーク=トウェインが皮肉を込めて名付けた「金ぴか時代」という呼称は、表面的な繁栄と華美な消費文化の裏に潜む格差・政治腐敗を象徴し、この時代への反省が20世紀初頭の革新主義運動を準備することになった。', debate:'自由放任経済がもたらした急速な経済成長と、それに伴う格差拡大・労働問題のどちらに歴史的評価の力点を置くべきかが、資本主義発展史の理解において論じられる。'} },
+  { id:'andrew_carnegie', name:'アンドリュー・カーネギー', category:'person', lat:40.44, lng:-79.99, start:1835, end:1919, region:'アメリカ合衆国(ピッツバーグ)',
+    desc:{background:'スコットランドからの貧しい移民の身から鉄道会社勤務を通じて資本主義の仕組みを学んだことが、鉄鋼業への投資という事業の背景となった。', process:'原料調達から製造・輸送までを自社で一貫支配する垂直統合により圧倒的なコスト優位を実現し「製鉄王」と呼ばれる巨富を築いたが、1892年のホームステッド争議では会社側が武装警備員を投入し複数の死者を出す流血の惨事を招いた。', significance:'晩年は「富の福音」で「富める者が生前にその富を公共の利益のために還元する責務」を説き、莫大な私財を全米各地の公共図書館建設(2500館以上)に投じ、近代的な大規模慈善活動の先駆けとなった。', debate:'労働者への非情な対応(ホームステッド争議)と、後年の大規模な慈善活動という二面性を、一人の実業家の生涯としてどう統合的に評価すべきかが論じられる。'} },
+  { id:'immigration_ellis_island', name:'エリス島と大量移民の時代', category:'event', lat:40.70, lng:-74.04, start:1892, end:1954, region:'アメリカ合衆国(ニューヨーク港)',
+    desc:{background:'それまで移民の主流であった北西欧出身者に加え、南欧・東欧出身の「新移民」が急増したことが、連邦移民審査施設設置の背景となった。', process:'最盛期には年間100万人以上がここを通過して健康診断・素行審査を受け、多様な出自の移民が急速に拡大する工業労働力として産業化を支える一方、既存住民との文化的・宗教的摩擦や排斥運動が高まった。', significance:'この排外主義は1920年代に結実し、出身国別に移民数の上限を設ける割当法(1921年・1924年)が制定され、北西欧を優遇し南欧・東欧やアジアからの移民を事実上大幅に制限する内容となった。', debate:'「自由の女神が迎える移民の国」という自己イメージと、現実の排他的な移民政策との間の緊張は、20世紀を通じたアメリカ移民史の重要な論争軸であり続けている。'} },
+  { id:'spanish_american_war', name:'米西戦争', category:'war', lat:23.13, lng:-82.38, start:1898, end:1898, region:'カリブ海(キューバ)・太平洋',
+    desc:{background:'キューバ独立運動へのスペインの過酷な弾圧を、部数拡大を狙う新聞の「イエロー=ジャーナリズム」が誇張的に報道して反スペイン世論を煽ったことが背景となった。', process:'ハバナ港での米艦メイン号爆沈事件(原因は今も確定していない)を機に開戦し短期間でアメリカが圧勝、キューバの形式的独立を承認させる一方(実際にはプラット修正条項による半従属的な独立にとどまった)プエルトリコ・グアム・フィリピンをスペインから割譲・獲得した。', significance:'この勝利によりアメリカはそれまでの大陸内での領土拡大から一転して海外に恒久的な領土・勢力圏を持つ新興の帝国主義的大国としての地位を確立した。', debate:'フィリピンでは独立を求める現地勢力との間で新たな戦争(フィリピン・アメリカ戦争)に直面するなど、「自由の理念を掲げる共和国」が「他民族を統治する帝国」へと転じることの内在的矛盾がこの戦争を通じて早くも露呈した。'} },
+  { id:'william_mckinley', name:'ウィリアム・マッキンリー', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1843, end:1901, region:'アメリカ合衆国',
+    desc:{background:'高関税による国内産業保護を一貫して主張する共和党の政策通として、第25代大統領に就任したことが背景となった。', process:'当初はキューバ問題での対スペイン開戦には慎重であったが扇情的な世論と議会の主戦論に押される形で米西戦争の開戦を決断し、この勝利によってフィリピン・プエルトリコ・グアムを獲得、中国における「門戸開放宣言」を発した。', significance:'1901年に無政府主義者による狙撃を受けて死去し、副大統領セオドア=ルーズベルトが昇格したことで以後のアメリカの革新主義・帝国主義的外交路線が大きく加速することになった。', debate:'当初慎重であった彼が世論に押されて開戦に転じた経緯は、指導者の意思決定と世論・議会の圧力との関係を考える重要な事例である。'} },
+  { id:'theodore_roosevelt', name:'セオドア・ルーズベルト', category:'person', lat:38.90, lng:-77.04, start:1858, end:1919, region:'アメリカ合衆国',
+    desc:{background:'米西戦争での従軍経験(義勇騎兵隊「ラフ・ライダーズ」)による名声が、マッキンリーの副大統領選出と暗殺による大統領昇格の背景となった。', process:'巨大トラストの解体を進める革新主義的な独占規制や食品・医薬品の安全規制、国立公園・森林保護区の拡充を推進し、対外的には「棍棒外交」を掲げてコロンビアからのパナマ分離独立を支援しパナマ運河建設・管理権を強引に確保した。', significance:'モンロー主義を能動的な軍事介入の根拠へと拡大解釈する「ルーズベルトの系論」を打ち出し、日露戦争の講和を仲介した功績で1906年にノーベル平和賞を受賞した。', debate:'国内の革新主義的改革者としての側面と、対外的な帝国主義的介入を推進した側面という一見矛盾する二面性を、どう統合的に理解すべきかが論じられる。'} },
+  // ===================== 二つの世界大戦・大恐慌 =====================
+  { id:'wwi_us_entry', name:'第一次世界大戦へのアメリカ参戦', category:'event', lat:38.90, lng:-77.04, start:1917, end:1918, region:'アメリカ合衆国',
+    desc:{background:'開戦当初ウィルソン大統領が厳正中立を掲げていた状況が、ドイツによる無制限潜水艦作戦の再開とツィンメルマン電報の暴露によって転換を迫られたことが背景となった。', process:'1917年に連合国側で参戦し、本国からの新鋭部隊投入がロシア革命による東部戦線崩壊で息を吹き返しかけたドイツ軍の西部戦線での最後の大攻勢を頓挫させ、消耗しきった戦況を連合国優位へ決定的に傾けた。', significance:'戦後ウィルソン大統領は「十四カ条」を提唱し国際連盟創設の理念的主導者となったが、アメリカ議会は条約批准・国際連盟加盟をいずれも否決し、提唱国自身が参加しないという皮肉な結果に終わった。', debate:'中立から参戦への転換の決定的要因を、ドイツの潜水艦作戦(実害)とツィンメルマン電報(発覚による衝撃)のどちらに求めるべきかが論じられる。'} },
+  { id:'woodrow_wilson', name:'ウッドロー・ウィルソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1856, end:1924, region:'アメリカ合衆国',
+    desc:{background:'プリンストン大学学長を経て政界入りした学者出身という経歴が、国内改革(連邦準備制度創設)を主導する第28代大統領としての基盤となった。', process:'当初は第一次世界大戦への中立を掲げたが無制限潜水艦作戦の再開を受けて参戦を決断し、戦後処理の原則として国家自決・秘密外交の廃止・国際平和機構の設立などを盛り込んだ「十四カ条」を提唱した。', significance:'この「民族自決」の理念は東欧の新興独立国のみならず後のアジア・アフリカ植民地における独立運動にも理念的な波及効果を及ぼしたが、上院共和党が国際連盟規約の集団安全保障条項に反対し批准を拒否したため自ら提唱した国際連盟にアメリカ自身が加盟できないという皮肉な結果に終わった。', debate:'理想主義的な国際協調路線が戦間期のアメリカで十分に受け継がれなかったことの要因を、議会の孤立主義的傾向に求めるか、ウィルソン自身の妥協を拒む頑なな姿勢に求めるかで議論がある。'} },
+  { id:'prohibition_era', name:'禁酒法時代', category:'event', lat:41.88, lng:-87.63, start:1920, end:1933, region:'アメリカ合衆国',
+    desc:{background:'プロテスタント系の禁酒運動団体の長年の道徳的キャンペーンと、第一次世界大戦中の穀物節約論・反ドイツ系ビール醸造業者感情の高まりが背景となった。', process:'憲法修正第18条とヴォルステッド法により酒類の製造・販売・輸送が全国的に禁止されたが、需要は消えず密造酒や非合法の酒場が全国的に横行し、組織犯罪(マフィア)が密造・密輸・密売網の支配を通じて空前の資金力を蓄える皮肉な結果を招いた。', significance:'取り締まりの実効性の乏しさと組織犯罪の跳梁への反省から、1933年の憲法修正第21条(既存の修正条項を丸ごと廃止した唯一の例)により撤廃された。', debate:'この禁酒法は「法律で人々の私生活上の嗜好を強制的に矯正しようとする社会的実験」の失敗例としてしばしば引用され、道徳的立法の実効性の限界を考える上で重要な事例である。'} },
+  { id:'great_depression', name:'世界恐慌とアメリカ', category:'event', lat:40.71, lng:-74.01, start:1929, end:1939, region:'アメリカ合衆国',
+    desc:{background:'1920年代の投機的な株式ブームの反動として1929年のニューヨーク株式市場大暴落が発生したことが直接の契機となった。', process:'信用収縮による銀行の連鎖倒産・企業の大量倒産・失業率の急上昇という未曾有の経済危機に陥り、フーヴァー大統領が自由放任の原則に固執し政府による直接的な経済介入に消極的であったことが危機の深刻化を招いたとの批判が強く、中西部を襲った大規模な砂嵐(ダストボウル)による農業被害も重なった。', significance:'各国が自国産業保護のため高関税で応酬する世界的な保護主義の連鎖と国際協調の崩壊を招き、これが同時期のドイツにおけるナチスの台頭やヨーロッパ全体でのファシズム勢力伸長の経済的土壌ともなった。', debate:'フーヴァーの自由放任的対応の是非をめぐる評価は、この危機を世界史的な連鎖の中に位置づけて理解する必要性とあわせて、経済政策における政府介入の是非という今日的な論争にもつながる。'} },
+  { id:'franklin_roosevelt', name:'フランクリン・D・ルーズベルト', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1882, end:1945, region:'アメリカ合衆国',
+    desc:{background:'ニューヨーク州知事として恐慌対策の経験を積んだことが、世界恐慌のさなかの圧倒的勝利による第32代大統領就任の背景となった。', process:'政府の積極的な経済介入(ニューディール政策)によって失業対策・金融規制・社会保障制度の確立を進め、ラジオを通じた「炉辺談話」で国民に直接語りかけ、第二次世界大戦では武器貸与法で連合国を支援し真珠湾攻撃を機に参戦、連合国首脳会談を主導して戦後国際秩序の枠組みづくりにも指導力を発揮した。', significance:'アメリカ史上唯一4選を果たした大統領となったが、この前例のない長期政権への反省から後に大統領任期を二期までに制限する憲法修正第22条が制定された。', debate:'終戦を目前にした1945年4月に急死し、対日戦争の終結・戦後占領政策・原爆投下の最終決断・戦後秩序の具体的構築は後任トルーマンに委ねられることとなったが、彼が存命であればこれらの決断がどう異なっていたかは検証不能な問いである。'} },
+  { id:'new_deal', name:'ニューディール政策', category:'event', lat:38.90, lng:-77.04, start:1933, end:1939, region:'アメリカ合衆国',
+    desc:{background:'世界恐慌からの脱却という国家的課題が、「救済・復興・改革」の3Rを標語とする一連の政策の背景となった。', process:'就任直後の「百日議会」で銀行休業措置と緊急銀行法を成立させ、公共事業による雇用創出、証券取引委員会の創設、社会保障法(1935年)による老齢年金・失業保険制度の導入など、政府が国民の経済生活に恒常的に責任を持つという大きな政策転換をもたらしたが、連邦最高裁による一部政策への違憲判断にも直面した。', significance:'この一連の改革は連邦政府の役割を恒久的に拡大させ、以後のアメリカにおける福祉国家的な社会保障制度と、政府・労働組合・大企業が三者協調する経済体制(「ニューディール型秩序」)の基礎を1970年代まで続く形で築いた。', debate:'この政策が実際に恐慌を終わらせた要因としてどこまで有効であったか(第二次世界大戦による軍需景気の方が決定的であったとする見方もある)は、経済史における重要な論争点である。'} },
+  { id:'pearl_harbor_attack', name:'真珠湾攻撃', category:'event', lat:21.36, lng:-157.95, start:1941, end:1941, region:'アメリカ合衆国(ハワイ)',
+    desc:{background:'日米交渉の決裂と対日石油禁輸措置(ABCD包囲網)が、日本海軍による奇襲攻撃の背景となった。', process:'ハワイ・オアフ島の真珠湾に停泊するアメリカ太平洋艦隊を宣戦布告前に奇襲し多数の戦艦を撃沈・大破させる戦果を上げたが、たまたま出撃中で被害を免れた空母や燃料備蓄施設・修理施設への攻撃を怠ったことは後の太平洋戦争の帰趨に長期的な禍根を残した。', significance:'この攻撃への激しい国民的憤激により参戦に消極的であったアメリカ世論は一夜にして参戦支持へと劇的に転換し、アメリカは第二次世界大戦の欧州・太平洋両戦線に本格参戦した。', debate:'戦術的には大きな戦果を上げながら空母・燃料施設という戦略的に重要な標的を見逃したことが、その後の戦争の帰趨にどこまで決定的な影響を与えたかが軍事史上論じられる。'} },
+  { id:'wwii_north_america', name:'第二次世界大戦とアメリカ・カナダ', category:'war', lat:38.90, lng:-77.04, start:1941, end:1945, region:'アメリカ合衆国・カナダ',
+    relatedIds:['pearl_harbor_attack','manhattan_project','franklin_roosevelt'],
+    desc:{background:'真珠湾攻撃を機に参戦したアメリカが、圧倒的な工業生産力を動員して連合国全体に武器・物資を供給する立場に立ったことが背景となった。', process:'カナダも人的動員・物的資源の両面で大きく貢献し、国内では女性の軍需産業への大量動員や黒人・メキシコ系の北部工業都市への移動が進んだ一方、日系アメリカ人・日系カナダ人が市民権の有無にかかわらず敵性外国人とみなされ強制収容される深刻な人権侵害も生じた。', significance:'1945年のドイツ・日本の降伏により大戦は終結し、戦禍を免れた本国工業基盤と圧倒的な経済規模を背景にアメリカは戦後、政治・経済・軍事のあらゆる面で世界最大級の超大国としての地位を確立した。', debate:'徴兵制導入をめぐりケベック州のフランス系住民との間で深刻な政治的対立を招いたことは、多文化国家における戦時動員の困難さを示す事例として論じられる。'} },
+  { id:'manhattan_project', name:'マンハッタン計画', category:'event', lat:35.88, lng:-106.30, start:1942, end:1945, region:'アメリカ合衆国(ロスアラモス)',
+    desc:{background:'ナチス=ドイツによる核兵器開発を警戒したアインシュタインらの進言が、この極秘開発計画の直接的な背景となった。', process:'亡命科学者の協力も得てロスアラモス国立研究所を中心に空前の巨額の資金と人員を投じて短期間で実用化に成功し、1945年8月の広島・長崎への原爆投下により日本の降伏を早めたとされる。', significance:'この兵器の実用化は戦後まもなくソ連も核実験に成功したことで核軍拡競争の連鎖を引き起こし、以後半世紀近く続く核抑止に基づく国際秩序(冷戦)の技術的な出発点ともなった。', debate:'原爆投下決断の是非(本土上陸作戦回避による米兵犠牲の削減という説明と、戦後の対ソ外交上の示威という側面のいずれを重視するか)は今日でも歴史学上の論争が続いている。'} },
+  { id:'harry_truman', name:'ハリー・トルーマン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1884, end:1972, region:'アメリカ合衆国',
+    desc:{background:'副大統領就任からわずか3か月足らずでルーズベルトの急死により大統領に昇格したことが、原爆投下という重大決断を担う立場の背景となった。', process:'ソ連の東欧支配確立と共産主義勢力の拡大を「封じ込める」ことを国家戦略の基軸に据え、トルーマン=ドクトリン(1947年)とマーシャル=プランを打ち出して冷戦構造の骨格を築き、国内では人種統合された連邦軍の実現など公民権分野で先駆的な措置をとった。', significance:'朝鮮戦争では戦線拡大を主張するマッカーサー将軍を文民統制の原則を守るため更迭し、大統領の軍最高司令官としての権限が軍人の専門的判断に優越することを明確に示した。', debate:'マンハッタン計画の全貌すら知らされていなかった彼が就任早々に原爆投下という人類史上最重大の決断を下したという経緯は、大統領の情報アクセスと決断の正当性の関係を考えさせる。'} },
+  // ===================== 冷戦期・公民権運動 =====================
+  { id:'cold_war_north_america', name:'冷戦とアメリカ・カナダ', category:'event', lat:38.90, lng:-77.04, start:1947, end:1991, region:'アメリカ合衆国・カナダ',
+    desc:{background:'第二次世界大戦後、資本主義・自由主義陣営の盟主となったアメリカとソ連を中心とする社会主義陣営との対立構造が形成されたことが背景となった。', process:'共産主義の拡大阻止を掲げる封じ込め政策やNATO結成を主導し、国内では共産主義者への疑いをかけ多数の公職追放を招いたマッカーシズムの熱狂も一時吹き荒れ、カナダもNATO原加盟国として西側陣営に加わりNORADを通じて大陸防衛でアメリカと軍事的に一体化した。', significance:'直接の軍事衝突を避けつつ核抑止・代理戦争・イデオロギー宣伝・宇宙開発競争などあらゆる領域で対抗した数十年にわたる対立構造として、20世紀後半の国際秩序を規定した。', debate:'カナダが外交面でスエズ危機での平和維持活動主導のようにアメリカの立場と必ずしも完全に一致しない独自の中間的立場をとったことは、同盟関係における従属と自律のバランスをどう考えるかという論点を提供する。'} },
+  { id:'korean_war_us', name:'朝鮮戦争へのアメリカの介入', category:'war', lat:38.90, lng:-77.04, start:1950, end:1953, region:'アメリカ合衆国・朝鮮半島',
+    desc:{background:'北朝鮮による韓国への奇襲的な侵攻を「ソ連・中国の支援を受けた共産主義拡大の試み」とみなしたトルーマン政権が、国連安保理決議を得て介入したことが背景となった。', process:'マッカーサー率いる国連軍が一時鴨緑江付近まで北進すると中国人民志願軍が大規模参戦してこれを押し戻し、戦線は北緯38度線付近で膠着し、戦線拡大を主張するマッカーサーをトルーマンが文民統制の原則を守るため更迭した。', significance:'最終的に休戦協定(講和条約ではなく法的には戦争状態が今日まで継続)により戦闘は停止されたが、この戦争はアメリカの平時における恒常的な大規模軍備・海外駐留体制を定着させる契機ともなった。', debate:'議会の正式な宣戦布告を経ずに大統領権限のみで軍事介入したことは、大統領の戦争権限と議会の統制との関係をめぐる憲政上の重要な先例として論じられる。'} },
+  { id:'dwight_eisenhower', name:'ドワイト・アイゼンハワー', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1890, end:1969, region:'アメリカ合衆国',
+    desc:{background:'第二次世界大戦でヨーロッパ方面連合国軍最高司令官としてノルマンディー上陸作戦を指揮した軍歴が、共和党からの第34代大統領選出の背景となった。', process:'朝鮮戦争の休戦を実現する一方、核兵器の存在を前提とした「大量報復戦略」を掲げつつ直接の軍事衝突は慎重に回避する現実主義的な冷戦運営を行い、リトルロック高校事件では連邦軍を派遣して黒人生徒の登校を武力で保護した。', significance:'退任演説では冷戦下で肥大化した軍需産業と軍部が結託して過剰な軍拡を招く危険性を「軍産複合体」の脅威として警告したことが、後世まで繰り返し引用される重要な遺産となっている。', debate:'自身は当初公民権問題に消極的であったにもかかわらず州の反抗を許さない姿勢を明確に示したことは、個人の信条と大統領としての職責上の判断がどう乖離しうるかを示す事例として論じられる。'} },
+  { id:'brown_v_board', name:'ブラウン対教育委員会裁判', category:'event', lat:39.05, lng:-95.68, start:1954, end:1954, region:'アメリカ合衆国(カンザス州トピカ)',
+    desc:{background:'「分離すれど平等」の原則のもとで合法とされてきた公立学校における人種別学制度に対し、NAACPが組織的な訴訟戦略を展開したことが背景となった。', process:'連邦最高裁が全員一致で「分離された教育施設は本質的に不平等である」として違憲判断を下したが、南部諸州の多くは判決文の曖昧な表現(「可能な限り緩やかに」)を逆手にとって実施を意図的に遅延・拒否した。', significance:'この判決は法理論上、人種隔離政策全般の合憲性を否定する扉を開き、後の公民権運動における学校統合をめぐる激しい対立(リトルロック高校事件など)の火種を残した。', debate:'判決の理論的な画期性と、実施における南部諸州の抵抗による実効性の乏しさとの間の乖離が、法的判断と社会変革の実現との関係を考える重要な論点となる。'} },
+  { id:'montgomery_bus_boycott', name:'モンゴメリー・バス・ボイコット運動', category:'event', lat:32.38, lng:-86.30, start:1955, end:1956, region:'アメリカ合衆国(アラバマ州モンゴメリー)',
+    desc:{background:'バスの人種別席に座ることを拒否し逮捕されたローザ=パークスの事件が、この逮捕自体が組織的な法廷闘争戦略の一環として周到に選ばれた事例であったことも重要な背景である。', process:'若き牧師マーティン=ルーサー=キング=ジュニアの指導のもとアフリカ系住民が組織した381日間に及ぶバス利用拒否運動が、経済的犠牲を伴いながらも結束を維持し、バス会社の収入激減という経済的圧力と最終的な連邦最高裁の違憲判断で勝利を収めた。', significance:'この成功はキング牧師が説くガンディー流の非暴力抵抗という戦術思想が実際に有効であることを実証し、以後の公民権運動全体における非暴力直接行動という中心的な戦術モデルを確立した。', debate:'この運動の成功要因を非暴力という戦術思想の道徳的説得力に求めるか、バス会社への経済的圧力という実利的側面に求めるかで力点が分かれる。'} },
+  { id:'martin_luther_king', name:'マーティン・ルーサー・キング・ジュニア', category:'person', lat:35.15, lng:-90.05, start:1929, end:1968, region:'アメリカ合衆国',
+    desc:{background:'ガンディーの非暴力抵抗思想とキリスト教信仰を融合させたことが、南部キリスト教指導者会議(SCLC)を組織し公民権運動を指導する思想的基盤となった。', process:'1963年のワシントン大行進での「私には夢がある」演説は人種を超えた平等の理念を訴え、1964年公民権法・1965年投票権法の成立に大きく寄与しノーベル平和賞も受賞したが、1968年テネシー州メンフィスで清掃労働者支援活動中に白人至上主義者により狙撃・暗殺された。', significance:'その死は全米100以上の都市部で大規模な暴動を引き起こすほどの衝撃を与え、非暴力運動の指導者を失ったことは公民権運動の路線対立(非暴力路線とより急進的な黒人パワー路線)を一層深める転機ともなった。', debate:'彼の死という悲劇的結末が、非暴力路線そのものの限界を示すものなのか、それとも非暴力路線の道徳的正当性をむしろ際立たせたのかという評価が論じられる。'} },
+  { id:'civil_rights_act_1964', name:'1964年公民権法', category:'event', lat:38.90, lng:-77.04, start:1964, end:1964, region:'アメリカ合衆国',
+    desc:{background:'ケネディ大統領が公民権運動の高まり(バーミングハムでの警察による過酷な弾圧の映像)を受けて法案を提案したことが背景となった。', process:'暗殺後を継いだジョンソン大統領が「ケネディの遺志」を掲げつつ議会の抵抗(54日間に及んだフィリバスター)を巧みな議会運営で押し切って成立させ、公共施設の利用・雇用における人種差別を違法とした。', significance:'この法律は南部の法制化された人種隔離体制(ジム=クロウ法)に法的な終止符を打ち、翌1965年投票権法とあわせて公民権運動が掲げた「法的平等」という目標をほぼ達成する到達点となった。', debate:'法的平等の達成が経済的格差の是正には直結しなかったことは、その後の運動が「貧困との戦い」へと重心を移す一因ともなり、法的平等と実質的平等の関係という重要な論点を提起する。'} },
+  { id:'cuban_missile_crisis', name:'キューバ危機', category:'event', lat:23.13, lng:-82.38, start:1962, end:1962, region:'カリブ海(キューバ)',
+    desc:{background:'カストロ政権のキューバが前年のピッグス湾侵攻事件でアメリカによる転覆工作を経験しソ連への接近を強めていたことが背景となった。', process:'ソ連が核弾頭搭載可能な中距離ミサイルを配備しようとしていることを確認したケネディ政権が、正面からの軍事攻撃ではなく海上封鎖と強い外交圧力でこれに対抗し、最終的にソ連がミサイル撤去に応じる代わりにアメリカがキューバ不可侵を約束し、密約としてトルコの米ミサイルも撤去するという妥協が成立した。', significance:'人類史上核戦争に最も近づいたとされるこの13日間の対峙は、米ソ間の直通通信線(ホットライン)設置や翌年の部分的核実験禁止条約に象徴される核軍縮交渉進展の直接の契機となった。', debate:'双方の首脳の面目を保つ形での妥協という解決の性質が、危機管理における「勝者」の有無をどう考えるべきかという国際政治学上の論点を提起する。'} },
+  { id:'john_f_kennedy', name:'ジョン・F・ケネディ', category:'person', parentId:'united_states', lat:32.78, lng:-96.80, start:1917, end:1963, region:'アメリカ合衆国',
+    desc:{background:'史上最年少(43歳)での選出と、テレビ討論を効果的に活用した新しいメディア型政治家としての先駆性が、彼の政治的スタイルの背景となった。', process:'ピッグス湾侵攻の失敗という試練を経験した後、キューバ危機を核戦争寸前の緊張の中で慎重かつ粘り強い交渉により平和的収拾に導き、「1960年代のうちに人類を月に送る」との目標(アポロ計画)を掲げて宇宙開発競争を主導した。', significance:'公民権法案を議会に提出するなど国内改革にも着手し始めた矢先の1963年11月、テキサス州ダラスをパレード中に狙撃され暗殺された。', debate:'その真相・単独犯行説(ウォーレン委員会の結論)をめぐる論争は陰謀論を含め今日まで続いており、この暗殺の真相解明の困難さ自体がアメリカ現代史における一つの文化的現象となっている。'} },
+  { id:'lyndon_b_johnson', name:'リンドン・B・ジョンソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1908, end:1973, region:'アメリカ合衆国',
+    desc:{background:'上院多数党院内総務として卓越した議会運営手腕で知られていたことが、ケネディ暗殺による副大統領からの大統領昇格後の政策実現力の背景となった。', process:'「ケネディの遺志を継ぐ」ことを掲げて公民権法・投票権法を成立させ「貧困との戦い」を掲げてメディケア・メディケイドなど広範な社会福祉政策(「偉大な社会」構想)を推進したが、トンキン湾事件を機にベトナムへの軍事介入を大規模に拡大した。', significance:'内政の輝かしい成果がベトナム戦争の泥沼化によって覆い隠される形となり、1968年には再選出馬を自ら断念するに至った。', debate:'ニューディール以来最大規模の福祉国家的改革という国内の成果と、ベトナム戦争の泥沼化という対外政策の失敗という二面性を、一人の指導者の評価としてどう統合すべきかが論じられる。'} },
+  { id:'vietnam_war_us', name:'ベトナム戦争へのアメリカの介入', category:'war', lat:38.90, lng:-77.04, start:1955, end:1975, region:'アメリカ合衆国・ベトナム',
+    desc:{background:'共産主義の東南アジアへの拡大を阻止する「ドミノ理論」に基づき、アメリカが南ベトナム政府を軍事・経済支援していたことが背景となった。', process:'トンキン湾事件(1964年)を機に議会が事実上白紙委任的な軍事行動権限を与えるトンキン湾決議を可決して本格的な軍事介入へと拡大し、テレビ報道を通じて伝えられる戦争の実態への反発から大学キャンパスを中心に大規模な反戦運動が広がり、1968年テト攻勢を転機に厭戦気分が決定的となった。', significance:'1973年のパリ和平協定でアメリカ軍は撤退、1975年のサイゴン陥落により戦争は終結、アメリカにとって初めての明確な軍事的敗北を印象づける戦争となった。', debate:'テト攻勢は軍事的には米軍が撃退したが、その規模自体が「敵はほぼ壊滅している」という政府の説明の信頼性を国内世論の目に決定的に傷つけたことは、戦場での勝敗と政治的・心理的帰趨が必ずしも一致しないことを示す重要な事例である。'} },
+  { id:'moon_landing', name:'アポロ11号月面着陸', category:'event', lat:28.39, lng:-80.61, start:1969, end:1969, region:'アメリカ合衆国(フロリダ州ケネディ宇宙センター)',
+    desc:{background:'ケネディ大統領が「1960年代のうちに」と掲げた目標のもと、ソ連が有人宇宙飛行(ガガーリン、1961年)で先行した「スプートニク・ショック」への対抗が、宇宙開発競争の背景となった。', process:'国家の威信と巨額の予算をかけて進められたアポロ計画の到達点として、宇宙飛行士ニール=アームストロング・バズ=オルドリンらが人類史上初めて月面に降り立った。', significance:'科学技術力を通じたアメリカの国際的威信回復に大きく寄与するとともに、ベトナム戦争の泥沼化で国内が分断される中、数少ない国民的一体感を生む出来事ともなった。', debate:'国家的偉業として世界中で生中継されたこの出来事が、当時の社会的分断(ベトナム戦争への反対運動)にどこまで実際の一体感をもたらしたか、その効果の持続性が論じられる。'} },
+  { id:'watergate_scandal', name:'ウォーターゲート事件', category:'event', lat:38.90, lng:-77.04, start:1972, end:1974, region:'アメリカ合衆国(ワシントンD.C.)',
+    desc:{background:'大統領再選委員会関係者による野党民主党本部への不法侵入・盗聴事件が、この政治スキャンダルの発端となった。', process:'ニクソン大統領自身による組織的な隠蔽工作が『ワシントン=ポスト』紙記者の粘り強い調査報道と匿名情報提供者「ディープ・スロート」の内部告発を通じて明るみに出て、連邦議会下院司法委員会による弾劾条項可決が確実となる中、ニクソンは1974年8月に自ら辞任を表明した。', significance:'現職大統領が任期途中で辞職する合衆国史上唯一の事態となり、この事件は政府・大統領職への国民的信頼を大きく傷つけ、以後の調査報道の権威向上と大統領権限の濫用を防ぐための一連の制度改革(独立検察官制度の創設など)を促す長期的な影響を残した。', debate:'弾劾採決・上院での有罪判決を待たずに自ら辞任した決断を、責任ある政治的判断とみるか、法的追及を回避する手段とみるかで評価が分かれる。'} },
+  { id:'richard_nixon', name:'リチャード・ニクソン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1913, end:1994, region:'アメリカ合衆国',
+    desc:{background:'反共主義者として名を上げ副大統領・上院議員を歴任した経歴が、1968年の第37代大統領選出の背景となった。', process:'冷戦下の対中国交正常化(1972年の電撃的な訪中)や対ソ緊張緩和(デタント、SALT合意)を推進して外交面で大きな実績を残す一方、国内ではベトナム戦争の「名誉ある撤退(ベトナム化政策)」を進めたが、再選をめぐる不正工作(ウォーターゲート事件)の隠蔽工作が発覚し任期途中で辞任した。', significance:'冷戦の対立構造そのものを変容させる画期的な外交転換を成し遂げたが、権力乱用・法の支配軽視への厳しい批判という両極端な評価が今日まで併存している。', debate:'外交手腕への高い評価と国内統治における権力濫用という両面をどう統合的に評価すべきかは、アメリカ大統領史上最も複雑な人物評価の一つとして論じられる。'} },
+  // ===================== 現代(1980年代〜現在) =====================
+  { id:'jimmy_carter', name:'ジミー・カーター', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1924, end:2024, region:'アメリカ合衆国',
+    desc:{background:'ウォーターゲート事件後の政治不信を背景に、ワシントン政界とは無縁な「アウトサイダー」としての清新さを訴えたことが、第39代大統領当選の背景となった。', process:'人権外交を外交理念の柱に掲げ、キャンプ=デービッドでイスラエル・エジプト両首脳との集中協議を主導して両国間の歴史的な和平条約(1979年)を仲介したが、イラン人質事件の解決に失敗し第二次石油危機によるスタグフレーションへの対応にも苦慮して1980年選挙で再選を逃した。', significance:'退任後は非営利団体を通じた選挙監視・貧困住宅建設支援などの人道活動に生涯を捧げ、2002年にノーベル平和賞を受賞するなど「最も評価の高い元大統領」としての活動でも知られる。', debate:'在任中の外交的成果(エジプト・イスラエル和平)と、イラン人質事件・経済危機による支持喪失という対照的な評価をどう総合すべきか、また退任後の活動が在任中の評価をどこまで補うべきかが論じられる。'} },
+  { id:'ronald_reagan', name:'ロナルド・レーガン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1911, end:2004, region:'アメリカ合衆国',
+    desc:{background:'俳優からカリフォルニア州知事を経て第40代大統領となった経歴が、「政府こそが問題」という理念に基づく政策の背景となった。', process:'減税と規制緩和・小さな政府を掲げる「レーガノミクス」を推進し、対ソ連関係ではソ連を「悪の帝国」と名指しして軍拡競争(SDI)を仕掛けたが、ゴルバチョフ政権発足後は一転して融和的な首脳会談を重ねINF全廃条約(1987年、史上初めて特定の種類の核兵器を実際に廃棄した条約)を実現した。', significance:'対決と対話を巧みに使い分けた冷戦終盤の外交を体現し、冷戦終結への流れを大きく前進させた。', debate:'「レーガノミクス」は財政赤字の急拡大という副作用を伴いつつも長期的な景気拡大の起点となったとされるが、この副作用と成果のどちらを重視すべきかで経済政策上の評価が分かれる。'} },
+  { id:'end_of_cold_war', name:'冷戦の終結', category:'event', lat:38.90, lng:-77.04, start:1989, end:1991, region:'アメリカ合衆国・ソビエト連邦',
+    desc:{background:'ソ連のゴルバチョフ政権による改革(グラスノスチ・ペレストロイカ)が、統制の緩和を通じて東欧諸国における反体制運動の噴出を許したことが背景となった。', process:'1989年のベルリンの壁崩壊を頂点とする東欧革命の連鎖的な広がりを経て、1991年のソ連解体をもって半世紀近く続いた米ソ冷戦は終結し、ブッシュ(父)とゴルバチョフによるマルタ会談はこの終わりを両首脳が共同で宣言した象徴的な出来事となった。', significance:'アメリカは唯一の超大国としての地位を確立し「アメリカ一極体制」とも呼ばれる新たな段階に入ったが、冷戦下の東西対立という単純化された枠組みで抑えられていた地域的な民族・宗教紛争が各地で噴出した。', debate:'冷戦終結が「アメリカの勝利」として一方的に語られることの是非、勢力均衡の崩壊が新たな安全保障上の課題を生んだことをどこまで冷戦終結の「代償」として捉えるべきかが論じられる。'} },
+  { id:'george_hw_bush', name:'ジョージ・H・W・ブッシュ', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1924, end:2018, region:'アメリカ合衆国',
+    desc:{background:'第二次世界大戦での従軍経験とレーガン政権の副大統領を8年務めた経験が、第41代大統領選出と豊富な外交経験の背景となった。', process:'冷戦終結という歴史的転換期を安定的に管理する手腕を発揮し、イラクによるクウェート侵攻に対しては国連安保理での多国籍軍結成という冷戦後初の国際協調的枠組みを主導して湾岸戦争(1991年)で圧勝したが、選挙戦で掲げた「新たな増税は行わない」という公約を財政再建のため撤回せざるを得なかった。', significance:'一時は歴代最高水準の支持率を得たが、湾岸戦争後の景気後退への対応の遅れから支持を失い1992年選挙で再選を逃した。', debate:'冷戦終結という世界史的な激動を大過なく乗り切った外交手腕への評価と、国内経済運営への批判とが対照的に併存することは、外交と内政の実績のどちらが大統領評価においてより重視されるべきかという論点を提起する。'} },
+  { id:'nafta_treaty', name:'北米自由貿易協定(NAFTA)', category:'treaty', lat:19.43, lng:-99.13, start:1994, end:1994, region:'アメリカ合衆国・カナダ・メキシコ',
+    desc:{background:'アメリカ・カナダ・メキシコ間で関税を段階的に撤廃し資本・財の自由な移動を促進する必要が、ブッシュ(父)政権下での交渉開始の背景となった。', process:'クリントン政権下で発効し北米域内の製造業サプライチェーンの一体化を大きく促進したが、アメリカ国内では製造業の雇用がメキシコへ流出したとの批判が根強く、メキシコ国内でも小規模トウモロコシ生産農家が打撃を受けサパティスタ民族解放軍の武装蜂起(協定発効と同日)を招いた。', significance:'貿易額を飛躍的に拡大させ、2020年には内容を更新した新協定(USMCA)に置き換えられた。', debate:'自由貿易がもたらす経済全体の利益と、特定産業・地域における雇用喪失という不利益をどう衡量すべきかは、グローバル化の光と影を象徴する典型的な論争点である。'} },
+  { id:'bill_clinton', name:'ビル・クリントン', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1946, end:2025, region:'アメリカ合衆国',
+    desc:{background:'アーカンソー州知事から経済問題を前面に掲げて現職ブッシュを破ったことが、第42代大統領就任の背景となった。', process:'冷戦終結後の「平和の配当」を背景とした情報技術産業の急成長も追い風に長期の好景気を実現し財政赤字を黒字化させる一方、NAFTA発効やWTOへの中国加盟支援などグローバル化を積極的に推進し、旧ユーゴスラビア紛争への軍事介入とNATOの東方拡大を進めた。', significance:'私生活上のスキャンダルをめぐる偽証疑惑で下院により弾劾訴追されたが、上院での有罪評決には至らず罷免は免れた。', debate:'政策面での高い経済的実績とスキャンダルによる評判の傷という両面を併せ持つ大統領として、個人の私的行動と公職者としての実績評価をどう切り分けるべきかが論じられる。'} },
+  { id:'september_11_attacks', name:'アメリカ同時多発テロ事件(9・11)', category:'event', lat:40.71, lng:-74.01, start:2001, end:2001, region:'アメリカ合衆国(ニューヨーク・ワシントンD.C.)',
+    desc:{background:'国際テロ組織アルカイダの指導者ウサマ=ビンラディンが、湾岸戦争後のサウジアラビアへの米軍駐留などを機に反米へ転じたことが背景にある。', process:'乗っ取られた民間旅客機4機がニューヨークの世界貿易センタービル2棟とワシントン近郊のペンタゴンに突入し、約3000人が犠牲となった。', significance:'ブッシュ(子)政権は「テロとの戦い」を宣言してアフガニスタン・イラクへの軍事侵攻に踏み切り、国内では国土安全保障省の新設、愛国者法による捜査権限の大幅拡大など安全保障と個人の自由・プライバシーとの均衡をめぐる社会のあり方を大きく転換させた。', debate:'この事件を機に導入された安全保障強化策(愛国者法など)が、個人の自由・プライバシーの制約としてどこまで正当化されるかは今日も続く論争である。'} },
+  { id:'george_w_bush', name:'ジョージ・W・ブッシュ', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1946, end:2025, region:'アメリカ合衆国',
+    desc:{background:'2000年選挙でのフロリダ州の僅差の集計をめぐる連邦最高裁の判断(ブッシュ対ゴア判決)という異例の経緯が、第43代大統領就任の背景となった。', process:'9・11同時多発テロを受け「テロとの戦い」を宣言しアフガニスタンのタリバン政権を打倒、大量破壊兵器保有(後に情報の誤りと判明)を根拠にイラクへも侵攻したが、いずれも長期にわたる占領統治の混乱を招いた。', significance:'政権末期の2008年に発生した世界金融危機(リーマン=ショック)への対応に追われる中で任期を終えた。', debate:'テロとの戦いにおける安全保障政策と、長期化した戦争・金融危機という負の遺産との両面から今日も評価が議論されている。'} },
+  { id:'war_on_terror', name:'アフガニスタン・イラク戦争(「テロとの戦い」)', category:'war', lat:38.90, lng:-77.04, start:2001, end:2021, region:'アメリカ合衆国・アフガニスタン・イラク',
+    desc:{background:'9・11同時多発テロを受け、アルカイダを匿ったとしてアフガニスタンのタリバン政権への攻撃が始まったことが背景となった。', process:'タリバン政権打倒後、大量破壊兵器保有(後に根拠が誤りと判明)を主要な理由に国連安保理の明確な武力行使容認決議を得ないままイラクへも侵攻し、いずれも初期の軍事的勝利後、長期にわたる占領統治と武装勢力による激しい抵抗(スンニ派・シーア派対立の激化やイスラム国の台頭)の泥沼化を招いた。', significance:'2021年、アメリカ軍のアフガニスタン完全撤退が現地政府軍の急速な瓦解とタリバン政権の復活を招くという形で、20年に及ぶ介入は事実上の失敗という評価とともに幕を閉じた。', debate:'アメリカの対外軍事介入における「国家建設(ネーション=ビルディング)」路線の限界を象徴する事例として、軍事的勝利と政治的安定確立の乖離がどう総括されるべきかが論じられる。'} },
+  { id:'barack_obama', name:'バラク・オバマ', category:'person', parentId:'united_states', lat:38.90, lng:-77.04, start:1961, end:2025, region:'アメリカ合衆国',
+    desc:{background:'アフリカ系アメリカ人として史上初めて大統領に選出されたことが、公民権運動から半世紀を経たアメリカ社会の変化を象徴する背景となった。', process:'リーマン=ショック後の世界的金融危機への対応(景気刺激策・ドッド=フランク法)を迫られ、国民皆保険を目指す医療保険制度改革(オバマケア)を共和党の強い反対を押し切って実現し、対外的にはウサマ=ビンラディン殺害作戦を主導する一方イラクからの米軍撤退やキューバとの国交正常化を進めた。', significance:'「テロとの戦い」からの軍事的関与縮小と多国間外交への回帰を図ったが、これらの政策の多くは国内の党派対立を色濃く反映するものともなった。', debate:'その政権運営自体が今日のアメリカにおける深刻な政治的分極化の一断面を映し出しているとされ、この分極化を彼の政策自体が助長したのか、既存の対立構造が単に可視化されたのかが論じられる。'} },
+  // ===================== 補遺:奴隷制廃止運動・先住民戦争・社会運動 =====================
+  { id:'frederick_douglass', name:'フレデリック・ダグラス', category:'person', lat:38.90, lng:-77.04, start:1818, end:1895, region:'アメリカ合衆国',
+    desc:{background:'メリーランドで奴隷として生まれ、主人の妻から手ほどきを受け禁じられていた読み書きを独学で習得したことが、後の活動の知的基盤となった。', process:'1838年に自由州への脱走に成功した後、奴隷制廃止運動の指導的演説家・著述家として活動し、自伝を通じて奴隷制を擁護する側の「温情的な家父長制」という虚構を内側から突き崩し、南北戦争中はリンカン大統領に黒人部隊の編成や奴隷解放の徹底を粘り強く働きかけた。', significance:'戦後の再建期に至るまで黒人の市民権拡大・女性参政権運動の双方に一貫して尽力し続けた、19世紀アメリカにおける人種平等運動の中心的存在である。', debate:'識字能力を持つ元奴隷自身の生々しい証言が白人読者の良心に強く訴えて廃止運動の世論形成に大きく貢献したという事実は、当事者証言が社会運動の説得力にどう寄与するかを考えさせる事例である。'} },
+  { id:'harriet_tubman', name:'ハリエット・タブマン', category:'person', lat:38.97, lng:-76.60, start:1822, end:1913, region:'アメリカ合衆国(メリーランド)',
+    desc:{background:'奴隷として生まれ、若い頃に受けた頭部への暴力により生涯てんかん様の発作に苦しみながらも自ら脱走に成功したことが、後の活動の背景となった。', process:'「地下鉄道」の「車掌」として捕まれば死刑もあり得る危険を冒して南部へ幾度も戻り、自身の家族を含む70人以上の奴隷を自由州・カナダへ導き、南北戦争中は北軍の斥候・スパイ・看護師として活動しコンバヒー川襲撃作戦では女性として史上初めて大規模な軍事作戦を指揮した。', significance:'後年は女性参政権運動にも携わるなど生涯を通じて自由と平等の実現に尽力し、その卓越した勇気と指導力から「モーゼ」の異名で呼ばれた。', debate:'逃亡奴隷法強化後は自由州も安全でなくなりカナダが最終目的地となったという事実は、国境を越えた逃亡ネットワークの脆弱性と適応をどう理解するかという論点を提供する。'} },
+  { id:'underground_railroad', name:'地下鉄道(逃亡奴隷支援網)', category:'event', lat:38.97, lng:-76.60, start:1810, end:1865, region:'アメリカ合衆国・カナダ',
+    desc:{background:'奴隷制廃止論者・解放奴隷・教会関係者らが人種を超えて協力する必要性が、この非公式ネットワーク形成の背景となった。', process:'「駅」「車掌」「荷物」など鉄道用語の隠語で組織された安全な家々を伝って逃亡を助け、推定数万人規模の奴隷が自由を得たが、1850年逃亡奴隷法の成立はこの活動を一層危険なものにした。', significance:'この強化立法は同時に、それまで奴隷制に無関心であった北部世論をも奴隷制反対へと動かす逆効果を生み、南北の対立をさらに先鋭化させる一因となった。', debate:'抑圧的な法律の強化がかえって反対世論を喚起するという逆説的効果は、強権的な立法が社会運動に与える影響を考える重要な事例である。'} },
+  { id:'sioux_wars_little_bighorn', name:'スー族戦争とリトルビッグホーンの戦い', category:'war', lat:45.57, lng:-107.44, start:1876, end:1876, region:'アメリカ合衆国(モンタナ準州)',
+    desc:{background:'先住民に神聖視されていたブラックヒルズでの金鉱発見(1874年)を機に、条約で先住民の土地と定められていた地域へ白人の侵入が相次いだことが背景となった。', process:'政府が条約違反を追認する形で先住民の即時退去を一方的に要求したことに対し、ラコタ(スー)族・シャイアン族の連合軍が指導者シッティング=ブルとクレイジー=ホースのもとで抵抗を続け、リトルビッグホーンの戦いではカスター中佐率いる第7騎兵隊約260名を全滅させる大勝を収めた。', significance:'この勝利は逆に建国百周年で沸くアメリカ世論の激しい怒りを買い、連邦政府による大規模な報復と平原先住民への包囲網強化を招き、以後まもなく主要部族は次々と保留地への収容を強いられた。', debate:'軍事的勝利が必ずしも政治的・長期的勝利に結びつかないという逆説を、この事例は先住民戦争史における重要な教訓としてどう示しているかが論じられる。'} },
+  { id:'wounded_knee_massacre', name:'ウンデッド・ニーの虐殺', category:'event', lat:43.15, lng:-102.36, start:1890, end:1890, region:'アメリカ合衆国(サウスダコタ州)',
+    desc:{background:'土地を奪われ困窮する先住民の間で急速に広まった宗教儀礼「ゴースト=ダンス」を、政府当局が武装蜂起の前兆と過剰に警戒したことが背景となった。', process:'その創始者の一人シッティング=ブル自身の殺害をきっかけとする緊張の中、武装解除中のラコタ族の一団に連邦軍が発砲し、女性・子供を含む250人以上が死亡した。', significance:'この虐殺は北米大陸における平原先住民の組織的な武力抵抗の実質的な終わりを告げる象徴的な出来事として記憶されており、以後の先住民政策は武力による制圧から寄宿学校での強制的な同化政策へと重心を移していった。', debate:'宗教儀礼を武装蜂起の前兆とみなした政府側の過剰反応が、この悲劇を招いた主因かどうか、当局の恐怖心と実際の脅威の乖離が論じられる。'} },
+  { id:'homestead_act', name:'ホームステッド法', category:'event', lat:39.00, lng:-98.00, start:1862, end:1862, region:'アメリカ合衆国西部',
+    desc:{background:'公有地の扱いをめぐり対立していた南部選出議員が南北戦争開戦により連邦議会から一斉に去ったことが、この法律成立の背景となった。', process:'一定期間西部の土地に居住し開墾すれば160エーカーの公有地を無償で取得できると定め、解放奴隷や移民を含む多数の人々が西部への入植を進める原動力となったが、対象地の多くは条約上先住民の土地とされていた区域であった。', significance:'実際には鉄道会社への広大な土地供与や乾燥地帯での零細農業の困難さから当初の理想通りに自作農が広範に成立したとは言い難く、白人入植の急拡大は先住民との土地紛争をさらに激化させた。', debate:'自作農育成という理想と、実際の土地配分の実態(鉄道会社への供与、零細農業の困難)との乖離をどう評価すべきかが論じられる。'} },
+  { id:'womens_suffrage_movement', name:'女性参政権運動と憲法修正第19条', category:'revolution', lat:38.90, lng:-77.04, start:1848, end:1920, region:'アメリカ合衆国',
+    desc:{background:'1848年のセネカフォールズ会議で、奴隷制廃止運動の集会に参加した女性たちがそこでさえ発言を制限された経験から独自に組織したことが出発点となった。', process:'奴隷制廃止運動との連携と、憲法修正第15条が女性を含まなかったことをめぐる路線対立・分裂を繰り返しながら、西部諸州を中心に州レベルでの部分的な参政権獲得を積み重ね、第一次世界大戦での女性の銃後貢献も追い風に1920年の憲法修正第19条批准によって全国的な女性参政権が法的に確立された。', significance:'この72年に及ぶ長期の運動は、アメリカにおける社会運動が世代を超えた粘り強い組織化を通じて憲法改正という最も困難な変革を実現した代表的な成功例として重要である。', debate:'奴隷制廃止運動との連携が女性参政権運動に組織化の手法を学ばせた一方、黒人男性の投票権をめぐる路線対立・分裂も生んだという二面性が、社会運動間の連帯と対立の複雑さを示す事例として論じられる。'} },
+  { id:'great_migration_us', name:'アフリカ系アメリカ人の大移動(グレート・マイグレーション)', category:'event', lat:41.88, lng:-87.63, start:1916, end:1970, region:'アメリカ合衆国南部から北部・西部都市へ',
+    desc:{background:'南部における人種隔離法制(ジム=クロウ法)やリンチの横行、農業機械化・綿花害虫被害による小作農の困窮が、北部への移住の背景となった。', process:'第一次世界大戦による移民労働力の減少で生じた北部工業都市での労働力需要の高まりも追い風に、数百万人規模のアフリカ系アメリカ人が北部・中西部・西海岸の工業都市へ二度の波にわたり移住した。', significance:'この移動は北部都市に黒人コミュニティと文化(ハーレム=ルネサンス)を根付かせる一方、都市部での新たな居住区分離(レッドライニング)・雇用差別を生み、南部とは異なる形の「北部型人種差別」の存在を可視化した。', debate:'南部の公然たる法的隔離と、北部の非公式だが実質的な差別(レッドライニングなど)のどちらがより深刻な影響を残したかという比較が、後の公民権運動の全国的な広がりを理解する上で論じられる。'} },
+  { id:'japanese_internment', name:'日系人強制収容', category:'event', lat:36.70, lng:-118.57, start:1942, end:1945, region:'アメリカ合衆国西海岸',
+    desc:{background:'真珠湾攻撃後の対日感情悪化と西海岸防衛司令官らの人種的偏見に基づく「軍事的必要性」の主張が、この措置の背景となった。', process:'ルーズベルト大統領の大統領令9066号により、市民権を持つ日系二世を含む約12万人の日系アメリカ人が個々人の忠誠を裁判で問うこともなく「敵性外国人」とみなされ財産の投げ売り同然の処分を余儀なくされ内陸部の収容所へ強制移住させられ、連邦最高裁は当時この措置を合憲と判断した(コレマツ対合衆国判決)。', significance:'この判決は後年、人種差別を「軍事的必要性」の名のもとに正当化した誤った判断として広く批判され、1988年に連邦議会がようやく正式に謝罪し生存者への補償金を支払う法律を成立させた。', debate:'同じ敵国であったドイツ系・イタリア系市民は同様の一律収容を受けなかった点で、この措置が人種的偏見に強く動機づけられていたことは明白であり、「軍事的必要性」という名目がどこまで人種差別を隠蔽する機能を果たしたかが論じられる。'} },
+  { id:'immigration_act_1965', name:'1965年移民法(移民・国籍法改正)', category:'event', lat:38.90, lng:-77.04, start:1965, end:1965, region:'アメリカ合衆国',
+    desc:{background:'1920年代以来続いていた出身国別の移民割当制度(明確に人種主義的な設計を持つ仕組み)が、公民権運動の高まりの中で「人種による差別」の一形態として批判されたことが背景となった。', process:'この旧割当制度を撤廃し家族呼び寄せや専門的職能に基づく新たな受け入れ基準を導入し、ジョンソン大統領自身は「この法案は革命的な性格を持つものではない」と説明し既存の人口構成への大きな影響はないだろうと想定していた。', significance:'この予測に反してこの改正以降ラテンアメリカ・アジア諸国からの移民が予想をはるかに超えて急増し、以後半世紀にわたるアメリカの人口構成の大幅な多様化(「多文化アメリカ」の形成)を導いた。', debate:'立法者の当初の意図(人口構成への影響は小さいという予測)と実際の歴史的帰結(大幅な多様化)との乖離は、意図せざる帰結が歴史を大きく動かした事例として、立法の予測可能性の限界を考えさせる。'} },
+];
+
+/* =========================================================================
+   カテゴリ設定
+   ========================================================================= */
+const CATEGORY_CONFIG = {
+  person:     { label:'人物',       color:'#c0554a' },
+  nation:     { label:'国家',       color:'#3f7ea6' },
+  dynasty:    { label:'王朝・王統', color:'#8259ac' },
+  event:      { label:'事件・出来事', color:'#c99a4a' },
+  war:        { label:'戦争・戦い',  color:'#8a3a3a' },
+  revolution: { label:'革命',       color:'#3f8f74' },
+  treaty:     { label:'条約',       color:'#7a6a52' },
+};
+
+/* =========================================================================
+   年号の表示フォーマット
+   ========================================================================= */
+function formatYear(y){
+  y = Math.round(y);
+  if(y < 0) return `紀元前${Math.abs(y)}年`;
+  if(y === 0) return `紀元1年`;
+  return `西暦${y}年`;
+}
+function formatYearShort(y){
+  y = Math.round(y);
+  if(y < 0) return `前${Math.abs(y)}`;
+  return `${y}`;
+}
+
+/* =========================================================================
+   地図の初期化
+   ========================================================================= */
+const map = L.map('map', {
+  center:[40, -95],
+  zoom:4,
+  minZoom:2,
+  maxZoom:12,
+  worldCopyJump:true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19,
+}).addTo(map);
+
+const markerLayer = L.markerClusterGroup({
+  maxClusterRadius: 45,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 11,
+  iconCreateFunction: function(cluster){
+    return L.divIcon({
+      html: `<div class="cluster-badge">${cluster.getChildCount()}</div>`,
+      className: 'cluster-marker-wrap',
+      iconSize: L.point(32, 32),
+    });
+  },
+}).addTo(map);
+const markerById = {}; // id -> {marker, entry}
+
+/* =========================================================================
+   フィルタ状態
+   ========================================================================= */
+const activeCategories = new Set(Object.keys(CATEGORY_CONFIG));
+let searchTerm = '';
+
+/* =========================================================================
+   サイドバー: フィルタリスト生成
+   ========================================================================= */
+const filterListEl = document.getElementById('filterList');
+Object.entries(CATEGORY_CONFIG).forEach(([key, cfg])=>{
+  const count = historicalData.filter(d=>d.category===key).length;
+  const row = document.createElement('label');
+  row.className = 'filter-row';
+  row.innerHTML = `
+    <input type="checkbox" data-cat="${key}" checked>
+    <span class="swatch" style="background:${cfg.color}"></span>
+    <span class="fname">${cfg.label}</span>
+    <span class="fcount">${count}</span>
+  `;
+  filterListEl.appendChild(row);
+});
+filterListEl.addEventListener('change', (e)=>{
+  const cb = e.target;
+  if(cb.type !== 'checkbox') return;
+  const cat = cb.dataset.cat;
+  if(cb.checked) activeCategories.add(cat);
+  else activeCategories.delete(cat);
+  updateMap();
+});
+
+document.getElementById('selectAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = true;
+    activeCategories.add(cb.dataset.cat);
+  });
+  updateMap();
+});
+document.getElementById('selectNoneBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#filterList input[type=checkbox]').forEach(cb=>{
+    cb.checked = false;
+  });
+  activeCategories.clear();
+  updateMap();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  updateMap();
+});
+
+/* =========================================================================
+   詳細パネル
+   ========================================================================= */
+const detailPanel = document.getElementById('detailPanel');
+const detailContent = document.getElementById('detailContent');
+
+let currentDetailEntry = null;
+
+function getCurrentYear(){
+  return parseInt(document.getElementById('yearSlider').value, 10);
+}
+
+// entry(国家・王朝・事件など)に紐づく人物、および entry.relatedIds で明示的に
+// リンクされた国家・王朝(同盟/敵対関係)・事件・戦争・革命・条約などを、
+// 年代に関わらず全て取得(古い順)。表示中のジャンルでフィルタする。
+function getRelatedItems(entry){
+  if(activeCategories.size === 0) return null;
+
+  const byParent = historicalData.filter(p => p.category === 'person' && p.parentId === entry.id);
+
+  const explicitIds = entry.relatedIds || [];
+  const byExplicit = explicitIds
+    .map(id => historicalData.find(d => d.id === id))
+    .filter(Boolean);
+
+  const merged = [...byParent];
+  for(const item of byExplicit){
+    if(item.id !== entry.id && !merged.some(m => m.id === item.id)) merged.push(item);
+  }
+
+  return merged
+    .filter(d => activeCategories.has(d.category))
+    .sort((a,b)=> a.start - b.start);
+}
+
+function showDetail(entry, parentEntry){
+  currentDetailEntry = entry;
+  const cfg = CATEGORY_CONFIG[entry.category];
+
+  const backHtml = parentEntry
+    ? `<button class="back-btn" data-back-id="${parentEntry.id}">← ${parentEntry.name} に戻る</button>`
+    : '';
+
+  let relatedHtml = '';
+  {
+    const related = getRelatedItems(entry);
+    if(related !== null){
+      if(related.length > 0){
+        const items = related.map(p => {
+          const pCfg = CATEGORY_CONFIG[p.category];
+          return `
+          <li class="person-list-item" data-person-id="${p.id}">
+            <span class="person-name"><span class="related-cat-badge" style="background:${pCfg.color}">${pCfg.label}</span>${p.name}</span>
+            <span class="person-years">${formatYear(p.start)} 〜 ${formatYear(p.end)}</span>
+          </li>`;
+        }).join('');
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語(${related.length}件・古い順)</h4>
+            <ul>${items}</ul>
+          </div>`;
+      } else {
+        relatedHtml = `
+          <div class="related-persons">
+            <h4>この国・王朝に関連する用語</h4>
+            <div class="related-persons-empty">関連する用語データはありません。</div>
+          </div>`;
+      }
+    }
+  }
+
+  const metaLabel = entry.category === 'person' ? '活躍した年代(生没年)' : '時期';
+
+  detailContent.innerHTML = `
+    ${backHtml}
+    <span class="detail-badge" style="background:${cfg.color}">${cfg.label}</span>
+    <h3>${entry.name}</h3>
+    <div class="detail-meta">
+      <div>${metaLabel}: ${formatYear(entry.start)} 〜 ${formatYear(entry.end)}</div>
+      <div>地域: ${entry.region || '—'}</div>
+    </div>
+    ${renderDesc(entry.desc)}
+    ${relatedHtml}
+  `;
+  detailPanel.classList.remove('hidden');
+}
+
+const DESC_SECTION_CONFIG = [
+  { key:'background',    label:'背景(なぜ起きたか)',           cls:'sec-background' },
+  { key:'process',       label:'経過(何が決定的だったか)',       cls:'sec-process' },
+  { key:'significance',  label:'意義・影響(何を変えたか)',       cls:'sec-significance' },
+  { key:'debate',        label:'論点・史学上の論争',             cls:'sec-debate' },
+];
+
+function renderDesc(desc){
+  if(!desc) return '';
+  // 後方互換: 万一プレーン文字列のdescが残っていた場合はそのまま1段落で表示
+  if(typeof desc === 'string'){
+    return `<p>${desc}</p>`;
+  }
+  const sections = DESC_SECTION_CONFIG
+    .filter(sec => desc[sec.key])
+    .map(sec => `
+      <div class="desc-section ${sec.cls}">
+        <span class="desc-label">${sec.label}</span>
+        <p class="desc-text">${desc[sec.key]}</p>
+      </div>`)
+    .join('');
+  return `<div class="desc-sections">${sections}</div>`;
+}
+
+// 動的に生成される「戻る」ボタン・人物リスト項目のクリックをイベント委譲で処理
+detailContent.addEventListener('click', (e)=>{
+  const personItem = e.target.closest('.person-list-item');
+  if(personItem){
+    const person = historicalData.find(d => d.id === personItem.dataset.personId);
+    if(person) showDetail(person, currentDetailEntry);
+    return;
+  }
+  const backBtn = e.target.closest('.back-btn');
+  if(backBtn){
+    const parent = historicalData.find(d => d.id === backBtn.dataset.backId);
+    if(parent) showDetail(parent);
+    return;
+  }
+});
+
+document.getElementById('closeDetail').addEventListener('click', ()=>{
+  detailPanel.classList.add('hidden');
+});
+
+/* =========================================================================
+   マーカー描画・年代フィルタリング
+   ========================================================================= */
+function createMarker(entry){
+  const cfg = CATEGORY_CONFIG[entry.category];
+  const marker = L.circleMarker([entry.lat, entry.lng], {
+    radius:7,
+    weight:2,
+    color:'#f3ecdc',
+    fillColor:cfg.color,
+    fillOpacity:0.92,
+  });
+  marker.bindTooltip(entry.name, {
+    permanent:true,
+    direction:'right',
+    offset:[9,0],
+    className:'entry-label',
+  });
+  marker.on('click', ()=> showDetail(entry));
+  return marker;
+}
+
+function updateMap(){
+  const year = parseInt(document.getElementById('yearSlider').value, 10);
+  document.getElementById('yearDisplay').textContent = formatYear(year);
+
+  markerLayer.clearLayers();
+  let visibleCount = 0;
+  const term = searchTerm.toLowerCase();
+
+  historicalData.forEach(entry=>{
+    if(!activeCategories.has(entry.category)) return;
+    if(year < entry.start || year > entry.end) return;
+    if(term && !entry.name.toLowerCase().includes(term)) return;
+    // 国家・王朝に紐づく人物は、そのピンをクリックした先の一覧からのみ表示する
+    if(entry.category === 'person' && entry.parentId) return;
+    const marker = createMarker(entry);
+    markerLayer.addLayer(marker);
+    visibleCount++;
+  });
+
+  document.getElementById('visibleCount').textContent = visibleCount;
+  document.getElementById('totalCount').textContent = historicalData.length;
+}
+
+/* =========================================================================
+   年表(タイムライン)スライダー
+   ========================================================================= */
+const yearSlider = document.getElementById('yearSlider');
+yearSlider.addEventListener('input', updateMap);
+
+// 目盛り(250年刻み)を生成
+const ticksEl = document.getElementById('ticks');
+const MIN_YEAR = -1500, MAX_YEAR = 2025;
+for(let y = MIN_YEAR; y <= MAX_YEAR; y += 250){
+  const pct = (y - MIN_YEAR) / (MAX_YEAR - MIN_YEAR) * 100;
+  const tick = document.createElement('div');
+  tick.className = 'tick';
+  tick.style.left = pct + '%';
+  tick.textContent = formatYearShort(y);
+  ticksEl.appendChild(tick);
+}
+
+/* =========================================================================
+   再生(自動再生)機能
+   ========================================================================= */
+const playBtn = document.getElementById('playBtn');
+const speedSelect = document.getElementById('speedSelect');
+let playing = false;
+let playTimer = null;
+
+function startPlaying(){
+  playing = true;
+  playBtn.textContent = '⏸ 停止';
+  playTimer = setInterval(()=>{
+    const step = parseInt(speedSelect.value, 10);
+    let v = parseInt(yearSlider.value, 10) + step;
+    if(v > MAX_YEAR){ v = MIN_YEAR; }
+    yearSlider.value = v;
+    updateMap();
+  }, 180);
+}
+function stopPlaying(){
+  playing = false;
+  playBtn.textContent = '▶ 再生';
+  clearInterval(playTimer);
+}
+playBtn.addEventListener('click', ()=>{
+  if(playing) stopPlaying();
+  else startPlaying();
+});
+
+/* =========================================================================
+   初期描画
+   ========================================================================= */
+updateMap();
+
+</script>
+</body>
+</html>
